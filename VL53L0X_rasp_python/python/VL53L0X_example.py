@@ -40,11 +40,12 @@ try:
   for count in range(1,101):
       distance = tof.get_distance()
       if (distance < 0):
-          print ("Error")
-          break
+        raise("Invalid distance measurement")
       print ("%d mm, %d cm, %d" % (distance, (distance/10), count))
 
       time.sleep(timing/1000000.00)
+except KeyboardInterrupt:
+   print("Ctrl-C pressed, stopping program.")
 finally:
   tof.stop_ranging()
 
