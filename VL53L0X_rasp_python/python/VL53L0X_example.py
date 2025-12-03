@@ -39,8 +39,7 @@ print ("Timing %d ms" % (timing/1000))
 try:
   for count in range(1,101):
       distance = tof.get_distance()
-      if (distance > 0):
-          print ("%d mm, %d cm, %d" % (distance, (distance/10), count))
+      print ("%d mm, %d cm, %d" % (distance, (distance/10), count))
 
       time.sleep(timing/1000000.00)
 finally:
