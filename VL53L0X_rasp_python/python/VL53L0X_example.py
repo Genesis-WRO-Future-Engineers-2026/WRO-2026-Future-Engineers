@@ -36,12 +36,14 @@ if (timing < 20000):
     timing = 20000
 print ("Timing %d ms" % (timing/1000))
 
-for count in range(1,101):
-    distance = tof.get_distance()
-    if (distance > 0):
-        print ("%d mm, %d cm, %d" % (distance, (distance/10), count))
+try:
+  for count in range(1,101):
+      distance = tof.get_distance()
+      if (distance > 0):
+          print ("%d mm, %d cm, %d" % (distance, (distance/10), count))
 
-    time.sleep(timing/1000000.00)
+      time.sleep(timing/1000000.00)
+finally:
+  tof.stop_ranging()
 
-tof.stop_ranging()
 

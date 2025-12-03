@@ -1,32 +1,41 @@
-# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
-# SPDX-License-Identifier: MIT
-
-# Simple demo of the VL53L0X distance sensor.
-# Will print the sensed range/distance every second.
 import time
+from machine import Pin, I2C
+from vl53l0x import VL53L0X
 
-import board
-import busio
+print("setting up i2c")
+id = 0
+sda = Pin(20)
+scl = Pin(21)
 
-import adafruit_vl53l0x
+i2c = I2C(id=id, sda=sda, scl=scl)
 
-# Initialize I2C bus and sensor.
-i2c = busio.I2C(board.SCL, board.SDA)
-vl53 = adafruit_vl53l0x.VL53L0X(i2c)
+print(i2c.scan())
 
-# Optionally adjust the measurement timing budget to change speed and accuracy.
-# See the example here for more details:
-#   https://github.com/pololu/vl53l0x-arduino/blob/master/examples/Single/Single.ino
-# For example a higher speed but less accurate timing budget of 20ms:
-# vl53.measurement_timing_budget = 20000
-# Or a slower but more accurate timing budget of 200ms:
-# vl53.measurement_timing_budget = 200000
-# The default timing budget is 33ms, a good compromise of speed and accuracy.
+# print("creating vl53lox object")
+# Create a VL53L0X object
+tof = VL53L0X(i2c)
 
-try:
-    # Main loop will read the range and print it every second.
-    while True:
-        print("Range: {0}mm".format(vl53.range))
-        time.sleep(1.0)
-except KeyboardInterrupt:
-    print("Exit")  # Exit on CTRL+C
+# Pre: 12 to 18 (initialized to 14 by default)
+# Final: 8 to 14 (initialized to 10 by default)
+
+# the measuting_timing_budget is a value in ms, the longer the budget, the more accurate the reading.
+budget = tof.measurement_timing_budget_us
+print("Budget was:", budget)
+tof.set_measurement_timing_budget(40000)
+
+# Sets the VCSEL (vertical cavity surface emitting laser) pulse period for the
+# given period type (VL53L0X::VcselPeriodPreRange or VL53L0X::VcselPeriodFinalRange)
+# to the given value (in PCLKs). Longer periods increase the potential range of the sensor.
+# Valid values are (even numbers only):
+
+# tof.set_Vcsel_pulse_period(tof.vcsel_period_type[0], 18)
+tof.set_Vcsel_pulse_period(tof.vcsel_period_type[0], 12)
+
+# tof.set_Vcsel_pulse_period(tof.vcsel_period_type[1], 14)
+tof.set_Vcsel_pulse_period(tof.vcsel_period_type[1], 8)
+
+while True:
+    # Start ranging
+    print(tof.ping() - 50, "mm")
+
+    time.sleep_ms(100)  # Short delay of 0.1 seconds to reduce CPU usage
