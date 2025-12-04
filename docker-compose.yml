@@ -1,0 +1,10 @@
+services:
+  mlagents:
+    build:
+      context: ./mlagents-training
+    ports:
+      - "5004:5004"
+    volumes:
+      - ./mlagents-training:/app
+    tty: true
+    stdin_open: true
