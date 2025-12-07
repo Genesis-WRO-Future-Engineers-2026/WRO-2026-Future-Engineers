@@ -23,13 +23,61 @@
 # SOFTWARE.
 
 import time
+import math
 import VL53L0X
 import RPi.GPIO as GPIO
 
 # GPIO for Sensor 1 shutdown pin
 SENSOR1_SHUTDOWN = 20
 # GPIO for Sensor 2 shutdown pin
-SENSOR2_SHUTDOWN = 16
+SENSOR2_SHUTDOWN = 21
+
+# 壁と平行時の基準角度と許容誤差
+PARALLEL_ANGLE = 110.0
+TOLERANCE = 2.0
+
+
+def calculate_wall_approach_angle(distance1, distance2, angle1=20, angle2=70):
+    """
+    2つのセンサーの距離測定値から、70度センサー位置での三角形の角度を計算
+
+    Parameters:
+    -----------
+    distance1 : float
+        センサー1(20度)で測定した壁までの距離
+    distance2 : float
+        センサー2(70度)で測定した壁までの距離
+    angle1 : float
+        センサー1の角度(デフォルト: 20度)
+    angle2 : float
+        センサー2の角度(デフォルト: 70度)
+
+    Returns:
+    --------
+    triangle_angle : float
+        70度センサー位置での三角形の内角(度)
+        110度より大きい(鈍角) = 壁から離れている
+        110度より小さい(鋭角) = 壁に近づいている
+        110度(≈) = 壁と平行
+    """
+
+    # センサー間の角度差
+    sensor_angle_diff = angle2 - angle1  # 50度
+    theta_diff = math.radians(sensor_angle_diff)
+
+    # 正弦定理を使用
+    sin_angle_at_d1 = distance2 * math.sin(theta_diff) / distance1
+
+    # sin値が1を超えないようにクリップ
+    sin_angle_at_d1 = max(-1, min(1, sin_angle_at_d1))
+
+    angle_at_d1 = math.asin(sin_angle_at_d1)
+
+    # 70度センサー位置での角度
+    triangle_angle_rad = math.pi - theta_diff - angle_at_d1
+    triangle_angle = math.degrees(triangle_angle_rad)
+
+    return triangle_angle
 
 
 def initialize_gpio():
@@ -66,30 +114,44 @@ def get_timing(tof):
     return timing
 
 
-def read_distance(tof, sensor_name):
+def read_distance(tof):
     distance = tof.get_distance()
     if distance > 0:
-        print("sensor %d - %d mm, %d cm" % (tof.my_object_number, distance, distance/10))
         return distance
     else:
-        print("%d - Error" % tof.my_object_number)
         return None
 
 
 def run_measurement_loop(tof, tof1, timing, iterations=100):
     for count in range(1, iterations + 1):
-        distance = tof.get_distance()
-        if distance > 0:
-            print("sensor %d - %d mm, %d cm, iteration %d" % (tof.my_object_number, distance, distance/10, count))
+        distance1 = tof.get_distance()
+        distance2 = tof1.get_distance()
+
+        # センサー1の距離表示
+        if distance1 > 0:
+            print("sensor %d - %d mm, %d cm, iteration %d" % (tof.my_object_number, distance1, distance1/10, count))
         else:
             print("%d - Error" % tof.my_object_number)
 
-        distance = tof1.get_distance()
-        if distance > 0:
-            print("sensor %d - %d mm, %d cm, iteration %d" % (tof1.my_object_number, distance, distance/10, count))
+        # センサー2の距離表示
+        if distance2 > 0:
+            print("sensor %d - %d mm, %d cm, iteration %d" % (tof1.my_object_number, distance2, distance2/10, count))
         else:
-            print("%d - Error" % tof.my_object_number)
+            print("%d - Error" % tof1.my_object_number)
 
+        # 両方のセンサーが正常に距離を取得できた場合、壁との角度を計算
+        if distance1 > 0 and distance2 > 0:
+            angle = calculate_wall_approach_angle(distance1, distance2)
+            print("  壁との角度: %.2f度" % angle, end="")
+
+            if angle > PARALLEL_ANGLE + TOLERANCE:
+                print(" → 壁から離れている")
+            elif angle < PARALLEL_ANGLE - TOLERANCE:
+                print(" → 壁に近づいている")
+            else:
+                print(" → 壁とほぼ平行")
+
+        print()  # 空行を追加して見やすく
         time.sleep(timing/1000000.00)
 
 

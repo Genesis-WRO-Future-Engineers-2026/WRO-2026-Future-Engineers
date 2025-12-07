@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # GPIO for Sensor 1 shutdown pin
 sensor1_shutdown = 20
 # GPIO for Sensor 2 shutdown pin
-sensor2_shutdown = 16
+sensor2_shutdown = 21
 
 GPIO.setwarnings(False)
 
