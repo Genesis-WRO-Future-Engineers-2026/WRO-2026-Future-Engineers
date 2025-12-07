@@ -40,6 +40,10 @@ ESC_PIN = 13    # ESC用GPIO 13
 PARALLEL_ANGLE = 110.0
 TOLERANCE = 2.0
 
+# 壁までの目標距離と許容誤差
+TARGET_DISTANCE = 200.0    # 目標距離 200mm
+DISTANCE_TOLERANCE = 20.0  # 距離の許容誤差
+
 # カウンターステアの設定
 COUNTER_STEER_ANGLE = 30   # 壁に近づいている時のカウンターステア角度（右に切る）
 NEUTRAL_ANGLE = 0          # ニュートラル（直進）
@@ -90,6 +94,33 @@ def calculate_wall_approach_angle(distance1, distance2, angle1=20, angle2=70):
     return triangle_angle
 
 
+def calculate_wall_distance(distance2, angle, sensor_angle=70):
+    """
+    70度センサーの距離と角度から壁までの垂直距離を計算
+
+    Parameters:
+    -----------
+    distance2 : float
+        センサー2(70度)で測定した壁までの距離
+    angle : float
+        calculate_wall_approach_angleで計算された角度
+    sensor_angle : float
+        センサー2の角度(デフォルト: 70度)
+
+    Returns:
+    --------
+    wall_distance : float
+        壁までの垂直距離（mm）
+    """
+    # センサー角度をラジアンに変換
+    sensor_angle_rad = math.radians(sensor_angle)
+
+    # 壁までの垂直距離を計算（センサー距離 × sin(センサー角度)）
+    wall_distance = distance2 * math.sin(sensor_angle_rad)
+
+    return wall_distance
+
+
 def set_servo_angle(servo_pwm, angle):
     """
     サーボの角度を設定します。角度は-90度から90度の範囲です。
@@ -129,9 +160,9 @@ def set_esc_speed(esc_pwm, pulse_width_ms):
     esc_pwm.ChangeDutyCycle(duty_cycle)
 
 
-def apply_counter_steer(servo_pwm, angle):
+def apply_counter_steer(servo_pwm, angle, wall_distance):
     """
-    壁との角度に基づいてカウンターステアを適用します。
+    壁との角度と距離に基づいてカウンターステアを適用します。
     ※センサーは車体の左側を向いています
 
     Parameters:
@@ -140,24 +171,37 @@ def apply_counter_steer(servo_pwm, angle):
         サーボ用PWMオブジェクト
     angle : float
         壁との角度（度）
+    wall_distance : float
+        壁までの垂直距離（mm）
 
     Returns:
     --------
     steer_action : str
         実行したステアリング動作の説明
     """
-    if angle < PARALLEL_ANGLE - TOLERANCE:
-        # 壁に近づいている → 右に切って壁から離れる
+    # まず距離を優先して判断
+    if wall_distance < TARGET_DISTANCE - DISTANCE_TOLERANCE:
+        # 壁に近すぎる（200mm未満）→ 右に切って壁から離れる
         set_servo_angle(servo_pwm, COUNTER_STEER_ANGLE)
-        return "カウンターステア（右）"
-    elif angle > PARALLEL_ANGLE + TOLERANCE:
-        # 壁から離れている → 左に切って壁に近づく
+        return "距離制御（右・離れる）"
+    elif wall_distance > TARGET_DISTANCE + DISTANCE_TOLERANCE:
+        # 壁から遠すぎる（200mmより遠い）→ 左に切って壁に近づく
         set_servo_angle(servo_pwm, -COUNTER_STEER_ANGLE)
-        return "左ステア"
+        return "距離制御（左・近づく）"
     else:
-        # 壁とほぼ平行 → 直進
-        set_servo_angle(servo_pwm, NEUTRAL_ANGLE)
-        return "直進"
+        # 距離が適切（200mm付近）→ 角度に基づいて判断
+        if angle < PARALLEL_ANGLE - TOLERANCE:
+            # 壁に近づいている → 右に切って壁から離れる
+            set_servo_angle(servo_pwm, COUNTER_STEER_ANGLE)
+            return "角度制御（右）"
+        elif angle > PARALLEL_ANGLE + TOLERANCE:
+            # 壁から離れている → 左に切って壁に近づく
+            set_servo_angle(servo_pwm, -COUNTER_STEER_ANGLE)
+            return "角度制御（左）"
+        else:
+            # 壁とほぼ平行 → 直進
+            set_servo_angle(servo_pwm, NEUTRAL_ANGLE)
+            return "角度制御（直進）"
 
 
 def initialize_gpio():
@@ -266,20 +310,26 @@ def run_measurement_loop(tof, tof1, timing, servo_pwm, esc_pwm, iterations=100):
         else:
             print("%d - Error" % tof1.my_object_number)
 
-        # 両方のセンサーが正常に距離を取得できた場合、壁との角度を計算
+        # 両方のセンサーが正常に距離を取得できた場合、壁との角度と距離を計算
         if distance1 > 0 and distance2 > 0:
             angle = calculate_wall_approach_angle(distance1, distance2)
-            print("  壁との角度: %.2f度" % angle, end="")
+            wall_distance = calculate_wall_distance(distance2, angle)
 
-            # カウンターステアを適用
-            steer_action = apply_counter_steer(servo_pwm, angle)
+            print("  壁との角度: %.2f度, 壁までの距離: %.1f mm" % (angle, wall_distance), end="")
 
-            if angle > PARALLEL_ANGLE + TOLERANCE:
-                print(" → 壁から離れている [%s]" % steer_action)
+            # カウンターステアを適用（角度と距離の両方を考慮）
+            steer_action = apply_counter_steer(servo_pwm, angle, wall_distance)
+
+            if wall_distance < TARGET_DISTANCE - DISTANCE_TOLERANCE:
+                print(" → 壁に近い [%s]" % steer_action)
+            elif wall_distance > TARGET_DISTANCE + DISTANCE_TOLERANCE:
+                print(" → 壁から遠い [%s]" % steer_action)
+            elif angle > PARALLEL_ANGLE + TOLERANCE:
+                print(" → 距離OK・壁から離れている [%s]" % steer_action)
             elif angle < PARALLEL_ANGLE - TOLERANCE:
-                print(" → 壁に近づいている [%s]" % steer_action)
+                print(" → 距離OK・壁に近づいている [%s]" % steer_action)
             else:
-                print(" → 壁とほぼ平行 [%s]" % steer_action)
+                print(" → 距離OK・壁とほぼ平行 [%s]" % steer_action)
 
         print()  # 空行を追加して見やすく
         time.sleep(timing/1000000.00)
