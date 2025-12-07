@@ -2,9 +2,14 @@
 センサー関連モジュール - VL53L0X距離センサーの初期化と制御
 """
 
+import sys
+import os
 import time
-import VL53L0X
 import RPi.GPIO as GPIO
+
+# VL53L0Xモジュールのパスを追加
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'python'))
+import VL53L0X
 from config import (
     SENSOR1_SHUTDOWN,
     SENSOR2_SHUTDOWN,
