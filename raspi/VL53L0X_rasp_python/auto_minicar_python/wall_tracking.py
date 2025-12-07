@@ -116,22 +116,22 @@ def apply_counter_steer(servo_pwm, angle, wall_distance):
     if wall_distance < TARGET_DISTANCE - DISTANCE_TOLERANCE:
         # 壁に近すぎる（200mm未満）→ 右に切って壁から離れる
         set_servo_angle(servo_pwm, COUNTER_STEER_ANGLE)
-        return "距離制御（右・離れる）"
+        return "Distance control (right/away)"
     elif wall_distance > TARGET_DISTANCE + DISTANCE_TOLERANCE:
         # 壁から遠すぎる（200mmより遠い）→ 左に切って壁に近づく
         set_servo_angle(servo_pwm, -COUNTER_STEER_ANGLE)
-        return "距離制御（左・近づく）"
+        return "Distance control (left/closer)"
     else:
         # 距離が適切（200mm付近）→ 角度に基づいて判断
         if angle < PARALLEL_ANGLE - ANGLE_TOLERANCE:
             # 壁に近づいている → 右に切って壁から離れる
             set_servo_angle(servo_pwm, COUNTER_STEER_ANGLE)
-            return "角度制御（右）"
+            return "Angle control (right)"
         elif angle > PARALLEL_ANGLE + ANGLE_TOLERANCE:
             # 壁から離れている → 左に切って壁に近づく
             set_servo_angle(servo_pwm, -COUNTER_STEER_ANGLE)
-            return "角度制御（左）"
+            return "Angle control (left)"
         else:
             # 壁とほぼ平行 → 直進
             set_servo_angle(servo_pwm, NEUTRAL_ANGLE)
-            return "角度制御（直進）"
+            return "Angle control (straight)"

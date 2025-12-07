@@ -72,7 +72,7 @@ def run_measurement_loop(tof, tof1, timing, servo_pwm, esc_pwm, iterations=None)
 
     # モーターを前進させる
     set_esc_speed(esc_pwm, SPEED_PULSE)
-    print("モーター前進開始")
+    print("Motor forward started")
 
     for count in range(1, iterations + 1):
         distance1 = tof.get_distance()
@@ -99,7 +99,7 @@ def run_measurement_loop(tof, tof1, timing, servo_pwm, esc_pwm, iterations=None)
             angle = calculate_wall_approach_angle(distance1, distance2)
             wall_distance = calculate_wall_distance(distance2, angle)
 
-            print("  壁との角度: %.2f度, 壁までの距離: %.1f mm" % (
+            print("  Wall angle: %.2f deg, Wall distance: %.1f mm" % (
                 angle, wall_distance
             ), end="")
 
@@ -107,15 +107,15 @@ def run_measurement_loop(tof, tof1, timing, servo_pwm, esc_pwm, iterations=None)
             steer_action = apply_counter_steer(servo_pwm, angle, wall_distance)
 
             if wall_distance < TARGET_DISTANCE - DISTANCE_TOLERANCE:
-                print(" → 壁に近い [%s]" % steer_action)
+                print(" -> Too close to wall [%s]" % steer_action)
             elif wall_distance > TARGET_DISTANCE + DISTANCE_TOLERANCE:
-                print(" → 壁から遠い [%s]" % steer_action)
+                print(" -> Too far from wall [%s]" % steer_action)
             elif angle > PARALLEL_ANGLE + ANGLE_TOLERANCE:
-                print(" → 距離OK・壁から離れている [%s]" % steer_action)
+                print(" -> Distance OK, moving away from wall [%s]" % steer_action)
             elif angle < PARALLEL_ANGLE - ANGLE_TOLERANCE:
-                print(" → 距離OK・壁に近づいている [%s]" % steer_action)
+                print(" -> Distance OK, approaching wall [%s]" % steer_action)
             else:
-                print(" → 距離OK・壁とほぼ平行 [%s]" % steer_action)
+                print(" -> Distance OK, parallel to wall [%s]" % steer_action)
 
         print()  # 空行を追加して見やすく
         time.sleep(timing/1000000.00)
@@ -123,7 +123,7 @@ def run_measurement_loop(tof, tof1, timing, servo_pwm, esc_pwm, iterations=None)
     # 測定終了後、停止
     set_esc_speed(esc_pwm, STOP_PULSE)
     set_servo_angle(servo_pwm, NEUTRAL_ANGLE)
-    print("モーター停止")
+    print("Motor stopped")
 
 
 def cleanup_all(tof, tof1, servo_pwm, esc_pwm):
@@ -144,7 +144,7 @@ def cleanup_all(tof, tof1, servo_pwm, esc_pwm):
     cleanup_sensors(tof, tof1)
     cleanup_actuators(servo_pwm, esc_pwm)
     GPIO.cleanup()
-    print("クリーンアップ完了")
+    print("Cleanup completed")
 
 
 def main():
@@ -152,7 +152,7 @@ def main():
     メインプログラム：距離センサーによる壁検出とカウンターステア制御
     """
     print("=" * 50)
-    print("壁検出カウンターステア制御プログラム")
+    print("Wall Detection Counter-Steer Control Program")
     print("=" * 50)
 
     servo_pwm, esc_pwm = initialize_gpio()
@@ -162,7 +162,7 @@ def main():
     try:
         run_measurement_loop(tof, tof1, timing, servo_pwm, esc_pwm)
     except KeyboardInterrupt:
-        print("\nプログラムを中断しました")
+        print("\nProgram interrupted")
     finally:
         cleanup_all(tof, tof1, servo_pwm, esc_pwm)
 
