@@ -43,3 +43,22 @@ SERVO_MAX_PULSE_WIDTH_MS = 2.4   # 最大パルス幅（ms）
 # 測定パラメータ
 DEFAULT_ITERATIONS = 100  # デフォルトの測定回数
 MIN_TIMING = 20000        # 最小タイミング（マイクロ秒）
+
+# 動的ステアリング制御パラメータ
+# ====================================
+
+# 比例ゲイン（誤差に対する操舵角の応答性）
+DISTANCE_GAIN = 0.15        # deg/mm - 距離誤差への応答
+ANGLE_GAIN = 1.5            # deg/deg - 角度誤差への応答
+
+# 制御の重み付け（距離優先）
+DISTANCE_WEIGHT = 2.0       # 距離制御の重み
+ANGLE_WEIGHT = 1.0          # 角度制御の重み
+
+# ステアリング制限
+MAX_STEER_ANGLE = 30        # 最大操舵角（度）
+MIN_STEER_ANGLE = 2         # 最小操舵角閾値（度）※小さすぎる角度は無視
+
+# デッドゾーン（誤差がこの範囲内なら補正しない）
+DISTANCE_DEADZONE = 5.0     # mm
+ANGLE_DEADZONE = 1.0        # 度

@@ -8,11 +8,15 @@ from config import (
     SENSOR1_ANGLE,
     SENSOR2_ANGLE,
     PARALLEL_ANGLE,
-    ANGLE_TOLERANCE,
     TARGET_DISTANCE,
-    DISTANCE_TOLERANCE,
-    COUNTER_STEER_ANGLE,
-    NEUTRAL_ANGLE
+    DISTANCE_GAIN,
+    ANGLE_GAIN,
+    DISTANCE_WEIGHT,
+    ANGLE_WEIGHT,
+    MAX_STEER_ANGLE,
+    MIN_STEER_ANGLE,
+    DISTANCE_DEADZONE,
+    ANGLE_DEADZONE
 )
 
 
@@ -95,7 +99,7 @@ def calculate_wall_distance(distance2, angle, sensor_angle=None):
 
 def apply_counter_steer(servo_pwm, angle, wall_distance):
     """
-    壁との角度と距離に基づいてカウンターステアを適用します。
+    壁との角度と距離に基づいて動的ステアリングを適用します（比例制御）。
     ※センサーは車体の左側を向いています
 
     Parameters:
@@ -110,28 +114,76 @@ def apply_counter_steer(servo_pwm, angle, wall_distance):
     Returns:
     --------
     steer_action : str
-        実行したステアリング動作の説明
+        実行したステアリング動作の説明（角度を含む）
     """
-    # まず距離を優先して判断
-    if wall_distance < TARGET_DISTANCE - DISTANCE_TOLERANCE:
-        # 壁に近すぎる（200mm未満）→ 右に切って壁から離れる
-        set_servo_angle(servo_pwm, COUNTER_STEER_ANGLE)
-        return "Distance control (right/away)"
-    elif wall_distance > TARGET_DISTANCE + DISTANCE_TOLERANCE:
-        # 壁から遠すぎる（200mmより遠い）→ 左に切って壁に近づく
-        set_servo_angle(servo_pwm, -COUNTER_STEER_ANGLE)
-        return "Distance control (left/closer)"
-    else:
-        # 距離が適切（200mm付近）→ 角度に基づいて判断
-        if angle < PARALLEL_ANGLE - ANGLE_TOLERANCE:
-            # 壁に近づいている → 右に切って壁から離れる
-            set_servo_angle(servo_pwm, COUNTER_STEER_ANGLE)
-            return "Angle control (right)"
-        elif angle > PARALLEL_ANGLE + ANGLE_TOLERANCE:
-            # 壁から離れている → 左に切って壁に近づく
-            set_servo_angle(servo_pwm, -COUNTER_STEER_ANGLE)
-            return "Angle control (left)"
-        else:
-            # 壁とほぼ平行 → 直進
-            set_servo_angle(servo_pwm, NEUTRAL_ANGLE)
-            return "Angle control (straight)"
+    # 1. 誤差を計算
+    distance_error = wall_distance - TARGET_DISTANCE
+    angle_error = angle - PARALLEL_ANGLE
+
+    # 2. デッドゾーン適用
+    if abs(distance_error) < DISTANCE_DEADZONE:
+        distance_error = 0.0
+    if abs(angle_error) < ANGLE_DEADZONE:
+        angle_error = 0.0
+
+    # 3. 各補正量を計算
+    distance_steering = -distance_error * DISTANCE_GAIN
+    angle_steering = -angle_error * ANGLE_GAIN
+
+    # 4. 重み付け合成
+    total_weight = DISTANCE_WEIGHT + ANGLE_WEIGHT
+    steering_angle = (
+        distance_steering * DISTANCE_WEIGHT +
+        angle_steering * ANGLE_WEIGHT
+    ) / total_weight
+
+    # 5. リミット適用
+    steering_angle = max(-MAX_STEER_ANGLE, min(MAX_STEER_ANGLE, steering_angle))
+
+    # 6. 最小閾値
+    if abs(steering_angle) < MIN_STEER_ANGLE:
+        steering_angle = 0.0
+
+    # 7. サーボに適用
+    set_servo_angle(servo_pwm, steering_angle)
+
+    # 8. 詳細ログを返す
+    return _format_steer_action(
+        steering_angle, distance_error, angle_error,
+        distance_steering, angle_steering
+    )
+
+
+def _format_steer_action(steering_angle, distance_error, angle_error,
+                         distance_steering, angle_steering):
+    """
+    ステアリング動作の説明文を生成します。
+
+    Parameters:
+    -----------
+    steering_angle : float
+        適用されたステアリング角度
+    distance_error : float
+        距離誤差（mm）
+    angle_error : float
+        角度誤差（度）
+    distance_steering : float
+        距離補正による操舵角
+    angle_steering : float
+        角度補正による操舵角
+
+    Returns:
+    --------
+    str : 詳細な動作説明
+    """
+    direction = "straight"
+    if steering_angle > 0:
+        direction = "right"
+    elif steering_angle < 0:
+        direction = "left"
+
+    return (
+        f"Steer {steering_angle:+.1f}° ({direction}) | "
+        f"Dist:{distance_error:+.1f}mm→{distance_steering:+.1f}° | "
+        f"Ang:{angle_error:+.1f}°→{angle_steering:+.1f}°"
+    )
