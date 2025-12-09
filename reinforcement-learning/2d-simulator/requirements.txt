@@ -3,7 +3,8 @@ numpy==1.24.0
 scipy==1.10.0
 
 # Physics
-pybox2d==2.3.10
+# Box2DはSWIGでビルドが必要なため、gitから直接インストール
+box2d-py
 
 # RL Framework
 torch==2.0.0

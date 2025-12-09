@@ -1,0 +1,53 @@
+{
+  "name": "Simple Oval",
+  "description": "シンプルな楕円コース - 初心者向け",
+  "difficulty": "easy",
+  "start_position": [2.0, 5.0],
+  "start_angle": 0.0,
+  "goal_position": [2.0, 5.0],
+  "goal_radius": 0.5,
+  "walls": [
+    {
+      "type": "polygon",
+      "name": "outer_wall",
+      "vertices": [
+        [0, 0],
+        [10, 0],
+        [10, 10],
+        [0, 10]
+      ]
+    },
+    {
+      "type": "polygon",
+      "name": "inner_wall",
+      "vertices": [
+        [2, 2],
+        [8, 2],
+        [8, 8],
+        [2, 8]
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "position": [5.0, 1.5],
+      "radius": 1.0,
+      "index": 0
+    },
+    {
+      "position": [9.0, 5.0],
+      "radius": 1.0,
+      "index": 1
+    },
+    {
+      "position": [5.0, 8.5],
+      "radius": 1.0,
+      "index": 2
+    },
+    {
+      "position": [1.0, 5.0],
+      "radius": 1.0,
+      "index": 3
+    }
+  ]
+}
