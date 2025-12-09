@@ -1,145 +1,301 @@
-# ミニカー自動運転プロジェクト 設計ドキュメント
+# ミニカー2Dシミュレーター - 強化学習環境
 
-## 1. プロジェクト概要
+特定のコースを自動運転で最速タイムを目指すミニカーレースのための2D強化学習シミュレーター。
 
-特定のコースを自動運転で最速タイムを目指すミニカーレースに参加するためのシステム設計。コースには難易度の高いショートカットが存在し、障害物はない。壁に接触した場合は即退場となる。
+## プロジェクト概要
 
-### 1.1 制約条件
+- **目的**: ミニカー自動運転の強化学習環境構築
+- **センサー**: LiDAR（72方向スキャン）
+- **学習手法**: PPO（Proximal Policy Optimization）
+- **物理エンジン**: Box2D（2D高速シミュレーション）
+- **実機転移**: Domain Randomizationによる実機転移
 
-- 機体総額: 5万円以内
-- コース: 平面（2D）
-- 障害物: なし
-- 壁衝突: 即退場
-- ショートカット: あり（狭い隙間を通過）
+## 主な特徴
 
----
-
-## 2. ハードウェア構成
-
-### 2.1 センサー構成
-
-LiDAR + IMUをメインセンサーとして採用。カメラは使用しない。
-
-**LiDAR選定理由:**
-
-- 距離情報が直接取得可能（壁との相対位置が正確）
-- 照明条件に左右されない
-- カメラより状態表現がシンプル → 学習が収束しやすい
-- ショートカットの「隙間」を検出しやすい
-
-### 2.2 推奨パーツリスト
-
-| パーツ | 価格目安 | 備考 |
-|--------|----------|------|
-| RCシャーシ | 8,000円 | 1/10〜1/16スケール |
-| Raspberry Pi 4 | 10,000円 | 推論専用 |
-| LD06 LiDAR | 6,000円 | 小型軽量、コスパ良 |
-| モータードライバー | 2,000円 | |
-| IMU（MPU6050等） | 1,000円 | 姿勢・加速度取得 |
-| バッテリー・電源周り | 5,000円 | |
-| その他（配線、マウント等） | 5,000円 | |
-| **合計** | **約37,000円** | **予算内** |
+- 🚗 **軽量な2Dシミュレーション**: リアルタイムの10倍以上の速度
+- 🎯 **ショートカット学習**: チェックポイントシステムで柔軟なルート選択
+- 📈 **カリキュラム学習**: 段階的な難易度調整
+- 🔄 **Domain Randomization**: 実機転移を促進
+- 📊 **可視化ツール**: Pygame、TensorBoard統合
 
 ---
 
-## 3. ソフトウェア・学習設計
+## クイックスタート（Docker）
 
-### 3.1 シミュレーター
+### 前提条件
+- Docker Desktop
+- Docker Compose V2以上
 
-2Dシミュレーターを採用（Pygame + Box2D/pymunk）。コースが平面であるため3Dは不要。軽量で大量の試行回数を稼げる。
+### 1. リポジトリのクローンと移動
 
-**2Dシミュレーターのメリット:**
+```bash
+cd /Users/akamite/Documents/ichis/minicar-battle/reinforcement-learning/2d-simulator
+```
 
-- 圧倒的に軽量（1秒で数百エピソード可能）
-- 物理モデルがシンプルで調整しやすい
-- LiDARの2Dスキャンと相性が良い
-- Sim-to-Realギャップの調整が容易
+### 2. Dockerイメージのビルド
 
-### 3.2 強化学習アルゴリズム
+```bash
+docker compose build
+```
 
-連続行動空間 + PPO（Proximal Policy Optimization）を採用。
+### 3. 開発環境の起動
 
-**行動空間:**
+```bash
+# 開発環境に入る
+docker compose run --rm dev
 
-- ステアリング: -1.0 〜 1.0（連続値）
-- スロットル: 0 〜 1.0（連続値）
+# コンテナ内でPythonバージョン確認
+python --version
+```
 
-**PPO採用理由:**
+### 4. その他のサービス
 
-- SACより実装・チューニングがシンプル
-- 情報が多くトラブル時に調べやすい
-- 2Dシミュレーターで試行回数を稼げるため十分収束する
+```bash
+# Jupyter Notebook起動 → http://localhost:8888
+docker compose up jupyter
 
-### 3.3 状態空間
+# TensorBoard起動 → http://localhost:6006
+docker compose up tensorboard
+```
 
-| 入力 | 次元数 |
-|------|--------|
-| LiDARスキャン（5度刻み） | 72 |
-| 現在速度 | 1〜2 |
-| 角速度（IMU） | 1 |
-| 前回の行動（ステア・スロットル） | 2 |
-| **合計** | **約77次元** |
+詳細は [doc/DOCKER_SETUP.md](./doc/DOCKER_SETUP.md) を参照してください。
 
 ---
 
-## 4. 報酬設計
+## ローカル環境でのセットアップ（Docker不使用）
 
-壁衝突が即退場という制約を考慮した報酬設計を採用。
+### 1. 仮想環境の作成
 
-| 報酬要素 | 内容 | 値の目安 |
-|----------|------|----------|
-| 前進報酬 | コース進行距離に比例 | +0.1〜1.0/step |
-| 時間ペナルティ | 毎ステップ | -0.01/step |
-| ゴール到達 | 完走ボーナス | +100〜500 |
-| 壁衝突（即死） | 大ペナルティ + エピソード終了 | -100〜-500 |
-| 壁接近ペナルティ | 一定距離以下で警告的マイナス | -0.1〜-1.0 |
+```bash
+python3 -m venv venv
+source venv/bin/activate  # Linux/macOS
+# または
+venv\Scripts\activate  # Windows
+```
 
-### 4.1 ショートカット学習方式
+### 2. 依存パッケージのインストール
 
-チェックポイント方式を採用。ゴールまでのチェックポイントを設定し「通過順は問わない」設計にすることで、エージェントが自然とショートカットを発見する。
+```bash
+pip install -r requirements.txt
+```
 
-### 4.2 壁接近ペナルティの実装例
+### 3. プロジェクト構造の作成
 
-壁接近ペナルティを入れることで「ギリギリを攻めて死ぬ」ループを防ぎ、自然と安全マージンを学習させる。ただしショートカット区間ではペナルティを緩めるか、通過成功時のボーナスを大きくする調整が必要。
-
-```python
-# 壁接近ペナルティの例
-if min_distance < 0.3:  # 閾値
-    reward -= (0.3 - min_distance) * 10
+```bash
+# 必要なディレクトリを作成
+mkdir -p src/{env,physics,rl,curriculum,domain_randomization,utils,deploy}
+mkdir -p courses/{easy,medium,hard}
+mkdir -p configs scripts tests notebooks
+mkdir -p models/{checkpoints,best}
+mkdir -p logs/{tensorboard,training}
 ```
 
 ---
 
-## 5. カリキュラム学習
+## プロジェクト構造
 
-段階的に難易度を上げることで収束を促進する。
-
-1. **フェーズ1:** まず完走を学習（ショートカットなしコース）
-2. **フェーズ2:** ショートカットありコースで最適化
+```
+2d-simulator/
+├── Dockerfile              # Dockerイメージ定義
+├── docker-compose.yml      # Docker Compose設定
+├── requirements.txt        # Python依存パッケージ
+├── README.md              # このファイル
+│
+├── doc/                   # ドキュメント
+│   ├── DOCKER_SETUP.md    # Docker環境セットアップガイド
+│   └── plan/init/         # 実装計画書（8ファイル）
+│
+├── src/                   # ソースコード（今後実装）
+│   ├── env/              # シミュレーション環境
+│   ├── physics/          # 物理演算
+│   ├── rl/               # 強化学習
+│   ├── curriculum/       # カリキュラム学習
+│   ├── domain_randomization/  # Domain Randomization
+│   ├── utils/            # ユーティリティ
+│   └── deploy/           # 実機デプロイ
+│
+├── courses/              # コース定義（JSON）
+├── configs/              # 設定ファイル（YAML）
+├── scripts/              # 実行スクリプト
+├── tests/                # テストコード
+├── notebooks/            # Jupyter Notebooks
+├── models/               # 学習済みモデル
+└── logs/                 # ログファイル
+```
 
 ---
 
-## 6. Sim-to-Real対策
+## 実装計画
 
-### 6.1 Domain Randomization
+詳細な実装計画は `doc/plan/init/` に8つのドキュメントとして保存されています：
 
-学習時に以下のパラメータをランダム化し、実機への転移性を高める。
+1. **00_overview.md** - プロジェクト概要
+2. **01_project_structure.md** - ディレクトリ構造設計
+3. **02_tech_stack.md** - 技術スタック
+4. **03_implementation_phases.md** - 実装フェーズ（8-10週間）
+5. **04_component_design.md** - コンポーネント詳細設計
+6. **05_config_and_testing.md** - 設定とテスト戦略
+7. **06_sim_to_real.md** - 実機転移戦略
+8. **07_getting_started.md** - 実装開始ガイド
 
-- 摩擦係数
-- モーター応答遅延
-- LiDARノイズ
-- 車体質量・慣性
+### 実装スケジュール（予定）
 
-### 6.2 制御周波数
-
-LiDARのスキャンレート（LD06: 約10Hz）に合わせ、10〜20Hzで行動決定を行う。
+| フェーズ | 期間 | 内容 |
+|---------|------|------|
+| Phase 1 | 2-3週 | 2Dシミュレーター基盤構築 |
+| Phase 2 | 2-3週 | PPO強化学習統合 |
+| Phase 3 | 2-3週 | カリキュラム学習、Domain Randomization |
+| Phase 4 | 1-2週 | 実機転移準備と検証 |
 
 ---
 
-## 7. 実装ステップ
+## 技術スタック
 
-1. 2Dシミュレーター実装（Pygame + Box2D）
-2. PPOによる学習環境構築
-3. 報酬設計の調整・学習
-4. ハードウェア組み立て
-5. 実機での検証・Fine-tuning
+- **Python**: 3.9
+- **物理エンジン**: Box2D (pybox2d==2.3.10)
+- **強化学習**: PyTorch (2.0.0)
+- **環境**: Gymnasium (0.29.0)
+- **可視化**: Pygame (2.5.0), Matplotlib, TensorBoard
+- **設定管理**: PyYAML
+- **テスト**: pytest
+- **コード品質**: Black, flake8
+- **デプロイ**: ONNX Runtime
+
+---
+
+## 開発ワークフロー
+
+### Dockerを使う場合
+
+```bash
+# 1. コードを編集（ホスト側）
+vim src/env/vehicle.py
+
+# 2. テストを実行（コンテナ内）
+docker compose run --rm dev pytest tests/test_vehicle.py
+
+# 3. コードフォーマット
+docker compose run --rm dev black src/
+
+# 4. Linter実行
+docker compose run --rm dev flake8 src/
+```
+
+### ローカル環境の場合
+
+```bash
+# 1. テスト実行
+pytest tests/
+
+# 2. コードフォーマット
+black src/ tests/
+
+# 3. Linter実行
+flake8 src/ tests/
+```
+
+---
+
+## トレーニング（実装後）
+
+### Docker環境
+
+```bash
+# TensorBoardを起動
+docker compose up -d tensorboard
+
+# トレーニング実行
+docker compose up train
+
+# ブラウザで http://localhost:6006 を開いて進捗確認
+```
+
+### ローカル環境
+
+```bash
+# トレーニング実行
+python scripts/train.py --config configs/training_config.yaml
+
+# 別ターミナルでTensorBoard起動
+tensorboard --logdir=logs/tensorboard
+```
+
+---
+
+## 評価と可視化（実装後）
+
+```bash
+# モデルの評価
+docker compose run --rm dev python scripts/evaluate.py --model models/best/policy.pth
+
+# 軌跡の可視化
+docker compose run --rm dev python scripts/visualize.py --model models/best/policy.pth
+```
+
+---
+
+## テスト
+
+```bash
+# すべてのテストを実行
+docker compose run --rm dev pytest tests/
+
+# カバレッジ付き
+docker compose run --rm dev pytest tests/ --cov=src --cov-report=html
+
+# 特定のテストファイルだけ
+docker compose run --rm dev pytest tests/test_vehicle.py -v
+```
+
+---
+
+## 実機デプロイ（実装後）
+
+### モデル変換（PyTorch → ONNX）
+
+```bash
+docker compose run --rm dev python src/deploy/model_converter.py \
+  --input models/best/policy.pth \
+  --output models/best/policy.onnx
+```
+
+### Raspberry Piでの推論
+
+```bash
+# Raspberry Pi上で
+python src/deploy/rpi_inference.py --model models/best/policy.onnx
+```
+
+詳細は [doc/plan/init/06_sim_to_real.md](./doc/plan/init/06_sim_to_real.md) を参照。
+
+---
+
+## トラブルシューティング
+
+### Docker関連
+- [doc/DOCKER_SETUP.md](./doc/DOCKER_SETUP.md) のトラブルシューティングセクション参照
+
+### 学習関連
+- [doc/plan/init/05_config_and_testing.md](./doc/plan/init/05_config_and_testing.md) のデバッグセクション参照
+
+---
+
+## ライセンス
+
+社内プロジェクト
+
+---
+
+## 作成日
+
+2025-12-09
+
+---
+
+## 次のステップ
+
+1. **環境セットアップ**: Docker環境のビルドと動作確認
+2. **実装計画の確認**: `doc/plan/init/README.md` から読み始める
+3. **Phase 1開始**: `doc/plan/init/07_getting_started.md` に従って実装開始
+
+開発を始める準備ができました！
