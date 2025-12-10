@@ -59,7 +59,7 @@ class Vehicle:
         # 車両パラメータ（実機TT-02に合わせた寸法）
         self.width = 0.188  # m (実機: 188mm)
         self.length = 0.479  # m (実機: 479mm)
-        self.mass = 1.0  # kg
+        self.mass = 1.4  # kg (車体1.2kg + バッテリー0.2kg)
         self.wheelbase = 0.257  # m (実機: 257mm、標準設定)
 
         self.max_steering_angle = 0.5  # rad (約28度)
