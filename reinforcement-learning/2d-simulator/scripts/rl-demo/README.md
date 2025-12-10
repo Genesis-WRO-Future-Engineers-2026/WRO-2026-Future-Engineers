@@ -75,6 +75,7 @@ PPOアルゴリズムでエージェントを学習させます。
 | `--eval-freq` | 評価頻度（イテレーション） | 50 |
 | `--device` | デバイス（cpu/cuda/mps/auto） | auto |
 | `--experiment-name` | 実験名 | 自動生成 |
+| `--gui` | GUIで可視化しながら学習 | なし（指定で有効化） |
 
 ### 使用例
 
@@ -84,6 +85,12 @@ PPOアルゴリズムでエージェントを学習させます。
   --total-iterations 10 \
   --n-steps 512 \
   --experiment-name quick_test
+
+# GUIで可視化しながら学習（動作確認用）
+./scripts/rl-demo/run_train.sh \
+  --total-iterations 5 \
+  --n-steps 256 \
+  --gui
 
 # 本格的な学習（約2-3時間）
 ./scripts/rl-demo/run_train.sh \
@@ -98,6 +105,14 @@ PPOアルゴリズムでエージェントを学習させます。
 ```
 
 ### 学習の進捗確認
+
+**GUIでリアルタイム可視化:**
+```bash
+# 学習中のエージェントの動作を可視化
+./scripts/rl-demo/run_train.sh --gui --total-iterations 10
+
+# 注意: GUIモードは学習速度が低下するため、動作確認用途での使用を推奨
+```
 
 **TensorBoardで可視化:**
 ```bash
@@ -148,10 +163,14 @@ cat logs/<experiment_name>/training.csv | column -t -s,
 # デフォルト（final_model.pth）を3エピソード評価
 ./scripts/rl-demo/run_eval.sh
 
-# 特定のチェックポイントを評価
+# GUIで可視化しながら評価
+./scripts/rl-demo/run_eval.sh --gui
+
+# 特定のチェックポイントをGUIで評価
 ./scripts/rl-demo/run_eval.sh \
   --model models/checkpoints/checkpoint_500.pth \
-  --n-episodes 5
+  --n-episodes 5 \
+  --gui
 
 # ベストモデルを評価
 ./scripts/rl-demo/run_eval.sh \
@@ -165,6 +184,7 @@ cat logs/<experiment_name>/training.csv | column -t -s,
 |-----------|------|----------|
 | `--model` | モデルファイルのパス | `models/checkpoints/final_model.pth` |
 | `--n-episodes` | 評価エピソード数 | 3 |
+| `--gui`, `--render` | GUIで可視化しながら評価 | なし（指定で有効化） |
 
 ### 出力例
 
@@ -283,6 +303,9 @@ tensorboard --logdir=logs
 # 短時間学習（5イテレーション、約1分）
 ./scripts/rl-demo/run_train.sh --total-iterations 5 --n-steps 256
 
+# GUIで可視化しながら学習
+./scripts/rl-demo/run_train.sh --total-iterations 5 --n-steps 256 --gui
+
 # 中程度学習（100イテレーション、約30分）
 ./scripts/rl-demo/run_train.sh --total-iterations 100
 
@@ -291,6 +314,9 @@ tensorboard --logdir=logs
 
 # モデル評価
 ./scripts/rl-demo/run_eval.sh
+
+# GUIで可視化しながら評価
+./scripts/rl-demo/run_eval.sh --gui
 
 # TensorBoard
 tensorboard --logdir=logs

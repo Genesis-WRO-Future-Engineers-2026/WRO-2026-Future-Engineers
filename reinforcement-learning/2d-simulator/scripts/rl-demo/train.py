@@ -154,6 +154,11 @@ def parse_args():
         default="auto",
         help="Device (cpu, cuda, mps, or auto)",
     )
+    parser.add_argument(
+        "--gui",
+        action="store_true",
+        help="Enable GUI visualization during training",
+    )
 
     return parser.parse_args()
 
@@ -196,9 +201,13 @@ def main():
     print(f"Experiment: {args.experiment_name}")
 
     # 環境の作成
+    render_mode = "human" if args.gui else None
+    if args.gui:
+        print("GUI visualization enabled")
+
     env = MinicarEnv(
         course_file=args.course,
-        render_mode=None,  # 学習時は描画しない
+        render_mode=render_mode,
         max_steps=args.max_steps,
     )
 

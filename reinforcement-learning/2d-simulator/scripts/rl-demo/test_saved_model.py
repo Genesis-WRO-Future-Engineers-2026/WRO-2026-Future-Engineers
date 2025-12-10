@@ -122,6 +122,13 @@ if __name__ == "__main__":
         action="store_true",
         help="Enable GUI rendering",
     )
+    parser.add_argument(
+        "--gui",
+        action="store_true",
+        help="Enable GUI rendering (alias for --render)",
+    )
     args = parser.parse_args()
 
-    test_saved_model(args.model, args.n_episodes, args.render)
+    # --gui または --render のいずれかが指定されていればrenderを有効にする
+    render = args.render or args.gui
+    test_saved_model(args.model, args.n_episodes, render)

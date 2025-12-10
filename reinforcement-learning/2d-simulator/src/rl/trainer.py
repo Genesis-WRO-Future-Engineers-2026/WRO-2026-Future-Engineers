@@ -97,6 +97,10 @@ class PPOTrainer:
             )
             done = terminated or truncated
 
+            # レンダリング（GUIモードの場合）
+            if self.env.render_mode == "human":
+                self.env.render()
+
             # バッファに追加
             self.rollout_buffer.add(
                 obs=obs,
@@ -252,6 +256,10 @@ class PPOTrainer:
                     action
                 )
                 done = terminated or truncated
+
+                # レンダリング（GUIモードの場合）
+                if self.env.render_mode == "human":
+                    self.env.render()
 
                 episode_reward += reward
                 episode_length += 1
