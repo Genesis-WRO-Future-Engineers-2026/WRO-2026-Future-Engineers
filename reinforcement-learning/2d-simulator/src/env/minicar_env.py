@@ -17,6 +17,13 @@ class MinicarEnv(gym.Env):
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
 
+    # 衝突判定パラメータ
+    # 車両の対角線半径は約0.224m（幅0.2m × 長さ0.4m）
+    # LiDARは車両中心から発射されるため、壁接触時のmin_distanceは約0.22mになる
+    COLLISION_DISTANCE = 0.22  # 壁衝突とみなす距離（m）
+    WALL_APPROACH_DISTANCE = 0.3  # 壁接近ペナルティの閾値（m）
+    COLLISION_PENALTY = -100.0  # 衝突時の報酬ペナルティ
+
     def __init__(
         self,
         course_file: str = "courses/easy/simple_oval.json",
@@ -75,6 +82,7 @@ class MinicarEnv(gym.Env):
         self.last_action = np.zeros(2)
         self.total_reward = 0.0
         self.checkpoints_passed = set()
+        self.is_collision = False  # 衝突フラグ
 
         # LiDARスキャンと車両状態のキャッシュ（パフォーマンス最適化）
         self._cached_lidar_scan = None
@@ -100,6 +108,7 @@ class MinicarEnv(gym.Env):
         self.last_action = np.zeros(2)
         self.total_reward = 0.0
         self.checkpoints_passed = set()
+        self.is_collision = False  # 衝突フラグをリセット
 
         # キャッシュを初期化
         state = self.vehicle.get_state()
@@ -204,8 +213,12 @@ class MinicarEnv(gym.Env):
 
         # 3. 壁接近ペナルティ
         min_distance = np.min(lidar_scan)
-        if min_distance < 0.3:
-            reward -= (0.3 - min_distance) * 10
+        if min_distance < self.WALL_APPROACH_DISTANCE:
+            reward -= (self.WALL_APPROACH_DISTANCE - min_distance) * 10
+
+        # 3.5. 衝突ペナルティ
+        if min_distance <= self.COLLISION_DISTANCE:
+            reward += self.COLLISION_PENALTY  # 大きなペナルティ
 
         # 4. チェックポイント報酬
         checkpoints = self.course.get_checkpoints()
@@ -238,9 +251,10 @@ class MinicarEnv(gym.Env):
         if all_checkpoints_passed and self.course.check_goal(state["position"]):
             return True
 
-        # 壁衝突（LiDARの最小距離が非常に小さい）
+        # 壁衝突（LiDARの最小距離が衝突閾値以下）
         min_distance = np.min(lidar_scan)
-        if min_distance < 0.1:  # 10cm以内で衝突とみなす
+        if min_distance <= self.COLLISION_DISTANCE:
+            self.is_collision = True  # 衝突フラグを立てる
             return True
 
         return False
@@ -264,6 +278,7 @@ class MinicarEnv(gym.Env):
             "total_reward": self.total_reward,
             "checkpoints_passed": len(self.checkpoints_passed),
             "min_distance": np.min(lidar_scan),
+            "is_collision": self.is_collision,  # 衝突フラグ
         }
 
     def render(self):
@@ -363,6 +378,7 @@ class MinicarEnv(gym.Env):
         self.last_action = np.zeros(2)
         self.total_reward = 0.0
         self.checkpoints_passed = set()
+        self.is_collision = False  # 衝突フラグをリセット
         self._cached_lidar = None
 
         print(f"[INFO] Loaded new course: {course_file}")
