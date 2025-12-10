@@ -2,6 +2,8 @@
 
 import sys
 import os
+import argparse
+from pathlib import Path
 
 # プロジェクトルートをパスに追加
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
@@ -11,11 +13,89 @@ import numpy as np
 from src.env.minicar_env import MinicarEnv
 
 
+def get_available_courses(courses_dir: str = "courses") -> dict:
+    """利用可能なコースファイルを取得
+
+    Returns:
+        dict: 難易度レベル別のコースファイル辞書
+    """
+    courses = {
+        "easy": [],
+        "medium": [],
+        "hard": []
+    }
+
+    courses_path = Path(courses_dir)
+    if not courses_path.exists():
+        return courses
+
+    for level in courses.keys():
+        level_path = courses_path / level
+        if level_path.exists():
+            json_files = sorted(level_path.glob("*.json"))
+            courses[level] = [str(f) for f in json_files]
+
+    return courses
+
+
+def print_available_courses(courses: dict):
+    """利用可能なコースを表示"""
+    print("利用可能なコース:")
+    for level, course_list in courses.items():
+        if course_list:
+            print(f"\n  [{level.upper()}]")
+            for i, course in enumerate(course_list, 1):
+                course_name = Path(course).stem
+                print(f"    {i}. {course_name} ({course})")
+
+
 def main():
     """手動制御のメインループ"""
+    # コマンドライン引数のパース
+    parser = argparse.ArgumentParser(description="ミニカー2Dシミュレーター - 手動制御モード")
+    parser.add_argument(
+        "--course",
+        type=str,
+        default="courses/easy/simple_oval.json",
+        help="コースファイルのパス (デフォルト: courses/easy/simple_oval.json)"
+    )
+    parser.add_argument(
+        "--list",
+        action="store_true",
+        help="利用可能なコース一覧を表示"
+    )
+    args = parser.parse_args()
+
+    # 利用可能なコースを取得
+    available_courses = get_available_courses()
+
+    # コース一覧表示モード
+    if args.list:
+        print("=" * 60)
+        print("ミニカー2Dシミュレーター - コース一覧")
+        print("=" * 60)
+        print()
+        print_available_courses(available_courses)
+        print()
+        print("=" * 60)
+        print("使用例:")
+        print("  python scripts/simulator-demo/manual_control.py --course courses/medium/narrow_oval.json")
+        print("=" * 60)
+        return
+
+    # コースファイルの存在確認
+    course_path = Path(args.course)
+    if not course_path.exists():
+        print(f"エラー: コースファイルが見つかりません: {args.course}")
+        print()
+        print_available_courses(available_courses)
+        sys.exit(1)
+
     print("=" * 60)
     print("ミニカー2Dシミュレーター - 手動制御モード")
     print("=" * 60)
+    print()
+    print(f"コース: {args.course}")
     print()
     print("操作方法:")
     print("  ↑ / W     : 前進")
@@ -29,7 +109,7 @@ def main():
 
     # 環境作成
     env = MinicarEnv(
-        course_file="courses/easy/simple_oval.json", render_mode="human"
+        course_file=args.course, render_mode="human"
     )
 
     # リセット

@@ -7,8 +7,16 @@
 ## 🚀 クイックスタート
 
 ```bash
-# プロジェクトルートから実行
+# プロジェクトルートから実行（デフォルト: easyコース）
 ./scripts/simulator-demo/run_manual_control.sh
+
+# 利用可能なコース一覧を表示
+./scripts/simulator-demo/run_manual_control.sh --list
+
+# 特定のコースを指定して実行
+./scripts/simulator-demo/run_manual_control.sh --course courses/medium/narrow_oval.json
+./scripts/simulator-demo/run_manual_control.sh --course courses/hard/tight_oval.json
+./scripts/simulator-demo/run_manual_control.sh --course courses/hard/s_curve.json
 ```
 
 **操作:** ↑↓←→キーで車を動かせます。`ESC`で終了。
@@ -69,11 +77,27 @@ simulator-demo/
 
 ---
 
-## 📍 コースについて
+## 📍 利用可能なコース
 
-**現在のコース**: `courses/easy/simple_oval.json`
+### Easy（初級）
+- **simple_oval.json**: シンプルな楕円形コース。4つのチェックポイントを時計回りに通過してゴールに戻ります。
 
-シンプルな楕円形のコースです。4つのチェックポイントを時計回りに通過してゴールに戻ります。
+### Medium（中級）
+- **narrow_oval.json**: 幅が狭い楕円形コース。より正確な操作が求められます。
+
+### Hard（上級）
+- **tight_oval.json**: カーブの曲率が大きい楕円形コース。急カーブでの速度調整が重要です。
+- **s_curve.json**: S字カーブを含む複雑なコース。高度な操作テクニックが必要です。
+
+### コース選択方法
+
+```bash
+# コース一覧を表示
+./scripts/simulator-demo/run_manual_control.sh --list
+
+# 特定のコースで実行
+./scripts/simulator-demo/run_manual_control.sh --course courses/medium/narrow_oval.json
+```
 
 ---
 
@@ -83,7 +107,15 @@ simulator-demo/
 
 ```bash
 cd /path/to/minicar-battle/reinforcement-learning/2d-simulator
+
+# デフォルトコース（easy/simple_oval.json）で実行
 ./scripts/simulator-demo/run_manual_control.sh
+
+# 特定のコースを指定
+./scripts/simulator-demo/run_manual_control.sh --course courses/hard/s_curve.json
+
+# 利用可能なコース一覧を表示
+./scripts/simulator-demo/run_manual_control.sh --list
 ```
 
 ### 方法2: Pythonスクリプト直接実行
@@ -91,7 +123,15 @@ cd /path/to/minicar-battle/reinforcement-learning/2d-simulator
 ```bash
 cd /path/to/minicar-battle/reinforcement-learning/2d-simulator
 source venv/bin/activate
+
+# デフォルトコース
 python scripts/simulator-demo/manual_control.py
+
+# コース指定
+python scripts/simulator-demo/manual_control.py --course courses/medium/narrow_oval.json
+
+# コース一覧表示
+python scripts/simulator-demo/manual_control.py --list
 ```
 
 ---

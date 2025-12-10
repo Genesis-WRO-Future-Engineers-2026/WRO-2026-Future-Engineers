@@ -29,10 +29,10 @@ fi
 echo "仮想環境を有効化中..."
 source venv/bin/activate
 
-# Pythonスクリプトを実行
+# Pythonスクリプトを実行（引数をそのまま渡す）
 echo "手動制御デモを起動中..."
 echo ""
-python scripts/simulator-demo/manual_control.py
+python scripts/simulator-demo/manual_control.py "$@"
 
 # 終了
 echo ""
