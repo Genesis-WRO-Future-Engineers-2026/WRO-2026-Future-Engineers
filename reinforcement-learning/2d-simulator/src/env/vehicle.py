@@ -89,72 +89,150 @@ class Vehicle:
             steering: ステアリング角度 (-1.0 ~ 1.0)
             throttle: スロットル (-1.0 ~ 1.0) 負の値で後退
             debug: デバッグ情報を出力するか
+
+        Note:
+            後退時のステアリング反転は行わない（強化学習用途のため）
+            Bicycle Modelの物理的な挙動に従う：
+            - 前進時: 左入力 → 左回転
+            - 後退時: 左入力 → 右回転（物理的に正しい挙動）
         """
-        # パラメータのクリッピング
-        steering = np.clip(steering, -1.0, 1.0)
-        throttle = np.clip(throttle, -1.0, 1.0)
+        # 制御入力の正規化
+        steering, throttle = self._normalize_control(steering, throttle)
         steer_angle = -steering * self.max_steering_angle
-
-        # 後退時のステアリング反転は行わない（強化学習用途のため）
-        # Bicycle Modelの物理的な挙動に従う：
-        # - 前進時: 左入力 → 左回転
-        # - 後退時: 左入力 → 右回転（物理的に正しい挙動）
-
-        # 前輪と後輪の位置（ローカル座標系）
-        front_wheel_local = b2Vec2(self.wheelbase / 2, 0)  # 車体前方
-        rear_wheel_local = b2Vec2(-self.wheelbase / 2, 0)  # 車体後方
-
-        # ワールド座標系に変換
-        front_wheel_world = self.body.GetWorldPoint(front_wheel_local)
-        rear_wheel_world = self.body.GetWorldPoint(rear_wheel_local)
-
-        # 各ホイールの向き（ワールド座標系）
-        front_wheel_angle = self.body.angle + steer_angle  # 前輪：ステアリング角度分回転
-        rear_wheel_angle = self.body.angle  # 後輪：車体と同じ向き
 
         # デバッグ情報
         if debug:
             print(f"[DEBUG] Steering: {steering:.4f}, Throttle: {throttle:.4f}")
             print(f"[DEBUG] Body angle: {self.body.angle:.4f}, Angular velocity: {self.body.angularVelocity:.4f}")
-            front_vel = self.body.GetLinearVelocityFromWorldPoint(front_wheel_world)
-            rear_vel = self.body.GetLinearVelocityFromWorldPoint(rear_wheel_world)
-            print(f"[DEBUG] Front wheel velocity: ({front_vel.x:.4f}, {front_vel.y:.4f})")
-            print(f"[DEBUG] Rear wheel velocity: ({rear_vel.x:.4f}, {rear_vel.y:.4f})")
 
-        # 各ホイール位置で横滑りを抑制
-        # ステアリングが非常に小さい時は、重心での横滑りのみを抑制してトルクを防ぐ
+        # ホイール位置の計算
+        wheel_positions = self._compute_wheel_positions()
+
+        # 各サブシステムに制御を委譲
+        self._apply_tire_friction(steer_angle, wheel_positions, debug=debug)
+        self._apply_drive_force(steer_angle, throttle, wheel_positions)
+        self._apply_angular_damping(steering)
+
+    def _normalize_control(self, steering: float, throttle: float) -> Tuple[float, float]:
+        """
+        制御入力を正規化（-1.0 ~ 1.0にクリップ）
+
+        Args:
+            steering: ステアリング入力（生の値）
+            throttle: スロットル入力（生の値）
+
+        Returns:
+            (正規化されたステアリング, 正規化されたスロットル)
+        """
+        steering = np.clip(steering, -1.0, 1.0)
+        throttle = np.clip(throttle, -1.0, 1.0)
+        return steering, throttle
+
+    def _compute_wheel_positions(self) -> Dict:
+        """
+        前輪と後輪のワールド座標位置を計算
+
+        Returns:
+            {
+                "front_local": b2Vec2,   # 前輪のローカル座標
+                "rear_local": b2Vec2,    # 後輪のローカル座標
+                "front_world": b2Vec2,   # 前輪のワールド座標
+                "rear_world": b2Vec2,    # 後輪のワールド座標
+                "front_angle": float,    # 前輪の角度（ワールド座標系）
+                "rear_angle": float,     # 後輪の角度（ワールド座標系）
+            }
+        """
+        # 前輪と後輪の位置（ローカル座標系）
+        front_local = b2Vec2(self.wheelbase / 2, 0)  # 車体前方
+        rear_local = b2Vec2(-self.wheelbase / 2, 0)  # 車体後方
+
+        # ワールド座標系に変換
+        front_world = self.body.GetWorldPoint(front_local)
+        rear_world = self.body.GetWorldPoint(rear_local)
+
+        return {
+            "front_local": front_local,
+            "rear_local": rear_local,
+            "front_world": front_world,
+            "rear_world": rear_world,
+        }
+
+    def _apply_tire_friction(self, steer_angle: float, wheel_positions: Dict, debug: bool = False):
+        """
+        タイヤの横滑りを抑制
+
+        Args:
+            steer_angle: ステアリング角度 (rad)
+            wheel_positions: _compute_wheel_positions() の戻り値
+            debug: デバッグ情報を出力するか
+        """
         if abs(steer_angle) < self.STEERING_THRESHOLD_STRAIGHT:
             # 完全に真っ直ぐ進む時は、重心で横滑りを抑制（トルクなし）
             self._kill_lateral_velocity_at_center(self.body.angle, debug=debug)
         else:
-            # ステアリングがある時は通常通り
-            self._kill_lateral_velocity(front_wheel_world, front_wheel_angle, debug=debug)
-            self._kill_lateral_velocity(rear_wheel_world, rear_wheel_angle, debug=debug)
+            # ステアリングがある時は各ホイールで抑制
+            front_wheel_angle = self.body.angle + steer_angle
+            rear_wheel_angle = self.body.angle
 
-        # 駆動力を適用
-        # ステアリングが小さい時は重心に適用してトルクを防ぐ
+            self._kill_lateral_velocity(
+                wheel_positions["front_world"],
+                front_wheel_angle,
+                debug=debug
+            )
+            self._kill_lateral_velocity(
+                wheel_positions["rear_world"],
+                rear_wheel_angle,
+                debug=debug
+            )
+
+    def _apply_drive_force(
+        self,
+        steer_angle: float,
+        throttle: float,
+        wheel_positions: Dict
+    ):
+        """
+        駆動力を適用
+
+        Args:
+            steer_angle: ステアリング角度 (rad)
+            throttle: スロットル (-1.0 ~ 1.0)
+            wheel_positions: _compute_wheel_positions() の戻り値
+        """
         if abs(steer_angle) < self.STEERING_THRESHOLD_STRAIGHT:
-            # 真っ直ぐ進む時は車体の向きで重心に適用
-            drive_direction = b2Vec2(np.cos(self.body.angle), np.sin(self.body.angle))
-            force = throttle * self.max_motor_force * drive_direction
+            # 真っ直ぐ進む時は車体の向きで重心に適用（トルクなし）
+            direction = b2Vec2(
+                np.cos(self.body.angle),
+                np.sin(self.body.angle)
+            )
+            force = throttle * self.max_motor_force * direction
             self.body.ApplyForce(force, self.body.worldCenter, True)
         else:
             # ステアリングがある時は前輪位置に適用（通常のBicycle Model）
-            front_direction = b2Vec2(
-                np.cos(front_wheel_angle), np.sin(front_wheel_angle)
+            front_wheel_angle = self.body.angle + steer_angle
+            direction = b2Vec2(
+                np.cos(front_wheel_angle),
+                np.sin(front_wheel_angle)
             )
-            force = throttle * self.max_motor_force * front_direction
-            self.body.ApplyForce(force, front_wheel_world, True)
+            force = throttle * self.max_motor_force * direction
+            self.body.ApplyForce(force, wheel_positions["front_world"], True)
 
-        # 角速度の減衰（回転の安定性のため）
-        # ステアリング入力が小さい時は、角速度をより強く減衰させる
+    def _apply_angular_damping(self, steering: float):
+        """
+        角速度の減衰を適用（回転の安定性のため）
+
+        ステアリング入力が小さい時は強い減衰を適用し、
+        回転を素早く止める。
+
+        Args:
+            steering: 正規化されたステアリング入力 (-1.0 ~ 1.0)
+        """
         if abs(steering) < self.STEERING_THRESHOLD_DAMPING:
-            # 強い減衰を適用して回転を素早く止める
-            angular_damping = self.ANGULAR_DAMPING_STRONG
+            damping = self.ANGULAR_DAMPING_STRONG
         else:
-            # 通常の減衰
-            angular_damping = self.ANGULAR_DAMPING_NORMAL
-        angular_impulse = -angular_damping * self.body.inertia * self.body.angularVelocity
+            damping = self.ANGULAR_DAMPING_NORMAL
+
+        angular_impulse = -damping * self.body.inertia * self.body.angularVelocity
         self.body.ApplyAngularImpulse(angular_impulse, True)
 
     def _kill_lateral_velocity_at_center(self, vehicle_angle: float, debug: bool = False):
