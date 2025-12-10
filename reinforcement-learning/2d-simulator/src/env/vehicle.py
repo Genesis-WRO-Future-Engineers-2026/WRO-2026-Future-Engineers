@@ -59,7 +59,7 @@ class Vehicle:
         # パラメータのクリッピング
         steering = np.clip(steering, -1.0, 1.0)
         throttle = np.clip(throttle, -1.0, 1.0)
-        steer_angle = steering * self.max_steering_angle
+        steer_angle = -steering * self.max_steering_angle
 
         # 後退時のステアリング反転は行わない（強化学習用途のため）
         # Bicycle Modelの物理的な挙動に従う：

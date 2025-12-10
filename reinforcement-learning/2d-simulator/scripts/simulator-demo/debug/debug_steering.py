@@ -51,11 +51,11 @@ def test_steering(env, steering, throttle, steps, test_name):
     print()
     print(f"最終角度変化: {final_angle_change*180/np.pi:+8.3f}°")
 
-    # 左入力（負のステアリング）で角度が増加（右回転）したら警告
-    if steering < 0 and final_angle_change > 0.01:
+    # 左入力（負のステアリング）で角度が減少（右回転）したら警告
+    if steering < 0 and final_angle_change < -0.01:
         print("⚠️  警告: 左入力なのに右回転しています！")
-    # 右入力（正のステアリング）で角度が減少（左回転）したら警告
-    elif steering > 0 and final_angle_change < -0.01:
+    # 右入力（正のステアリング）で角度が増加（左回転）したら警告
+    elif steering > 0 and final_angle_change > 0.01:
         print("⚠️  警告: 右入力なのに左回転しています！")
 
     return final_angle_change
