@@ -253,18 +253,6 @@ onnxruntime==1.15.0
 - **GitHub Actions**: 自動テスト実行
 - 設定ファイル: `.github/workflows/test.yml`
 
-### Docker（オプション）
-- 環境の再現性を保証
-- GPU環境の構築を簡略化
-
-```dockerfile
-FROM pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-```
-
 ## ハードウェア要件
 
 ### 開発・学習環境

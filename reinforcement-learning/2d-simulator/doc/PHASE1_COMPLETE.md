@@ -13,7 +13,6 @@
 
 ### 1. プロジェクト基盤
 - ディレクトリ構造の構築
-- Docker環境のセットアップ（docker-compose.yml）
 - 依存パッケージの管理（requirements.txt）
 - .gitignoreの設定
 
@@ -98,13 +97,10 @@
 
 ```
 2d-simulator/
-├── Dockerfile
-├── docker-compose.yml
 ├── requirements.txt
 ├── README.md
 │
 ├── doc/
-│   ├── DOCKER_SETUP.md
 │   ├── PHASE1_COMPLETE.md (このファイル)
 │   └── plan/init/ (実装計画8ファイル)
 │
@@ -140,23 +136,29 @@
 
 ## 実行方法
 
-### Docker環境でテストを実行
+### テストを実行
 
 ```bash
+# 環境をアクティベート
+source venv/bin/activate
+export PYTHONPATH="$(pwd):$PYTHONPATH"
+
 # すべてのテストを実行
-docker compose run --rm dev pytest tests/ -v
+pytest tests/ -v
 
 # 特定のテストを実行
-docker compose run --rm dev pytest tests/test_env.py -v
+pytest tests/test_env.py -v
 ```
 
-### 手動制御デモ（ローカル環境）
-
-**注意**: Pygameの描画にはDISPLAY環境が必要なため、ローカル環境での実行を推奨します。
+### 手動制御デモ
 
 ```bash
-# ローカル環境で実行
-python scripts/manual_control.py
+# 環境をアクティベート
+source venv/bin/activate
+export PYTHONPATH="$(pwd):$PYTHONPATH"
+
+# デモを実行
+python scripts/simulator-demo/manual_control.py
 ```
 
 ---
@@ -200,7 +202,6 @@ env.close()
 4. **テスト駆動開発**: 39個のテストで品質保証
 5. **可視化機能**: Pygameでリアルタイム描画
 6. **手動制御**: キーボードで動作確認可能
-7. **Docker環境**: 再現可能な開発環境
 
 ### 📊 パフォーマンス
 
@@ -228,15 +229,15 @@ Phase 1の完成により、次のフェーズに進む準備が整いました�
 
 ## トラブルシューティング
 
-### Docker関連
+### インストール関連
 
-- **ビルドエラー**: `docker compose build --no-cache dev`
-- **pybox2dエラー**: `box2d-py`パッケージに変更済み
+- **pybox2dエラー**: `box2d-py`パッケージを使用
+- macOSの場合: `brew install swig`が必要な場合あり
 
 ### 実行関連
 
-- **Pygame描画**: ローカル環境推奨（DISPLAY環境が必要）
-- **パス問題**: `sys.path.insert(0, ...)`でプロジェクトルートを追加
+- **ModuleNotFoundError**: `export PYTHONPATH="$(pwd):$PYTHONPATH"`を実行
+- **Pygame描画**: GUI可視化にはPygameが必要
 
 ---
 
