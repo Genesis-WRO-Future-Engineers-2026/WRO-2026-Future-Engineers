@@ -32,7 +32,9 @@ def test_saved_model(model_path: str, n_episodes: int = 3, render: bool = False)
 
     # 環境の作成
     render_mode = "human" if render else None
+    print(f"[DEBUG] Creating environment with render_mode={render_mode}")
     env = MinicarEnv(course_file="courses/easy/simple_oval.json", render_mode=render_mode)
+    print(f"[DEBUG] Environment created, render_mode={env.render_mode}")
 
     # PPOの作成
     ppo = PPO(
@@ -67,6 +69,8 @@ def test_saved_model(model_path: str, n_episodes: int = 3, render: bool = False)
 
             # 描画
             if render:
+                if episode_length == 1:  # 最初のステップだけログ
+                    print(f"[DEBUG] Calling env.render() for episode {episode + 1}")
                 env.render()
 
             # 最大ステップ数でbreak

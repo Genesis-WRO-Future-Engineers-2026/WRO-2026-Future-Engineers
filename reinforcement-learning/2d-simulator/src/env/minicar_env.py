@@ -54,6 +54,7 @@ class MinicarEnv(gym.Env):
         self.renderer = None
         if render_mode == "human":
             self.renderer = Renderer()
+            print(f"[DEBUG] Renderer initialized in {render_mode} mode")
 
         # 行動空間: [steering, throttle]
         # steering: -1.0 (左) ~ 1.0 (右)
@@ -74,6 +75,10 @@ class MinicarEnv(gym.Env):
         self.last_action = np.zeros(2)
         self.total_reward = 0.0
         self.checkpoints_passed = set()
+
+        # LiDARスキャンと車両状態のキャッシュ（パフォーマンス最適化）
+        self._cached_lidar_scan = None
+        self._cached_vehicle_state = None
 
     def reset(
         self, seed: Optional[int] = None, options: Optional[Dict[str, Any]] = None
@@ -258,6 +263,7 @@ class MinicarEnv(gym.Env):
             return
 
         if self.renderer is None:
+            print("[DEBUG] Renderer was None, creating new Renderer")
             self.renderer = Renderer()
 
         # 画面クリア
@@ -303,7 +309,10 @@ class MinicarEnv(gym.Env):
         self.renderer.draw_debug_info(debug_info)
 
         # 画面更新
-        self.renderer.update()
+        should_continue = self.renderer.update()
+        if not should_continue:
+            # ユーザーがウィンドウを閉じた場合
+            self.close()
 
     def close(self):
         """リソースを解放"""

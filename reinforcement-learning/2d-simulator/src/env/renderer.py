@@ -30,6 +30,10 @@ class Renderer:
         self.screen = pygame.display.set_mode((screen_width, screen_height))
         pygame.display.set_caption("Minicar 2D Simulator")
 
+        # クロック（フレームレート制御用）
+        self.clock = pygame.time.Clock()
+        self.fps = 30
+
         # フォント
         self.font = pygame.font.Font(None, 24)
         self.small_font = pygame.font.Font(None, 18)
@@ -262,7 +266,14 @@ class Renderer:
 
     def update(self):
         """画面を更新"""
+        # イベント処理（ウィンドウの応答性を保つため）
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False  # 終了要求
+
         pygame.display.flip()
+        self.clock.tick(self.fps)  # フレームレート制限
+        return True  # 継続
 
     def close(self):
         """Pygameを終了"""
