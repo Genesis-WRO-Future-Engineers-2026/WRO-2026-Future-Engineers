@@ -19,8 +19,13 @@ from config import (
     DISTANCE_DEADZONE,
     ANGLE_DEADZONE,
     STRAIGHT_PATH_THRESHOLD,
-    TURN_TO_STRAIGHT_ANGLE
+    TURN_TO_STRAIGHT_ANGLE,
+    STEERING_SMOOTHING_ENABLED,
+    STEERING_ALPHA
 )
+
+# 前回のステアリング角度を保持（スムージング用）
+_previous_steering_angle = 0.0
 
 
 def calculate_wall_approach_angle(distance1, distance2, angle1=None, angle2=None):
@@ -119,6 +124,8 @@ def apply_counter_steer(servo_pwm, angle, wall_distance):
     steer_action : str
         実行したステアリング動作の説明（角度を含む）
     """
+    global _previous_steering_angle
+
     # 1. 誤差を計算
     distance_error = wall_distance - TARGET_DISTANCE
     angle_error = angle - PARALLEL_ANGLE
@@ -147,14 +154,43 @@ def apply_counter_steer(servo_pwm, angle, wall_distance):
     if abs(steering_angle) < MIN_STEER_ANGLE:
         steering_angle = 0.0
 
-    # 7. サーボに適用
+    # 7. スムージング適用（急激な変化を防ぐ）
+    if STEERING_SMOOTHING_ENABLED:
+        steering_angle = _apply_steering_smoothing(steering_angle)
+
+    # 8. サーボに適用
     set_servo_angle(servo_pwm, steering_angle)
 
-    # 8. 詳細ログを返す
+    # 9. 詳細ログを返す
     return _format_steer_action(
         steering_angle, distance_error, angle_error,
         distance_steering, angle_steering
     )
+
+
+def _apply_steering_smoothing(target_angle):
+    """
+    ステアリング角度にローパスフィルタを適用して滑らかにします。
+
+    Parameters:
+    -----------
+    target_angle : float
+        目標ステアリング角度（度）
+
+    Returns:
+    --------
+    float : スムージング適用後のステアリング角度（度）
+    """
+    global _previous_steering_angle
+
+    # ローパスフィルタ（指数移動平均）
+    smoothed_angle = (STEERING_ALPHA * target_angle +
+                     (1 - STEERING_ALPHA) * _previous_steering_angle)
+
+    # 次回のために保存
+    _previous_steering_angle = smoothed_angle
+
+    return smoothed_angle
 
 
 def _format_steer_action(steering_angle, distance_error, angle_error,
