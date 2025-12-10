@@ -306,7 +306,7 @@ class MinicarEnv(gym.Env):
         )
 
         # 車両を描画
-        self.renderer.draw_vehicle(state["position"], state["angle"])
+        self.renderer.draw_vehicle(self.vehicle)
 
         # デバッグ情報
         info = self._get_info()
@@ -330,3 +330,39 @@ class MinicarEnv(gym.Env):
         if self.renderer is not None:
             self.renderer.close()
             self.renderer = None
+
+    def load_course(self, course_file: str):
+        """
+        新しいコースをロードする（カリキュラム学習用）
+
+        Args:
+            course_file: コース定義ファイル
+        """
+        # 現在のコースファイルと同じ場合はスキップ
+        if hasattr(self, 'course') and self.course.course_file == course_file:
+            return
+
+        # 物理世界をリセット
+        self.world = PhysicsWorld()
+
+        # 新しいコースをロード
+        self.course = Course(course_file)
+
+        # 壁を作成
+        self.course.create_walls(self.world.world)
+
+        # 車両を再作成
+        start_pos, start_angle = self.course.get_start_pose()
+        self.vehicle = Vehicle(self.world.world, start_pos, start_angle)
+
+        # LiDARセンサーを再作成
+        self.lidar = LiDARSensor(self.world.world, num_rays=72, max_range=10.0)
+
+        # 状態をリセット
+        self.step_count = 0
+        self.last_action = np.zeros(2)
+        self.total_reward = 0.0
+        self.checkpoints_passed = set()
+        self._cached_lidar = None
+
+        print(f"[INFO] Loaded new course: {course_file}")

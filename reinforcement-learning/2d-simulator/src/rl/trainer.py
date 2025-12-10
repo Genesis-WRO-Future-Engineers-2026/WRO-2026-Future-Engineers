@@ -9,6 +9,7 @@ from pathlib import Path
 from src.rl.ppo import PPO
 from src.rl.buffer import RolloutBuffer
 from src.env.minicar_env import MinicarEnv
+from src.curriculum.curriculum_manager import CurriculumManager
 
 
 class PPOTrainer:
@@ -29,6 +30,8 @@ class PPOTrainer:
         # 評価
         eval_freq: int = 10,
         n_eval_episodes: int = 5,
+        # カリキュラム学習
+        curriculum: Optional[CurriculumManager] = None,
     ):
         """
         Args:
@@ -42,6 +45,7 @@ class PPOTrainer:
             checkpoint_dir: チェックポイントディレクトリ
             eval_freq: 評価頻度（イテレーション単位）
             n_eval_episodes: 評価エピソード数
+            curriculum: カリキュラム学習マネージャー（オプション）
         """
         self.env = env
         self.ppo = ppo
@@ -54,6 +58,7 @@ class PPOTrainer:
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
         self.eval_freq = eval_freq
         self.n_eval_episodes = n_eval_episodes
+        self.curriculum = curriculum
 
         # ロールアウトバッファ
         self.rollout_buffer = RolloutBuffer(
@@ -120,6 +125,16 @@ class PPOTrainer:
                 episode_rewards.append(episode_reward)
                 episode_lengths.append(episode_length)
 
+                # カリキュラム学習: 成功/失敗を記録
+                if self.curriculum is not None:
+                    # 成功判定（ゴール到達）
+                    success = (
+                        terminated
+                        and info.get("checkpoints_passed", 0) > 0
+                        and info.get("min_distance", 0) > 0.1
+                    )
+                    self.curriculum.update(success)
+
                 # リセット
                 obs, _ = self.env.reset()
                 episode_reward = 0
@@ -185,6 +200,29 @@ class PPOTrainer:
             stats["time/fps"] = fps
             stats["time/iterations"] = iteration + 1
             stats["time/total_timesteps"] = self.total_timesteps
+
+            # カリキュラム学習: レベル調整
+            if self.curriculum is not None:
+                level_change = self.curriculum.auto_adjust_level()
+                if level_change is not None:
+                    # コースを変更
+                    new_course = self.curriculum.get_current_course()
+                    self.env.load_course(new_course)
+
+                    # レベル変更をログ
+                    curriculum_stats = self.curriculum.get_stats()
+                    print(f"\n{'='*60}")
+                    print(f"CURRICULUM LEVEL CHANGED: {level_change.upper()}")
+                    print(f"New Level: {curriculum_stats['current_level']}")
+                    print(f"New Course: {curriculum_stats['current_course']}")
+                    print(f"Success Rate: {curriculum_stats['success_rate']:.2%}")
+                    print(f"{'='*60}\n")
+
+                # カリキュラム統計をログ
+                curriculum_stats = self.curriculum.get_stats()
+                stats["curriculum/level"] = curriculum_stats['current_level']
+                stats["curriculum/success_rate"] = curriculum_stats['success_rate']
+                stats["curriculum/level_episodes"] = curriculum_stats['level_episodes']
 
             # ログ
             if self.logger is not None:
