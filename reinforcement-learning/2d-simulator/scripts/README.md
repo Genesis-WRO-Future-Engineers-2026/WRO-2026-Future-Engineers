@@ -16,7 +16,7 @@ scripts/
 │   ├── manual_control.py        # 手動制御デモ
 │   └── run_manual_control.sh    # 起動スクリプト
 │
-└── 🤖 rl-demo/                  # 強化学習デモ
+└── 🤖 rl-training/                  # 強化学習デモ
     ├── README.md
     ├── train.py                 # PPO学習スクリプト
     ├── run_train.sh             # 学習起動スクリプト
@@ -41,13 +41,13 @@ scripts/
 
 ```bash
 # 1. テスト実行（動作確認）
-./scripts/rl-demo/run_tests.sh
+./scripts/rl-training/run_tests.sh
 
 # 2. 短時間学習（約1-2分）
-./scripts/rl-demo/run_train.sh --total-iterations 5 --n-steps 256
+./scripts/rl-training/run_train.sh --total-iterations 5 --n-steps 256
 
 # 3. 結果を確認
-./scripts/rl-demo/run_eval.sh
+./scripts/rl-training/run_eval.sh
 ```
 
 詳細は [QUICKSTART.md](./QUICKSTART.md) を参照してください。
@@ -76,7 +76,7 @@ scripts/
 
 ---
 
-## 🤖 強化学習デモ（rl-demo/）
+## 🤖 強化学習デモ（rl-training/）
 
 PPO（Proximal Policy Optimization）を使った強化学習のデモです。
 
@@ -84,10 +84,10 @@ PPO（Proximal Policy Optimization）を使った強化学習のデモです。
 
 ```bash
 # デフォルト設定で学習開始
-./scripts/rl-demo/run_train.sh
+./scripts/rl-training/run_train.sh
 
 # カスタム設定で学習
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --total-iterations 1000 \
   --n-steps 2048 \
   --lr 3e-4 \
@@ -99,7 +99,7 @@ PPO（Proximal Policy Optimization）を使った強化学習のデモです。
 強化学習モジュールの動作確認を行います。
 
 ```bash
-./scripts/rl-demo/run_tests.sh
+./scripts/rl-training/run_tests.sh
 ```
 
 ### 評価（test_saved_model.py）
@@ -108,15 +108,15 @@ PPO（Proximal Policy Optimization）を使った強化学習のデモです。
 
 ```bash
 # デフォルトモデルを評価
-./scripts/rl-demo/run_eval.sh
+./scripts/rl-training/run_eval.sh
 
 # 特定のチェックポイントを評価
-./scripts/rl-demo/run_eval.sh \
+./scripts/rl-training/run_eval.sh \
   --model models/checkpoints/checkpoint_500.pth \
   --n-episodes 5
 ```
 
-詳細は [rl-demo/README.md](./rl-demo/README.md) を参照してください。
+詳細は [rl-training/README.md](./rl-training/README.md) を参照してください。
 
 ---
 
@@ -129,22 +129,22 @@ PPO（Proximal Policy Optimization）を使った強化学習のデモです。
 ./scripts/simulator-demo/run_manual_control.sh
 
 # Step 2: テスト実行（動作確認）
-./scripts/rl-demo/run_tests.sh
+./scripts/rl-training/run_tests.sh
 
 # Step 3: 短時間学習（動作確認）
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --total-iterations 5 \
   --n-steps 256 \
   --experiment-name initial_test
 
 # Step 4: 結果を確認
-./scripts/rl-demo/run_eval.sh
+./scripts/rl-training/run_eval.sh
 
 # Step 5: TensorBoardで可視化
 tensorboard --logdir=logs
 
 # Step 6: 問題なければ本格的な学習を開始
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --total-iterations 1000 \
   --experiment-name main_training
 ```
@@ -153,7 +153,7 @@ tensorboard --logdir=logs
 
 ```bash
 # チェックポイントから再開
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --resume models/checkpoints/checkpoint_500.pth \
   --total-iterations 1500
 ```
@@ -162,7 +162,7 @@ tensorboard --logdir=logs
 
 ```bash
 # 学習済みモデルを評価
-./scripts/rl-demo/run_eval.sh
+./scripts/rl-training/run_eval.sh
 
 # TensorBoardで学習過程を確認
 tensorboard --logdir=logs
@@ -179,19 +179,19 @@ tensorboard --logdir=logs
 
 # 【強化学習】
 # テスト実行
-./scripts/rl-demo/run_tests.sh
+./scripts/rl-training/run_tests.sh
 
 # 短時間学習（約1分）
-./scripts/rl-demo/run_train.sh --total-iterations 5 --n-steps 256
+./scripts/rl-training/run_train.sh --total-iterations 5 --n-steps 256
 
 # 中程度学習（約30分）
-./scripts/rl-demo/run_train.sh --total-iterations 100
+./scripts/rl-training/run_train.sh --total-iterations 100
 
 # 本格学習（約2-3時間）
-./scripts/rl-demo/run_train.sh --total-iterations 1000
+./scripts/rl-training/run_train.sh --total-iterations 1000
 
 # モデル評価
-./scripts/rl-demo/run_eval.sh
+./scripts/rl-training/run_eval.sh
 
 # TensorBoard起動
 tensorboard --logdir=logs
@@ -242,7 +242,7 @@ Apple Silicon (M1/M2/M3) の場合、MPSが自動的に使われます。
 それでも遅い場合は `--n-steps` を減らしてください：
 
 ```bash
-./scripts/rl-demo/run_train.sh --n-steps 1024
+./scripts/rl-training/run_train.sh --n-steps 1024
 ```
 
 ---
@@ -252,7 +252,7 @@ Apple Silicon (M1/M2/M3) の場合、MPSが自動的に使われます。
 ### ディレクトリ別
 
 - [シミュレーターデモ](./simulator-demo/README.md) - 手動制御の詳細
-- [強化学習デモ](./rl-demo/README.md) - 学習・テスト・評価の詳細
+- [強化学習デモ](./rl-training/README.md) - 学習・テスト・評価の詳細
 - [クイックスタート](./QUICKSTART.md) - 最速で始める方法
 
 ### プロジェクト全体
@@ -269,7 +269,7 @@ Apple Silicon (M1/M2/M3) の場合、MPSが自動的に使われます。
 → [simulator-demo/README.md](./simulator-demo/README.md)
 
 ### 強化学習を試したい
-→ [rl-demo/README.md](./rl-demo/README.md)
+→ [rl-training/README.md](./rl-training/README.md)
 
 ### すぐに始めたい
 → [QUICKSTART.md](./QUICKSTART.md)

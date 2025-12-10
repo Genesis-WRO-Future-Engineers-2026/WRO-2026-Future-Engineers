@@ -130,7 +130,7 @@ pip install box2d-py
 ## 📚 関連ドキュメント
 
 - [プロジェクトREADME](../../README.md)
-- [強化学習デモ](../rl-demo/README.md)
+- [強化学習デモ](../rl-training/README.md)
 - [スクリプト全体のREADME](../README.md)
 
 ---

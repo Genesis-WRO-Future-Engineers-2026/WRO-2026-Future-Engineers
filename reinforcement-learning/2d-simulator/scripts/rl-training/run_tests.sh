@@ -35,7 +35,7 @@ export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"
 # Pythonスクリプトを実行
 echo "テストを実行中..."
 echo ""
-python scripts/rl-demo/test_rl.py
+python scripts/rl-training/test_rl.py
 
 # 終了コードを保存
 EXIT_CODE=$?

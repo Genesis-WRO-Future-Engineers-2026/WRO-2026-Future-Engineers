@@ -50,7 +50,7 @@ fi
 # Pythonスクリプトを実行
 echo "学習を開始します..."
 echo ""
-python scripts/rl-demo/train.py "$@"
+python scripts/rl-training/train.py "$@"
 
 # 終了
 echo ""

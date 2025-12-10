@@ -10,13 +10,13 @@ PPO（Proximal Policy Optimization）を使った強化学習のデモスクリ�
 
 ```bash
 # 1. テストを実行（動作確認）
-./scripts/rl-demo/run_tests.sh
+./scripts/rl-training/run_tests.sh
 
 # 2. 短時間学習を実行（約1-2分）
-./scripts/rl-demo/run_train.sh --total-iterations 5 --n-steps 256
+./scripts/rl-training/run_train.sh --total-iterations 5 --n-steps 256
 
 # 3. 学習結果を確認
-./scripts/rl-demo/run_eval.sh
+./scripts/rl-training/run_eval.sh
 ```
 
 ---
@@ -24,7 +24,7 @@ PPO（Proximal Policy Optimization）を使った強化学習のデモスクリ�
 ## 📂 ファイル構成
 
 ```
-rl-demo/
+rl-training/
 ├── README.md                    # このファイル
 │
 ├── 🤖 学習スクリプト
@@ -50,10 +50,10 @@ PPOアルゴリズムでエージェントを学習させます。
 
 ```bash
 # デフォルト設定で学習開始
-./scripts/rl-demo/run_train.sh
+./scripts/rl-training/run_train.sh
 
 # カスタム設定で学習
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --total-iterations 1000 \
   --n-steps 2048 \
   --lr 3e-4 \
@@ -81,25 +81,25 @@ PPOアルゴリズムでエージェントを学習させます。
 
 ```bash
 # 短時間のテスト実行（約5分）
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --total-iterations 10 \
   --n-steps 512 \
   --experiment-name quick_test
 
 # GUIで可視化しながら学習（動作確認用）
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --total-iterations 5 \
   --n-steps 256 \
   --gui
 
 # 本格的な学習（約2-3時間）
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --total-iterations 1000 \
   --save-freq 100 \
   --experiment-name full_training
 
 # チェックポイントから再開
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --resume models/checkpoints/checkpoint_500.pth \
   --total-iterations 2000
 ```
@@ -109,7 +109,7 @@ PPOアルゴリズムでエージェントを学習させます。
 **GUIでリアルタイム可視化:**
 ```bash
 # 学習中のエージェントの動作を可視化
-./scripts/rl-demo/run_train.sh --gui --total-iterations 10
+./scripts/rl-training/run_train.sh --gui --total-iterations 10
 
 # 注意: GUIモードは学習速度が低下するため、動作確認用途での使用を推奨
 ```
@@ -134,7 +134,7 @@ cat logs/<experiment_name>/training.csv | column -t -s,
 強化学習モジュールの動作確認を行います。
 
 ```bash
-./scripts/rl-demo/run_tests.sh
+./scripts/rl-training/run_tests.sh
 ```
 
 **テスト内容:**
@@ -161,19 +161,19 @@ cat logs/<experiment_name>/training.csv | column -t -s,
 
 ```bash
 # デフォルト（final_model.pth）を3エピソード評価
-./scripts/rl-demo/run_eval.sh
+./scripts/rl-training/run_eval.sh
 
 # GUIで可視化しながら評価
-./scripts/rl-demo/run_eval.sh --gui
+./scripts/rl-training/run_eval.sh --gui
 
 # 特定のチェックポイントをGUIで評価
-./scripts/rl-demo/run_eval.sh \
+./scripts/rl-training/run_eval.sh \
   --model models/checkpoints/checkpoint_500.pth \
   --n-episodes 5 \
   --gui
 
 # ベストモデルを評価
-./scripts/rl-demo/run_eval.sh \
+./scripts/rl-training/run_eval.sh \
   --model models/best/policy.pth \
   --n-episodes 10
 ```
@@ -210,22 +210,22 @@ Average Checkpoints: 3.7 ± 0.5
 
 ```bash
 # Step 1: テスト実行（動作確認）
-./scripts/rl-demo/run_tests.sh
+./scripts/rl-training/run_tests.sh
 
 # Step 2: 短時間学習（動作確認）
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --total-iterations 5 \
   --n-steps 256 \
   --experiment-name initial_test
 
 # Step 3: 結果を確認
-./scripts/rl-demo/run_eval.sh
+./scripts/rl-training/run_eval.sh
 
 # Step 4: TensorBoardで可視化
 tensorboard --logdir=logs
 
 # Step 5: 問題なければ本格的な学習を開始
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --total-iterations 1000 \
   --experiment-name main_training
 ```
@@ -234,7 +234,7 @@ tensorboard --logdir=logs
 
 ```bash
 # チェックポイントから再開
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --resume models/checkpoints/checkpoint_500.pth \
   --total-iterations 1500 \
   --experiment-name continued_training
@@ -244,12 +244,12 @@ tensorboard --logdir=logs
 
 ```bash
 # 学習率を変更
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --lr 1e-4 \
   --experiment-name lr_1e4
 
 # クリッピング範囲を変更
-./scripts/rl-demo/run_train.sh \
+./scripts/rl-training/run_train.sh \
   --clip-range 0.1 \
   --experiment-name clip_01
 ```
@@ -267,29 +267,29 @@ tensorboard --logdir=logs
 
 2. **学習率を調整:**
    ```bash
-   ./scripts/rl-demo/run_train.sh --lr 1e-4
+   ./scripts/rl-training/run_train.sh --lr 1e-4
    ```
 
 3. **ステップ数を増やす:**
    ```bash
-   ./scripts/rl-demo/run_train.sh --n-steps 4096
+   ./scripts/rl-training/run_train.sh --n-steps 4096
    ```
 
 ### メモリ不足の場合
 
 ```bash
 # バッチサイズを減らす
-./scripts/rl-demo/run_train.sh --batch-size 32
+./scripts/rl-training/run_train.sh --batch-size 32
 
 # ステップ数を減らす
-./scripts/rl-demo/run_train.sh --n-steps 1024
+./scripts/rl-training/run_train.sh --n-steps 1024
 ```
 
 ### GPU/MPSが使えない場合
 
 ```bash
 # CPUを強制
-./scripts/rl-demo/run_train.sh --device cpu
+./scripts/rl-training/run_train.sh --device cpu
 ```
 
 ---
@@ -298,25 +298,25 @@ tensorboard --logdir=logs
 
 ```bash
 # テスト
-./scripts/rl-demo/run_tests.sh
+./scripts/rl-training/run_tests.sh
 
 # 短時間学習（5イテレーション、約1分）
-./scripts/rl-demo/run_train.sh --total-iterations 5 --n-steps 256
+./scripts/rl-training/run_train.sh --total-iterations 5 --n-steps 256
 
 # GUIで可視化しながら学習
-./scripts/rl-demo/run_train.sh --total-iterations 5 --n-steps 256 --gui
+./scripts/rl-training/run_train.sh --total-iterations 5 --n-steps 256 --gui
 
 # 中程度学習（100イテレーション、約30分）
-./scripts/rl-demo/run_train.sh --total-iterations 100
+./scripts/rl-training/run_train.sh --total-iterations 100
 
 # 本格学習（1000イテレーション、約2-3時間）
-./scripts/rl-demo/run_train.sh --total-iterations 1000
+./scripts/rl-training/run_train.sh --total-iterations 1000
 
 # モデル評価
-./scripts/rl-demo/run_eval.sh
+./scripts/rl-training/run_eval.sh
 
 # GUIで可視化しながら評価
-./scripts/rl-demo/run_eval.sh --gui
+./scripts/rl-training/run_eval.sh --gui
 
 # TensorBoard
 tensorboard --logdir=logs
@@ -353,4 +353,4 @@ logs/<experiment_name>/
 ---
 
 **作成日**: 2025-12-10
-**場所**: `scripts/rl-demo/`
+**場所**: `scripts/rl-training/`

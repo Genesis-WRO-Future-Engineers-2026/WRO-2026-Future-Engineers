@@ -80,9 +80,9 @@ echo "モデルを評価中..."
 echo ""
 
 if [ -n "$MODEL_PATH" ]; then
-    python scripts/rl-demo/test_saved_model.py --model "$MODEL_PATH" "$@"
+    python scripts/rl-training/test_saved_model.py --model "$MODEL_PATH" "$@"
 else
-    python scripts/rl-demo/test_saved_model.py "$@"
+    python scripts/rl-training/test_saved_model.py "$@"
 fi
 
 # 終了

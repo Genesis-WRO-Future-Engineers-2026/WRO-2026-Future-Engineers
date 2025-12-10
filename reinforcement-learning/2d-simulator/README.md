@@ -51,7 +51,7 @@ export PYTHONPATH="$(pwd):$PYTHONPATH"
 ### 4. 学習開始（GUI付き）
 
 ```bash
-python scripts/rl-demo/train.py --total-iterations 100 --gui
+python scripts/rl-training/train.py --total-iterations 100 --gui
 ```
 
 これでPygameウィンドウが開き、車両がコースを走る様子をリアルタイムで確認できます！
@@ -76,7 +76,7 @@ python scripts/rl-demo/train.py --total-iterations 100 --gui
 ├── courses/              # コース定義（JSON）
 ├── configs/              # 設定ファイル（YAML）
 ├── scripts/              # 実行スクリプト
-│   └── rl-demo/         # 学習スクリプト
+│   └── rl-training/     # 学習スクリプト
 ├── tests/                # テストコード
 ├── models/               # 学習済みモデル
 │   └── checkpoints/     # チェックポイント
@@ -107,10 +107,10 @@ source venv/bin/activate
 export PYTHONPATH="$(pwd):$PYTHONPATH"
 
 # デフォルト設定で学習を開始（GUI付き）
-python scripts/rl-demo/train.py --gui
+python scripts/rl-training/train.py --gui
 
 # カスタム設定で学習
-python scripts/rl-demo/train.py \
+python scripts/rl-training/train.py \
   --course courses/easy/simple_oval.json \
   --total-iterations 1000 \
   --n-steps 2048 \
@@ -143,7 +143,7 @@ tensorboard --logdir=logs
 ### チェックポイントから再開
 
 ```bash
-python scripts/rl-demo/train.py \
+python scripts/rl-training/train.py \
   --resume models/checkpoints/checkpoint_500.pth \
   --total-iterations 2000
 ```
@@ -152,7 +152,7 @@ python scripts/rl-demo/train.py \
 
 ```bash
 # 複数の難易度のコースを段階的に学習
-python scripts/rl-demo/train_curriculum.py
+python scripts/rl-training/train_curriculum.py
 ```
 
 ---
@@ -191,7 +191,7 @@ flake8 src/ tests/
 
 ```bash
 # モデルをGUI付きで再生
-python scripts/rl-demo/test_saved_model.py \
+python scripts/rl-training/test_saved_model.py \
   --model models/checkpoints/final_model.pth
 ```
 
@@ -210,7 +210,7 @@ alias minicar='cd /Users/akamite/Documents/ichis/minicar-battle/reinforcement-le
 
 ```bash
 minicar
-python scripts/rl-demo/train.py --gui
+python scripts/rl-training/train.py --gui
 ```
 
 ---
@@ -284,7 +284,7 @@ tensorboard --logdir=logs --port=6006
 
 ## 次のステップ
 
-1. **学習開始**: `python scripts/rl-demo/train.py --gui` で車両の動きを確認
+1. **学習開始**: `python scripts/rl-training/train.py --gui` で車両の動きを確認
 2. **パラメータ調整**: 報酬関数やハイパーパラメータの最適化
 3. **コース追加**: medium, hard難易度のコースを作成
 4. **Domain Randomization実装**: 実機転移のための環境ランダム化
