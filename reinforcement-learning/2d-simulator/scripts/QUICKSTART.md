@@ -25,21 +25,21 @@ cd /Users/akamite/Documents/ichis/minicar-battle/reinforcement-learning/2d-simul
 
 ```bash
 # RLモジュールのテスト
-./scripts/run_tests.sh
+./scripts/rl-demo/run_tests.sh
 ```
 
 ### 2. 短時間学習を実行
 
 ```bash
 # 約1-2分で完了
-./scripts/run_train.sh --total-iterations 5 --n-steps 256
+./scripts/rl-demo/run_train.sh --total-iterations 5 --n-steps 256
 ```
 
 ### 3. 学習結果を確認
 
 ```bash
 # モデルを評価
-./scripts/run_eval.sh
+./scripts/rl-demo/run_eval.sh
 ```
 
 ---
@@ -50,10 +50,10 @@ cd /Users/akamite/Documents/ichis/minicar-battle/reinforcement-learning/2d-simul
 
 ```bash
 # デフォルト設定で学習（約2-3時間）
-./scripts/run_train.sh
+./scripts/rl-demo/run_train.sh
 
 # または、短めの学習（約30分）
-./scripts/run_train.sh --total-iterations 100
+./scripts/rl-demo/run_train.sh --total-iterations 100
 ```
 
 ### 2. 別ターミナルでTensorBoardを起動
@@ -68,7 +68,7 @@ tensorboard --logdir=logs
 ### 3. 学習完了後、評価
 
 ```bash
-./scripts/run_eval.sh
+./scripts/rl-demo/run_eval.sh
 ```
 
 ---
@@ -80,23 +80,19 @@ scripts/
 ├── README.md                    # 詳細ドキュメント
 ├── QUICKSTART.md                # このファイル
 │
-├── 🎮 デモスクリプト
-│   └── simulator-demo/
-│       ├── README.md
-│       ├── manual_control.py
-│       └── run_manual_control.sh    # 手動制御デモ
+├── 🎮 simulator-demo/           # シミュレーターデモ
+│   ├── README.md
+│   ├── manual_control.py
+│   └── run_manual_control.sh    # 手動制御デモ
 │
-├── 🤖 学習スクリプト
-│   ├── train.py
-│   └── run_train.sh                 # 学習実行（簡単）
-│
-├── 🧪 テストスクリプト
-│   ├── test_rl.py
-│   └── run_tests.sh                 # テスト実行（簡単）
-│
-└── 📊 評価スクリプト
+└── 🤖 rl-demo/                  # 強化学習デモ
+    ├── README.md
+    ├── train.py
+    ├── run_train.sh             # 学習実行（簡単）
+    ├── test_rl.py
+    ├── run_tests.sh             # テスト実行（簡単）
     ├── test_saved_model.py
-    └── run_eval.sh                  # モデル評価（簡単）
+    └── run_eval.sh              # モデル評価（簡単）
 ```
 
 ---
@@ -110,22 +106,22 @@ scripts/
 
 ### 動作確認したい
 ```bash
-./scripts/run_tests.sh
+./scripts/rl-demo/run_tests.sh
 ```
 
 ### すぐに学習を始めたい
 ```bash
-./scripts/run_train.sh --total-iterations 10
+./scripts/rl-demo/run_train.sh --total-iterations 10
 ```
 
 ### 本格的に学習したい
 ```bash
-./scripts/run_train.sh --total-iterations 1000
+./scripts/rl-demo/run_train.sh --total-iterations 1000
 ```
 
 ### 学習結果を見たい
 ```bash
-./scripts/run_eval.sh
+./scripts/rl-demo/run_eval.sh
 
 # または TensorBoard で
 tensorboard --logdir=logs
@@ -136,23 +132,25 @@ tensorboard --logdir=logs
 ## ⚡ よく使うコマンド
 
 ```bash
+# 【シミュレーター】
 # 手動制御
 ./scripts/simulator-demo/run_manual_control.sh
 
+# 【強化学習】
 # テスト
-./scripts/run_tests.sh
+./scripts/rl-demo/run_tests.sh
 
 # 短時間学習（5イテレーション、約1分）
-./scripts/run_train.sh --total-iterations 5 --n-steps 256
+./scripts/rl-demo/run_train.sh --total-iterations 5 --n-steps 256
 
 # 中程度学習（100イテレーション、約30分）
-./scripts/run_train.sh --total-iterations 100
+./scripts/rl-demo/run_train.sh --total-iterations 100
 
 # 本格学習（1000イテレーション、約2-3時間）
-./scripts/run_train.sh --total-iterations 1000
+./scripts/rl-demo/run_train.sh --total-iterations 1000
 
 # モデル評価
-./scripts/run_eval.sh
+./scripts/rl-demo/run_eval.sh
 
 # TensorBoard
 source venv/bin/activate && tensorboard --logdir=logs
@@ -185,16 +183,21 @@ Apple Silicon (M1/M2/M3) の場合、MPSが自動的に使われます。
 それでも遅い場合は `--n-steps` を減らしてください：
 
 ```bash
-./scripts/run_train.sh --n-steps 1024
+./scripts/rl-demo/run_train.sh --n-steps 1024
 ```
 
 ---
 
 ## 📚 詳細情報
 
-より詳しい情報は [README.md](./README.md) を参照してください。
+より詳しい情報は以下を参照してください：
+
+- [scripts/README.md](./README.md) - スクリプト全体の説明
+- [simulator-demo/README.md](./simulator-demo/README.md) - シミュレーターデモの詳細
+- [rl-demo/README.md](./rl-demo/README.md) - 強化学習デモの詳細
 
 ---
 
 **作成日**: 2025-12-10
-**バージョン**: 1.0.0
+**バージョン**: 2.0.0
+**場所**: `scripts/QUICKSTART.md`

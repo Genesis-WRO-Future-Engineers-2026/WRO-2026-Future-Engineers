@@ -30,6 +30,7 @@ class Vehicle:
 
         self.max_steering_angle = 0.5  # rad (約28度)
         self.max_motor_force = 20.0  # N
+        self.max_lateral_impulse = 2.5  # 横滑り抑制の最大インパルス（安定性のため）
 
         # Box2Dボディ作成
         self.body = self.world.CreateDynamicBody(
@@ -82,6 +83,10 @@ class Vehicle:
         force = throttle * self.max_motor_force * front_direction
         self.body.ApplyForce(force, front_wheel_world, True)
 
+        # 角速度の減衰（回転の安定性のため）
+        angular_impulse = -0.1 * self.body.inertia * self.body.angularVelocity
+        self.body.ApplyAngularImpulse(angular_impulse, True)
+
     def _kill_lateral_velocity(self, world_point: b2Vec2, wheel_angle: float):
         """
         ホイール位置での横滑りを抑制（タイヤは横方向に滑らない）
@@ -105,8 +110,15 @@ class Vehicle:
         # 横方向の速度ベクトル
         lateral_velocity = lateral_velocity_magnitude * wheel_lateral
 
-        # 横方向の速度を打ち消すインパルスを適用
+        # 横方向の速度を打ち消すインパルスを計算
         impulse = -self.body.mass * lateral_velocity
+
+        # インパルスの大きさをクリップ（安定性のため重要）
+        impulse_length = np.linalg.norm([impulse.x, impulse.y])
+        if impulse_length > self.max_lateral_impulse:
+            impulse *= self.max_lateral_impulse / impulse_length
+
+        # インパルスを適用
         self.body.ApplyLinearImpulse(impulse, world_point, True)
 
     def get_state(self) -> Dict:
