@@ -8,6 +8,40 @@ from typing import Tuple, Dict
 class Vehicle:
     """ミニカーの物理モデル"""
 
+    # ========================================
+    # 制御パラメータ定数
+    # ========================================
+
+    # ステアリング閾値
+    STEERING_THRESHOLD_STRAIGHT = 0.001  # rad
+    """
+    ほぼ直進とみなすステアリング角度の閾値。
+    この値以下の場合、トルクを発生させないために
+    重心に駆動力を適用する。
+    """
+
+    STEERING_THRESHOLD_DAMPING = 0.05  # 正規化値 (-1.0 ~ 1.0)
+    """
+    強い角速度減衰を適用するステアリング入力の閾値。
+    この値以下の場合、回転を素早く止めるために
+    ANGULAR_DAMPING_STRONG を適用する。
+    """
+
+    # 角速度減衰係数
+    ANGULAR_DAMPING_STRONG = 0.8
+    """
+    強い角速度減衰係数。
+    ステアリング入力が小さい時に適用され、
+    回転を素早く止める。
+    """
+
+    ANGULAR_DAMPING_NORMAL = 0.1
+    """
+    通常の角速度減衰係数。
+    ステアリング入力がある時に適用され、
+    自然な旋回を可能にする。
+    """
+
     def __init__(
         self,
         world: b2World,
@@ -89,7 +123,7 @@ class Vehicle:
 
         # 各ホイール位置で横滑りを抑制
         # ステアリングが非常に小さい時は、重心での横滑りのみを抑制してトルクを防ぐ
-        if abs(steer_angle) < 0.001:
+        if abs(steer_angle) < self.STEERING_THRESHOLD_STRAIGHT:
             # 完全に真っ直ぐ進む時は、重心で横滑りを抑制（トルクなし）
             self._kill_lateral_velocity_at_center(self.body.angle, debug=debug)
         else:
@@ -99,7 +133,7 @@ class Vehicle:
 
         # 駆動力を適用
         # ステアリングが小さい時は重心に適用してトルクを防ぐ
-        if abs(steer_angle) < 0.001:
+        if abs(steer_angle) < self.STEERING_THRESHOLD_STRAIGHT:
             # 真っ直ぐ進む時は車体の向きで重心に適用
             drive_direction = b2Vec2(np.cos(self.body.angle), np.sin(self.body.angle))
             force = throttle * self.max_motor_force * drive_direction
@@ -114,12 +148,12 @@ class Vehicle:
 
         # 角速度の減衰（回転の安定性のため）
         # ステアリング入力が小さい時は、角速度をより強く減衰させる
-        if abs(steering) < 0.05:  # ステアリング入力が小さい時（-0.05 ~ +0.05）
+        if abs(steering) < self.STEERING_THRESHOLD_DAMPING:
             # 強い減衰を適用して回転を素早く止める
-            angular_damping = 0.8
+            angular_damping = self.ANGULAR_DAMPING_STRONG
         else:
             # 通常の減衰
-            angular_damping = 0.1
+            angular_damping = self.ANGULAR_DAMPING_NORMAL
         angular_impulse = -angular_damping * self.body.inertia * self.body.angularVelocity
         self.body.ApplyAngularImpulse(angular_impulse, True)
 
