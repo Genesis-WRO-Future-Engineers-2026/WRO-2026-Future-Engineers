@@ -25,6 +25,14 @@ def initialize_sensors():
     """
     VL53L0X距離センサーを初期化します。
 
+    複数のVL53L0Xセンサーを使用する場合、各センサーを順番に起動して
+    I2Cアドレスを変更する必要があります。全てのセンサーはデフォルトで
+    0x29を使用するため、アドレス衝突を避けるため以下の手順を踏みます：
+    1. 全センサーをシャットダウン
+    2. センサー1のみ起動してアドレスを変更
+    3. センサー2を起動してアドレスを変更
+    4. センサー3を起動してアドレスを変更（デフォルトのまま）
+
     Returns:
     --------
     tof : VL53L0X
@@ -40,26 +48,45 @@ def initialize_sensors():
     GPIO.output(SENSOR3_SHUTDOWN, GPIO.LOW)
     time.sleep(0.50)
 
-    # センサーオブジェクトを作成
-    tof = VL53L0X.VL53L0X(address=SENSOR1_ADDRESS)
-    tof1 = VL53L0X.VL53L0X(address=SENSOR2_ADDRESS)
-    tof2 = VL53L0X.VL53L0X(address=SENSOR3_ADDRESS)
-
-    # センサー1を起動（0度）
+    # センサー1を起動してアドレスを設定（0度）
+    print("Initializing sensor 1 (0 deg)...")
     GPIO.output(SENSOR1_SHUTDOWN, GPIO.HIGH)
     time.sleep(0.50)
+    tof = VL53L0X.VL53L0X(address=0x29)  # デフォルトアドレスで起動
     tof.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
+    time.sleep(0.50)
+    # ライブラリがstart_ranging時にアドレス変更する場合のために
+    # 一旦停止して新しいアドレスで再初期化
+    tof.stop_ranging()
+    tof = VL53L0X.VL53L0X(address=SENSOR1_ADDRESS)
+    tof.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
+    print(f"  Sensor 1 initialized at address 0x{SENSOR1_ADDRESS:02X}")
 
-    # センサー2を起動（20度）
+    # センサー2を起動してアドレスを設定（20度）
+    print("Initializing sensor 2 (20 deg)...")
     GPIO.output(SENSOR2_SHUTDOWN, GPIO.HIGH)
     time.sleep(0.50)
+    tof1 = VL53L0X.VL53L0X(address=0x29)  # デフォルトアドレスで起動
     tof1.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
+    time.sleep(0.50)
+    tof1.stop_ranging()
+    tof1 = VL53L0X.VL53L0X(address=SENSOR2_ADDRESS)
+    tof1.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
+    print(f"  Sensor 2 initialized at address 0x{SENSOR2_ADDRESS:02X}")
 
-    # センサー3を起動（70度）
+    # センサー3を起動してアドレスを設定（70度）
+    print("Initializing sensor 3 (70 deg)...")
     GPIO.output(SENSOR3_SHUTDOWN, GPIO.HIGH)
     time.sleep(0.50)
+    tof2 = VL53L0X.VL53L0X(address=0x29)  # デフォルトアドレスで起動
     tof2.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
+    time.sleep(0.50)
+    tof2.stop_ranging()
+    tof2 = VL53L0X.VL53L0X(address=SENSOR3_ADDRESS)
+    tof2.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
+    print(f"  Sensor 3 initialized at address 0x{SENSOR3_ADDRESS:02X}")
 
+    print("All sensors initialized successfully")
     return tof, tof1, tof2
 
 

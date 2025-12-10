@@ -13,9 +13,9 @@ SERVO_PIN = 12  # サーボ用GPIO 12
 ESC_PIN = 13    # ESC用GPIO 13
 
 # センサーI2Cアドレス
-SENSOR1_ADDRESS = 0x29  # センサー1のI2Cアドレス
-SENSOR2_ADDRESS = 0x2B  # センサー2のI2Cアドレス
-SENSOR3_ADDRESS = 0x2D  # センサー3のI2Cアドレス
+SENSOR1_ADDRESS = 0x30  # センサー1のI2Cアドレス（0度・正面）
+SENSOR2_ADDRESS = 0x2B  # センサー2のI2Cアドレス（20度）
+SENSOR3_ADDRESS = 0x2D  # センサー3のI2Cアドレス（70度）
 
 # センサー角度設定
 SENSOR1_ANGLE = 0   # センサー1の取り付け角度（度）- 正面
