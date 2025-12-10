@@ -30,7 +30,7 @@ COUNTER_STEER_ANGLE = 30  # カウンターステア角度（度）
 NEUTRAL_ANGLE = 0         # ニュートラル角度（直進）
 
 # モーター速度パラメータ
-SPEED_PULSE = 1.52   # 前進速度（パルス幅 ms）
+SPEED_PULSE = 1.45   # 前進速度（パルス幅 ms）
 STOP_PULSE = 1.5     # 停止（パルス幅 ms）
 
 # PWM周波数
@@ -41,7 +41,7 @@ SERVO_MIN_PULSE_WIDTH_MS = 0.5   # 最小パルス幅（ms）
 SERVO_MAX_PULSE_WIDTH_MS = 2.4   # 最大パルス幅（ms）
 
 # 測定パラメータ
-DEFAULT_ITERATIONS = 100  # デフォルトの測定回数
+DEFAULT_ITERATIONS = 10000  # デフォルトの測定回数
 MIN_TIMING = 20000        # 最小タイミング（マイクロ秒）
 
 # 動的ステアリング制御パラメータ
