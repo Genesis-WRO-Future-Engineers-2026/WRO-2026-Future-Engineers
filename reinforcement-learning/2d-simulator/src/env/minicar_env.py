@@ -54,8 +54,14 @@ class MinicarEnv(gym.Env):
         start_pos, start_angle = self.course.get_start_pose()
         self.vehicle = Vehicle(self.world.world, start_pos, start_angle)
 
-        # LiDARセンサー
-        self.lidar = LiDARSensor(self.world.world, num_rays=72, max_range=10.0)
+        # LiDARセンサー（前方120度カバー: -60° ~ +60°）
+        self.lidar = LiDARSensor(
+            self.world.world,
+            num_rays=5,
+            max_range=10.0,
+            angle_min=-np.pi/3,  # -60度
+            angle_max=np.pi/3    # +60度
+        )
 
         # レンダラー
         self.renderer = None
@@ -72,9 +78,9 @@ class MinicarEnv(gym.Env):
             dtype=np.float32,
         )
 
-        # 観測空間: LiDAR(72) + velocity(2) + angular_velocity(1) + last_action(2) = 77
+        # 観測空間: LiDAR(5) + velocity(2) + angular_velocity(1) + last_action(2) = 10
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(77,), dtype=np.float32
+            low=-np.inf, high=np.inf, shape=(10,), dtype=np.float32
         )
 
         # 状態
@@ -173,7 +179,7 @@ class MinicarEnv(gym.Env):
         現在の観測を取得
 
         Returns:
-            観測ベクトル (77次元)
+            観測ベクトル (10次元)
         """
         # キャッシュされたデータを使用
         lidar_scan = self._cached_lidar_scan
@@ -183,7 +189,7 @@ class MinicarEnv(gym.Env):
         # 観測を結合
         obs = np.concatenate(
             [
-                lidar_scan,  # 72
+                lidar_scan,  # 5
                 velocity,  # 2
                 angular_velocity,  # 1
                 self.last_action,  # 2
@@ -317,7 +323,12 @@ class MinicarEnv(gym.Env):
 
         # LiDARを描画（キャッシュを使用）
         self.renderer.draw_lidar(
-            state["position"], state["angle"], lidar_scan, num_rays=72
+            state["position"],
+            state["angle"],
+            lidar_scan,
+            num_rays=5,
+            angle_min=-np.pi/3,  # -60度
+            angle_max=np.pi/3    # +60度
         )
 
         # 車両を描画
@@ -370,8 +381,14 @@ class MinicarEnv(gym.Env):
         start_pos, start_angle = self.course.get_start_pose()
         self.vehicle = Vehicle(self.world.world, start_pos, start_angle)
 
-        # LiDARセンサーを再作成
-        self.lidar = LiDARSensor(self.world.world, num_rays=72, max_range=10.0)
+        # LiDARセンサーを再作成（前方120度カバー: -60° ~ +60°）
+        self.lidar = LiDARSensor(
+            self.world.world,
+            num_rays=5,
+            max_range=10.0,
+            angle_min=-np.pi/3,  # -60度
+            angle_max=np.pi/3    # +60度
+        )
 
         # 状態をリセット
         self.step_count = 0

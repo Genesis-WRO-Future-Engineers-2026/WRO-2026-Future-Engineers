@@ -42,7 +42,7 @@ class LiDARSensor:
         self,
         world: b2World,
         num_rays: int = 72,
-        max_range: float = 10.0,
+        max_range: float = 1.0,
         angle_min: float = 0.0,
         angle_max: float = 2 * np.pi,
     ):
@@ -61,7 +61,7 @@ class LiDARSensor:
         self.angle_max = angle_max
 
         # 各レイの角度
-        self.angles = np.linspace(angle_min, angle_max, num_rays, endpoint=False)
+        self.angles = np.linspace(angle_min, angle_max, num_rays, endpoint=True)
 
     def scan(
         self, position: Tuple[float, float], orientation: float

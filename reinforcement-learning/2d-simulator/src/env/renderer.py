@@ -174,7 +174,9 @@ class Renderer:
         position: Tuple[float, float],
         orientation: float,
         distances: np.ndarray,
-        num_rays: int = 72,
+        num_rays: int = 5,
+        angle_min: float = 0.0,
+        angle_max: float = 2 * np.pi,
     ):
         """
         LiDARスキャンを描画
@@ -184,8 +186,10 @@ class Renderer:
             orientation: センサーの向き (rad)
             distances: 距離データ
             num_rays: レイの本数
+            angle_min: 最小角度 (rad)
+            angle_max: 最大角度 (rad)
         """
-        angles = np.linspace(0, 2 * np.pi, num_rays, endpoint=False)
+        angles = np.linspace(angle_min, angle_max, num_rays, endpoint=True)
         center_screen = self.world_to_screen(position[0], position[1])
 
         for angle, distance in zip(angles, distances):
