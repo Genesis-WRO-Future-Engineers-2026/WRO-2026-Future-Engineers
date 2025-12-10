@@ -4,7 +4,7 @@
 
 # スクリプトのディレクトリを取得
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 cd "$PROJECT_ROOT"
 
@@ -28,6 +28,9 @@ fi
 # 仮想環境を有効化
 echo "仮想環境を有効化中..."
 source venv/bin/activate
+
+# PYTHONPATHを設定
+export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"
 
 # デフォルトのモデルパス
 DEFAULT_MODEL="models/checkpoints/final_model.pth"
@@ -74,9 +77,9 @@ echo "モデルを評価中..."
 echo ""
 
 if [ -n "$MODEL_PATH" ]; then
-    python scripts/test_saved_model.py --model "$MODEL_PATH" "$@"
+    python scripts/rl-demo/test_saved_model.py --model "$MODEL_PATH" "$@"
 else
-    python scripts/test_saved_model.py "$@"
+    python scripts/rl-demo/test_saved_model.py "$@"
 fi
 
 # 終了

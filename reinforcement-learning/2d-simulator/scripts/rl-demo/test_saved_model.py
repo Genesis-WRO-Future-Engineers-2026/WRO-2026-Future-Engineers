@@ -13,13 +13,14 @@ from src.env.minicar_env import MinicarEnv
 from src.rl.ppo import PPO
 
 
-def test_saved_model(model_path: str, n_episodes: int = 3):
+def test_saved_model(model_path: str, n_episodes: int = 3, render: bool = False):
     """
     保存されたモデルをテスト
 
     Args:
         model_path: モデルファイルのパス
         n_episodes: テストエピソード数
+        render: GUIで描画するかどうか
     """
     print("=" * 60)
     print(f"Testing saved model: {model_path}")
@@ -30,7 +31,8 @@ def test_saved_model(model_path: str, n_episodes: int = 3):
     print(f"Using device: {device}\n")
 
     # 環境の作成
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    render_mode = "human" if render else None
+    env = MinicarEnv(course_file="courses/easy/simple_oval.json", render_mode=render_mode)
 
     # PPOの作成
     ppo = PPO(
@@ -62,6 +64,10 @@ def test_saved_model(model_path: str, n_episodes: int = 3):
 
             episode_reward += reward
             episode_length += 1
+
+            # 描画
+            if render:
+                env.render()
 
             # 最大ステップ数でbreak
             if episode_length >= 1000:
@@ -107,6 +113,11 @@ if __name__ == "__main__":
         default=3,
         help="Number of test episodes",
     )
+    parser.add_argument(
+        "--render",
+        action="store_true",
+        help="Enable GUI rendering",
+    )
     args = parser.parse_args()
 
-    test_saved_model(args.model, args.n_episodes)
+    test_saved_model(args.model, args.n_episodes, args.render)

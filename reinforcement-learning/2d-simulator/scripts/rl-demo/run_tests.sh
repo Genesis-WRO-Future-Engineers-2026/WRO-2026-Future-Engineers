@@ -4,7 +4,7 @@
 
 # スクリプトのディレクトリを取得
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 cd "$PROJECT_ROOT"
 
@@ -29,10 +29,13 @@ fi
 echo "仮想環境を有効化中..."
 source venv/bin/activate
 
+# PYTHONPATHを設定
+export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"
+
 # Pythonスクリプトを実行
 echo "テストを実行中..."
 echo ""
-python scripts/test_rl.py
+python scripts/rl-demo/test_rl.py
 
 # 終了コードを保存
 EXIT_CODE=$?

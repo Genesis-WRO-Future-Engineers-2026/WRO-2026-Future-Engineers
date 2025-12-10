@@ -4,7 +4,7 @@
 
 # スクリプトのディレクトリを取得
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 cd "$PROJECT_ROOT"
 
@@ -29,6 +29,9 @@ fi
 echo "仮想環境を有効化中..."
 source venv/bin/activate
 
+# PYTHONPATHを設定
+export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"
+
 # 引数がない場合はヘルプを表示
 if [ $# -eq 0 ]; then
     echo "学習スクリプトを起動します（デフォルト設定）"
@@ -47,7 +50,7 @@ fi
 # Pythonスクリプトを実行
 echo "学習を開始します..."
 echo ""
-python scripts/train.py "$@"
+python scripts/rl-demo/train.py "$@"
 
 # 終了
 echo ""
