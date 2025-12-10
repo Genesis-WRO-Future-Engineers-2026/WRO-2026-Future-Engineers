@@ -2,9 +2,9 @@
   "name": "Tight Oval",
   "description": "非常に狭い楕円コース - 上級者向け",
   "difficulty": "hard",
-  "start_position": [5.0, 3.2],
-  "start_angle": -1.5708,
-  "goal_position": [3.0, 5.0],
+  "start_position": [5.0, 1.5],
+  "start_angle": 0.0,
+  "goal_position": [5.0, 1.5],
   "goal_radius": 0.3,
   "walls": [
     {
