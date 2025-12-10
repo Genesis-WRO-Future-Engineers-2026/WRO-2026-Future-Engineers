@@ -32,6 +32,9 @@ source venv/bin/activate
 # PYTHONPATHを設定
 export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"
 
+# macOSでPygameのネイティブウィンドウを使用するためDISPLAY変数を解除
+unset DISPLAY
+
 # デフォルトのモデルパス
 DEFAULT_MODEL="models/checkpoints/final_model.pth"
 

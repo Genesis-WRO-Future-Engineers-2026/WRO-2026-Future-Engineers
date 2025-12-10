@@ -101,6 +101,11 @@ class MinicarEnv(gym.Env):
         self.total_reward = 0.0
         self.checkpoints_passed = set()
 
+        # キャッシュを初期化
+        state = self.vehicle.get_state()
+        self._cached_vehicle_state = state
+        self._cached_lidar_scan = self.lidar.scan(state["position"], state["angle"])
+
         # 初期観測
         obs = self._get_observation()
         info = self._get_info()
@@ -127,18 +132,25 @@ class MinicarEnv(gym.Env):
         # 物理シミュレーション
         self.world.step()
 
-        # 観測
+        # 車両状態とLiDARスキャンをキャッシュ（1回のみ実行）
+        self._cached_vehicle_state = self.vehicle.get_state()
+        self._cached_lidar_scan = self.lidar.scan(
+            self._cached_vehicle_state["position"],
+            self._cached_vehicle_state["angle"]
+        )
+
+        # 観測（キャッシュを使用）
         obs = self._get_observation()
 
-        # 報酬計算
+        # 報酬計算（キャッシュを使用）
         reward = self._compute_reward()
         self.total_reward += reward
 
-        # 終了判定
+        # 終了判定（キャッシュを使用）
         terminated = self._check_terminated()
         truncated = self.step_count >= self.max_steps
 
-        # 情報
+        # 情報（キャッシュを使用）
         info = self._get_info()
 
         # 状態更新
@@ -154,16 +166,10 @@ class MinicarEnv(gym.Env):
         Returns:
             観測ベクトル (77次元)
         """
-        state = self.vehicle.get_state()
-
-        # LiDARスキャン
-        lidar_scan = self.lidar.scan(state["position"], state["angle"])
-
-        # 速度
-        velocity = np.array(state["velocity"])
-
-        # 角速度
-        angular_velocity = np.array([state["angular_velocity"]])
+        # キャッシュされたデータを使用
+        lidar_scan = self._cached_lidar_scan
+        velocity = np.array(self._cached_vehicle_state["velocity"])
+        angular_velocity = np.array([self._cached_vehicle_state["angular_velocity"]])
 
         # 観測を結合
         obs = np.concatenate(
@@ -185,7 +191,9 @@ class MinicarEnv(gym.Env):
             報酬
         """
         reward = 0.0
-        state = self.vehicle.get_state()
+        # キャッシュされたデータを使用
+        state = self._cached_vehicle_state
+        lidar_scan = self._cached_lidar_scan
 
         # 1. 速度報酬
         speed = state["speed"]
@@ -195,7 +203,6 @@ class MinicarEnv(gym.Env):
         reward -= 0.01
 
         # 3. 壁接近ペナルティ
-        lidar_scan = self.lidar.scan(state["position"], state["angle"])
         min_distance = np.min(lidar_scan)
         if min_distance < 0.3:
             reward -= (0.3 - min_distance) * 10
@@ -221,7 +228,9 @@ class MinicarEnv(gym.Env):
         Returns:
             終了したかどうか
         """
-        state = self.vehicle.get_state()
+        # キャッシュされたデータを使用
+        state = self._cached_vehicle_state
+        lidar_scan = self._cached_lidar_scan
 
         # ゴール到達（すべてのチェックポイントを通過している必要がある）
         checkpoints = self.course.get_checkpoints()
@@ -230,7 +239,6 @@ class MinicarEnv(gym.Env):
             return True
 
         # 壁衝突（LiDARの最小距離が非常に小さい）
-        lidar_scan = self.lidar.scan(state["position"], state["angle"])
         min_distance = np.min(lidar_scan)
         if min_distance < 0.1:  # 10cm以内で衝突とみなす
             return True
@@ -244,8 +252,9 @@ class MinicarEnv(gym.Env):
         Returns:
             情報の辞書
         """
-        state = self.vehicle.get_state()
-        lidar_scan = self.lidar.scan(state["position"], state["angle"])
+        # キャッシュされたデータを使用
+        state = self._cached_vehicle_state
+        lidar_scan = self._cached_lidar_scan
 
         return {
             "position": state["position"],
@@ -269,8 +278,11 @@ class MinicarEnv(gym.Env):
         # 画面クリア
         self.renderer.clear()
 
+        # キャッシュされたデータを使用
+        state = self._cached_vehicle_state
+        lidar_scan = self._cached_lidar_scan
+
         # カメラを車両に追従
-        state = self.vehicle.get_state()
         self.renderer.set_camera(state["position"][0], state["position"][1])
 
         # 壁を描画
@@ -288,8 +300,7 @@ class MinicarEnv(gym.Env):
         goal_pos, goal_radius = self.course.get_goal_info()
         self.renderer.draw_goal(goal_pos, goal_radius)
 
-        # LiDARを描画
-        lidar_scan = self.lidar.scan(state["position"], state["angle"])
+        # LiDARを描画（キャッシュを使用）
         self.renderer.draw_lidar(
             state["position"], state["angle"], lidar_scan, num_rays=72
         )
