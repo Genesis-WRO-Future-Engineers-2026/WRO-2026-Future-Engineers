@@ -2,7 +2,7 @@
 
 from Box2D import b2World, b2Vec2, b2Body, b2PolygonShape
 import numpy as np
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Optional
 
 
 class Vehicle:
@@ -168,20 +168,20 @@ class Vehicle:
         """
         if abs(steer_angle) < self.STEERING_THRESHOLD_STRAIGHT:
             # 完全に真っ直ぐ進む時は、重心で横滑りを抑制（トルクなし）
-            self._kill_lateral_velocity_at_center(self.body.angle, debug=debug)
+            self._kill_lateral_velocity(self.body.angle, world_point=None, debug=debug)
         else:
             # ステアリングがある時は各ホイールで抑制
             front_wheel_angle = self.body.angle + steer_angle
             rear_wheel_angle = self.body.angle
 
             self._kill_lateral_velocity(
-                wheel_positions["front_world"],
                 front_wheel_angle,
+                wheel_positions["front_world"],
                 debug=debug
             )
             self._kill_lateral_velocity(
-                wheel_positions["rear_world"],
                 rear_wheel_angle,
+                wheel_positions["rear_world"],
                 debug=debug
             )
 
@@ -235,66 +235,45 @@ class Vehicle:
         angular_impulse = -damping * self.body.inertia * self.body.angularVelocity
         self.body.ApplyAngularImpulse(angular_impulse, True)
 
-    def _kill_lateral_velocity_at_center(self, vehicle_angle: float, debug: bool = False):
+    def _kill_lateral_velocity(
+        self,
+        direction_angle: float,
+        world_point: Optional[b2Vec2] = None,
+        debug: bool = False
+    ):
         """
-        車体重心での横滑りを抑制（トルクを発生させない）
+        横滑りを抑制（タイヤは横方向に滑らない）
 
         Args:
-            vehicle_angle: 車体の向き（ワールド座標系での角度）
+            direction_angle: 基準方向の角度（ワールド座標系、rad）
+            world_point: インパルスを適用する位置。
+                         Noneの場合は重心に適用（トルクなし）
             debug: デバッグ情報を出力するか
+
+        Note:
+            world_pointがNoneの場合、重心での速度を使用し、
+            重心にインパルスを適用するため、トルクが発生しない。
         """
-        # 重心での速度を取得
-        center_velocity = self.body.linearVelocity
+        # 適用点と速度の取得
+        if world_point is None:
+            # 重心での処理（トルクなし）
+            world_point = self.body.worldCenter
+            velocity = self.body.linearVelocity
+        else:
+            # 指定位置での処理
+            velocity = self.body.GetLinearVelocityFromWorldPoint(world_point)
 
-        # 車体の向き（前後方向）
-        vehicle_forward = b2Vec2(np.cos(vehicle_angle), np.sin(vehicle_angle))
+        # 基準方向（前後方向）
+        forward = b2Vec2(np.cos(direction_angle), np.sin(direction_angle))
 
-        # 車体の横方向（左右方向）
-        vehicle_lateral = b2Vec2(-vehicle_forward.y, vehicle_forward.x)
+        # 横方向（左右方向）
+        lateral = b2Vec2(-forward.y, forward.x)
 
         # 横方向の速度成分
-        lateral_velocity_magnitude = center_velocity.dot(vehicle_lateral)
+        lateral_velocity_magnitude = velocity.dot(lateral)
 
         # 横方向の速度ベクトル
-        lateral_velocity = lateral_velocity_magnitude * vehicle_lateral
-
-        # 横方向の速度を打ち消すインパルスを計算
-        impulse = -self.body.mass * lateral_velocity
-
-        # インパルスの大きさをクリップ
-        impulse_length = np.linalg.norm([impulse.x, impulse.y])
-        if impulse_length > self.max_lateral_impulse:
-            impulse *= self.max_lateral_impulse / impulse_length
-
-        if debug and impulse_length > 0.001:
-            print(f"[DEBUG] Center lateral impulse: ({impulse.x:.4f}, {impulse.y:.4f}), magnitude: {impulse_length:.4f}")
-
-        # インパルスを重心に適用（トルクなし）
-        self.body.ApplyLinearImpulse(impulse, self.body.worldCenter, True)
-
-    def _kill_lateral_velocity(self, world_point: b2Vec2, wheel_angle: float, debug: bool = False):
-        """
-        ホイール位置での横滑りを抑制（タイヤは横方向に滑らない）
-
-        Args:
-            world_point: ホイールのワールド座標位置
-            wheel_angle: ホイールの向き（ワールド座標系での角度）
-            debug: デバッグ情報を出力するか
-        """
-        # ホイール位置での速度を取得
-        point_velocity = self.body.GetLinearVelocityFromWorldPoint(world_point)
-
-        # ホイールの向き（前後方向）
-        wheel_forward = b2Vec2(np.cos(wheel_angle), np.sin(wheel_angle))
-
-        # ホイールの横方向（左右方向）
-        wheel_lateral = b2Vec2(-wheel_forward.y, wheel_forward.x)
-
-        # 横方向の速度成分
-        lateral_velocity_magnitude = point_velocity.dot(wheel_lateral)
-
-        # 横方向の速度ベクトル
-        lateral_velocity = lateral_velocity_magnitude * wheel_lateral
+        lateral_velocity = lateral_velocity_magnitude * lateral
 
         # 横方向の速度を打ち消すインパルスを計算
         impulse = -self.body.mass * lateral_velocity
@@ -305,7 +284,7 @@ class Vehicle:
             impulse *= self.max_lateral_impulse / impulse_length
 
         if debug and impulse_length > 0.001:
-            print(f"[DEBUG]   Lateral impulse: ({impulse.x:.4f}, {impulse.y:.4f}), magnitude: {impulse_length:.4f}")
+            print(f"[DEBUG] Lateral impulse: ({impulse.x:.4f}, {impulse.y:.4f}), magnitude: {impulse_length:.4f}")
 
         # インパルスを適用
         self.body.ApplyLinearImpulse(impulse, world_point, True)
