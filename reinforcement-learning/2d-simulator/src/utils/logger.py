@@ -51,15 +51,28 @@ class TensorBoardLogger:
         Args:
             hparams: ハイパーパラメータ（辞書）
         """
-        # TensorBoardに記録
-        self.writer.add_hparams(
-            hparams, {"hparam/dummy": 0}
-        )  # dummy metricが必要
+        # TensorBoardに記録（int, float, str, boolのみサポート）
+        # リストなどは文字列に変換
+        hparams_for_tb = {}
+        for key, value in hparams.items():
+            if isinstance(value, (int, float, str, bool)):
+                hparams_for_tb[key] = value
+            elif isinstance(value, list):
+                hparams_for_tb[key] = str(value)
+            else:
+                hparams_for_tb[key] = str(value)
+
+        try:
+            self.writer.add_hparams(
+                hparams_for_tb, {"hparam/dummy": 0}
+            )  # dummy metricが必要
+        except Exception as e:
+            print(f"Warning: Could not log hparams to TensorBoard: {e}")
 
         # JSONファイルにも保存
         hparams_path = self.log_dir / "hyperparameters.json"
         with open(hparams_path, "w") as f:
-            json.dump(hparams, f, indent=2)
+            json.dump(hparams, f, indent=2, default=str)
 
         print(f"Hyperparameters saved to {hparams_path}")
 

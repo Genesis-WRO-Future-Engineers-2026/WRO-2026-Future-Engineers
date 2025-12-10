@@ -5,9 +5,6 @@ __pycache__/
 *.so
 .Python
 venv/
-/env/
-ENV/
-!src/env/
 .venv
 pip-log.txt
 pip-delete-this-directory.txt
@@ -40,11 +37,6 @@ Thumbs.db
 
 # TensorBoard
 events.out.tfevents.*
-
-# Temporary files
-tmp/
-temp/
-*.tmp
 
 # Coverage
 .coverage

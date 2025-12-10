@@ -26,6 +26,7 @@ class Vehicle:
         self.width = 0.2  # m
         self.length = 0.4  # m
         self.mass = 1.0  # kg
+        self.wheelbase = 0.28  # m (前輪と後輪の距離)
 
         self.max_steering_angle = 0.5  # rad (約28度)
         self.max_motor_force = 20.0  # N
@@ -47,44 +48,66 @@ class Vehicle:
 
     def apply_control(self, steering: float, throttle: float):
         """
-        制御入力を適用
+        制御入力を適用（Bicycle Modelベース）
 
         Args:
             steering: ステアリング角度 (-1.0 ~ 1.0)
             throttle: スロットル (-1.0 ~ 1.0) 負の値で後退
         """
-        # ステアリング角度
-        steer_angle = np.clip(steering, -1.0, 1.0) * self.max_steering_angle
-
-        # 車両の向き
-        angle = self.body.angle
-        direction = b2Vec2(
-            np.cos(angle + steer_angle), np.sin(angle + steer_angle)
-        )
-
-        # モーター力を適用（負の値で後退）
+        # パラメータのクリッピング
+        steering = np.clip(steering, -1.0, 1.0)
         throttle = np.clip(throttle, -1.0, 1.0)
-        force = throttle * self.max_motor_force * direction
-        self.body.ApplyForceToCenter(force, True)
+        steer_angle = steering * self.max_steering_angle
 
-        # 横滑り抑制
-        self._apply_lateral_friction()
+        # 前輪と後輪の位置（ローカル座標系）
+        front_wheel_local = b2Vec2(self.wheelbase / 2, 0)  # 車体前方
+        rear_wheel_local = b2Vec2(-self.wheelbase / 2, 0)  # 車体後方
 
-    def _apply_lateral_friction(self):
-        """横方向の速度を抑制（簡易的なタイヤモデル）"""
-        velocity = self.body.linearVelocity
-        angle = self.body.angle
+        # ワールド座標系に変換
+        front_wheel_world = self.body.GetWorldPoint(front_wheel_local)
+        rear_wheel_world = self.body.GetWorldPoint(rear_wheel_local)
 
-        # 車両座標系での速度成分
-        forward = b2Vec2(np.cos(angle), np.sin(angle))
-        lateral = b2Vec2(-np.sin(angle), np.cos(angle))
+        # 各ホイールの向き（ワールド座標系）
+        front_wheel_angle = self.body.angle + steer_angle  # 前輪：ステアリング角度分回転
+        rear_wheel_angle = self.body.angle  # 後輪：車体と同じ向き
 
-        # 横方向の速度
-        lateral_vel = velocity.dot(lateral)
+        # 各ホイール位置で横滑りを抑制
+        self._kill_lateral_velocity(front_wheel_world, front_wheel_angle)
+        self._kill_lateral_velocity(rear_wheel_world, rear_wheel_angle)
 
-        # 横方向の速度を減衰（タイヤのグリップを模擬）
-        impulse = -lateral_vel * self.mass * 0.5 * lateral
-        self.body.ApplyLinearImpulse(impulse, self.body.position, True)
+        # 駆動力を前輪の向きに沿って適用
+        front_direction = b2Vec2(
+            np.cos(front_wheel_angle), np.sin(front_wheel_angle)
+        )
+        force = throttle * self.max_motor_force * front_direction
+        self.body.ApplyForce(force, front_wheel_world, True)
+
+    def _kill_lateral_velocity(self, world_point: b2Vec2, wheel_angle: float):
+        """
+        ホイール位置での横滑りを抑制（タイヤは横方向に滑らない）
+
+        Args:
+            world_point: ホイールのワールド座標位置
+            wheel_angle: ホイールの向き（ワールド座標系での角度）
+        """
+        # ホイール位置での速度を取得
+        point_velocity = self.body.GetLinearVelocityFromWorldPoint(world_point)
+
+        # ホイールの向き（前後方向）
+        wheel_forward = b2Vec2(np.cos(wheel_angle), np.sin(wheel_angle))
+
+        # ホイールの横方向（左右方向）
+        wheel_lateral = b2Vec2(-wheel_forward.y, wheel_forward.x)
+
+        # 横方向の速度成分
+        lateral_velocity_magnitude = point_velocity.dot(wheel_lateral)
+
+        # 横方向の速度ベクトル
+        lateral_velocity = lateral_velocity_magnitude * wheel_lateral
+
+        # 横方向の速度を打ち消すインパルスを適用
+        impulse = -self.body.mass * lateral_velocity
+        self.body.ApplyLinearImpulse(impulse, world_point, True)
 
     def get_state(self) -> Dict:
         """

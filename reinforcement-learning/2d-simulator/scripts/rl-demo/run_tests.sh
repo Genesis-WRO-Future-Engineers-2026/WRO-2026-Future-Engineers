@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# ミニカー手動制御デモの実行スクリプト
+# RLモジュールテストの実行スクリプト
 
 # スクリプトのディレクトリを取得
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 cd "$PROJECT_ROOT"
 
 echo "============================================================"
-echo "ミニカー2Dシミュレーター - 手動制御デモ"
+echo "強化学習モジュール テストスイート"
 echo "============================================================"
 echo ""
 echo "プロジェクトルート: $PROJECT_ROOT"
@@ -21,7 +21,7 @@ if [ ! -d "venv" ]; then
     echo "以下のコマンドで仮想環境を作成してください："
     echo "  python3 -m venv venv"
     echo "  source venv/bin/activate"
-    echo "  pip install pygame gymnasium numpy box2d-py"
+    echo "  pip install -r requirements.txt"
     exit 1
 fi
 
@@ -30,10 +30,18 @@ echo "仮想環境を有効化中..."
 source venv/bin/activate
 
 # Pythonスクリプトを実行
-echo "手動制御デモを起動中..."
+echo "テストを実行中..."
 echo ""
-python scripts/demo/manual_control.py
+python scripts/test_rl.py
 
-# 終了
+# 終了コードを保存
+EXIT_CODE=$?
+
 echo ""
-echo "デモを終了しました"
+if [ $EXIT_CODE -eq 0 ]; then
+    echo "✓ すべてのテストが成功しました"
+else
+    echo "✗ テストが失敗しました（終了コード: $EXIT_CODE）"
+fi
+
+exit $EXIT_CODE
