@@ -1,0 +1,55 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs and databases
+*.log
+logs/
+*.db
+
+# Models (学習済みモデルは除外、必要に応じて個別にコピー)
+models/checkpoints/*.pth
+models/checkpoints/*.pt
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation (ドキュメントは除外)
+doc/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# README and license
+README.md
+LICENSE
