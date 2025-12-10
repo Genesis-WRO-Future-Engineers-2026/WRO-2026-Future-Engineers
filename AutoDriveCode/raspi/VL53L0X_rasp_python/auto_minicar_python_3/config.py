@@ -25,7 +25,7 @@ SENSOR3_ANGLE = 70  # センサー3の取り付け角度（度）
 # 壁追従制御パラメータ
 PARALLEL_ANGLE = 110.0      # 壁と平行時の基準角度（度）
 ANGLE_TOLERANCE = 2.0       # 角度の許容誤差（度）
-TARGET_DISTANCE = 200.0     # 壁までの目標距離（mm）
+TARGET_DISTANCE = 500.0     # 壁までの目標距離（mm）
 DISTANCE_TOLERANCE = 20.0   # 距離の許容誤差（mm）
 
 # ステアリング制御パラメータ
@@ -33,7 +33,7 @@ COUNTER_STEER_ANGLE = 30  # カウンターステア角度（度）
 NEUTRAL_ANGLE = 0         # ニュートラル角度（直進）
 
 # モーター速度パラメータ
-SPEED_PULSE = 1.45   # 前進速度（パルス幅 ms）
+SPEED_PULSE = 1.44   # 前進速度（パルス幅 ms）
 STOP_PULSE = 1.5     # 停止（パルス幅 ms）
 
 # PWM周波数
