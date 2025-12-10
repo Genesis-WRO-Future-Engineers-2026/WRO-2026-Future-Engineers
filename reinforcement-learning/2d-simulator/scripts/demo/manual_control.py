@@ -18,8 +18,8 @@ def main():
     print("=" * 60)
     print()
     print("操作方法:")
-    print("  ↑ / W     : アクセル")
-    print("  ↓ / S     : ブレーキ")
+    print("  ↑ / W     : 前進")
+    print("  ↓ / S     : 後退")
     print("  ← / A     : 左旋回")
     print("  → / D     : 右旋回")
     print("  R         : リセット")
@@ -57,7 +57,7 @@ def main():
         if keys[pygame.K_UP] or keys[pygame.K_w]:
             throttle = 1.0
         elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            throttle = 0.3  # ブレーキ（弱いスロットル）
+            throttle = -0.5  # 後退
 
         # イベント処理
         for event in pygame.event.get():

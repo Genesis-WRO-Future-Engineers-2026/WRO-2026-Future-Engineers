@@ -196,7 +196,56 @@ flake8 src/ tests/
 
 ---
 
-## トレーニング（実装後）
+## トレーニング
+
+### 基本的な使い方
+
+```bash
+# 1. デフォルト設定で学習を開始
+python scripts/train.py
+
+# 2. カスタム設定で学習
+python scripts/train.py \
+  --course courses/easy/simple_oval.json \
+  --total-iterations 1000 \
+  --n-steps 2048 \
+  --lr 3e-4
+
+# 3. TensorBoardで進捗を確認（別ターミナルで）
+tensorboard --logdir=logs
+# ブラウザで http://localhost:6006 を開く
+```
+
+### 設定ファイルを使う場合
+
+```bash
+# YAMLファイルから設定を読み込む（今後実装予定）
+python scripts/train.py --config configs/ppo_default.yaml
+```
+
+### 主要なオプション
+
+```bash
+--course              # コースファイル（デフォルト: courses/easy/simple_oval.json）
+--total-iterations    # 総イテレーション数（デフォルト: 1000）
+--n-steps             # 1イテレーションあたりのステップ数（デフォルト: 2048）
+--n-epochs            # 1更新あたりのエポック数（デフォルト: 10）
+--batch-size          # バッチサイズ（デフォルト: 64）
+--lr                  # 学習率（デフォルト: 3e-4）
+--gamma               # 割引率（デフォルト: 0.99）
+--save-freq           # 保存頻度（デフォルト: 50）
+--eval-freq           # 評価頻度（デフォルト: 50）
+--device              # デバイス（cpu, cuda, mps, または auto）
+--experiment-name     # 実験名（自動生成されます）
+```
+
+### チェックポイントから再開
+
+```bash
+python scripts/train.py \
+  --resume models/checkpoints/checkpoint_500.pth \
+  --total-iterations 2000
+```
 
 ### Docker環境
 
@@ -207,17 +256,8 @@ docker compose up -d tensorboard
 # トレーニング実行
 docker compose up train
 
-# ブラウザで http://localhost:6006 を開いて進捗確認
-```
-
-### ローカル環境
-
-```bash
-# トレーニング実行
-python scripts/train.py --config configs/training_config.yaml
-
-# 別ターミナルでTensorBoard起動
-tensorboard --logdir=logs/tensorboard
+# または、カスタム設定で
+docker compose run --rm dev python scripts/train.py --total-iterations 500
 ```
 
 ---
