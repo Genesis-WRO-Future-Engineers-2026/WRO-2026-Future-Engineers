@@ -306,7 +306,7 @@ class MinicarEnv(gym.Env):
         )
 
         # 車両を描画
-        self.renderer.draw_vehicle(state["position"], state["angle"])
+        self.renderer.draw_vehicle(self.vehicle)
 
         # デバッグ情報
         info = self._get_info()

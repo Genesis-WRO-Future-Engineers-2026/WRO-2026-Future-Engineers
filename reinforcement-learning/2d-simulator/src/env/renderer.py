@@ -2,8 +2,12 @@
 
 import pygame
 import numpy as np
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Optional, TYPE_CHECKING
 from Box2D import b2Vec2
+
+# 循環インポートを防ぐため
+if TYPE_CHECKING:
+    from src.env.vehicle import Vehicle
 
 
 class Renderer:
@@ -112,17 +116,21 @@ class Renderer:
                         self.screen, (150, 150, 150), screen_vertices, 2
                     )  # 輪郭
 
-    def draw_vehicle(self, position: Tuple[float, float], angle: float):
+    def draw_vehicle(self, vehicle: "Vehicle"):
         """
         車両を描画
 
         Args:
-            position: 車両の位置 (x, y) (m)
-            angle: 車両の角度 (rad)
+            vehicle: 描画する車両オブジェクト
         """
-        # 車両のサイズ
-        length = 0.4  # m
-        width = 0.2  # m
+        # 車両の状態を取得
+        state = vehicle.get_state()
+        position = state["position"]
+        angle = state["angle"]
+
+        # 車両のサイズを取得（Vehicleオブジェクトから）
+        length = vehicle.length
+        width = vehicle.width
 
         # 車両の4隅の座標（ローカル座標）
         half_l = length / 2
