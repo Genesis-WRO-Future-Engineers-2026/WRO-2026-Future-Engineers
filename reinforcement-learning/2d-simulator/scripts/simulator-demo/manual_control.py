@@ -38,6 +38,7 @@ def main():
     # メインループ
     running = True
     clock = pygame.time.Clock()
+    step_count = 0
 
     while running:
         # デフォルトの行動（停止）
@@ -69,11 +70,17 @@ def main():
                 elif event.key == pygame.K_r:
                     # リセット
                     obs, info = env.reset()
+                    step_count = 0
                     print("環境をリセットしました")
 
         # 行動を実行
         action = np.array([steering, throttle])
         obs, reward, terminated, truncated, info = env.step(action)
+        step_count += 1
+
+        # キー入力と車体状態のログ出力（10ステップごと）
+        if step_count % 10 == 0:
+            print(f"[Step {step_count:4d}] Steering: {steering:+.2f}, Throttle: {throttle:+.2f} | Speed: {info.get('speed', 0):.2f} m/s, Position: ({obs[0]:.2f}, {obs[1]:.2f}), Angle: {obs[2]:.2f} rad")
 
         # 描画
         env.render()
