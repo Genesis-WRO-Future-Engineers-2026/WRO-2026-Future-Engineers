@@ -13,7 +13,7 @@ def test_lidar_creation():
 
     assert lidar is not None
     assert lidar.num_rays == 72
-    assert lidar.max_range == 10.0
+    assert lidar.max_range == 1.0
 
 
 def test_lidar_scan_no_obstacles():
@@ -32,8 +32,8 @@ def test_lidar_scan_with_wall():
     """壁がある場合のスキャン"""
     world = PhysicsWorld()
 
-    # 右側に壁を配置（x=5の位置）
-    world.add_wall_segment((5, -10), (5, 10))
+    # 右側に壁を配置（x=0.5の位置）
+    world.add_wall_segment((0.5, -10), (0.5, 10))
 
     lidar = LiDARSensor(world.world, num_rays=72)
 
@@ -42,8 +42,8 @@ def test_lidar_scan_with_wall():
 
     assert len(distances) == 72
 
-    # 正面方向（0度）は壁まで約5m
-    assert 4.5 < distances[0] < 5.5
+    # 正面方向（0度）は壁まで約0.5m
+    assert 0.44 < distances[0] < 0.56
 
     # 後方（180度）は壁がないのでmax_range
     assert distances[36] == lidar.max_range
@@ -54,29 +54,29 @@ def test_lidar_scan_with_box():
     world = PhysicsWorld()
 
     # 前方に箱を配置
-    world.add_static_box(center=(3, 0), width=1, height=1)
+    world.add_static_box(center=(0.5, 0), width=0.2, height=0.2)
 
     lidar = LiDARSensor(world.world, num_rays=72)
     distances = lidar.scan(position=(0, 0), orientation=0)
 
-    # 正面方向に箱があるので、距離は約2.5m（箱の端まで）
-    assert distances[0] < 5.0
-    assert distances[0] > 2.0
+    # 正面方向に箱があるので、距離は約0.4m（箱の端まで）
+    assert distances[0] < 0.5
+    assert distances[0] > 0.3
 
 
 def test_lidar_different_orientations():
     """異なる方向からのスキャン"""
     world = PhysicsWorld()
 
-    # 右側に壁
-    world.add_wall_segment((5, -10), (5, 10))
+    # 右側に壁（x=0.5の位置）
+    world.add_wall_segment((0.5, -10), (0.5, 10))
 
     lidar = LiDARSensor(world.world, num_rays=72)
 
-    # 正面（0度）
+    # 正面（0度）- 壁が見える
     distances_0 = lidar.scan(position=(0, 0), orientation=0)
 
-    # 90度回転
+    # 90度回転 - 壁が見えない（max_rangeになる）
     distances_90 = lidar.scan(position=(0, 0), orientation=np.pi / 2)
 
     # 値が異なることを確認
@@ -133,7 +133,7 @@ def test_lidar_range_limits():
     # 非常に遠くに壁を配置（max_rangeを超える）
     world.add_wall_segment((50, -10), (50, 10))
 
-    lidar = LiDARSensor(world.world, num_rays=72, max_range=10.0)
+    lidar = LiDARSensor(world.world, num_rays=72, max_range=1.0)
     distances = lidar.scan(position=(0, 0), orientation=0)
 
     # max_rangeでクリップされる

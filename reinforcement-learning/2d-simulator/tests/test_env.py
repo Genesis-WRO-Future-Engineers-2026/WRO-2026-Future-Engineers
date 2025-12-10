@@ -17,7 +17,7 @@ def test_env_reset():
     obs, info = env.reset()
 
     # 観測の形状確認
-    assert obs.shape == (77,)
+    assert obs.shape == (10,)
     assert isinstance(info, dict)
     assert "position" in info
     assert "speed" in info
@@ -33,7 +33,7 @@ def test_env_step():
     obs, reward, terminated, truncated, info = env.step(action)
 
     # 戻り値の型確認
-    assert obs.shape == (77,)
+    assert obs.shape == (10,)
     assert isinstance(reward, (int, float))
     assert isinstance(terminated, bool)
     assert isinstance(truncated, bool)
@@ -51,7 +51,7 @@ def test_action_space():
     action = env.action_space.sample()
     assert len(action) == 2
     assert -1.0 <= action[0] <= 1.0  # steering
-    assert 0.0 <= action[1] <= 1.0  # throttle
+    assert -1.0 <= action[1] <= 1.0  # throttle
 
 
 def test_observation_space():
@@ -59,7 +59,7 @@ def test_observation_space():
     env = MinicarEnv(course_file="courses/easy/simple_oval.json")
 
     # 観測空間の形状
-    assert env.observation_space.shape == (77,)
+    assert env.observation_space.shape == (10,)
 
 
 def test_multiple_episodes():
