@@ -33,9 +33,10 @@ import RPi.GPIO as GPIO
 from config import DEFAULT_ITERATIONS
 from sensors import initialize_sensors, get_timing, cleanup_sensors
 from actuators import initialize_gpio, cleanup_actuators
+from wall_tracking import calculate_steering_from_five_sensors
 
 
-def run_measurement_loop(tof1, tof2, tof3, tof4, tof5, timing, iterations=None):
+def run_measurement_loop(tof1, tof2, tof3, tof4, tof5, timing, servo_pwm, iterations=None):
     """
     5つの距離センサーの測定ループを実行し、距離を表示します。
 
@@ -53,6 +54,8 @@ def run_measurement_loop(tof1, tof2, tof3, tof4, tof5, timing, iterations=None):
         センサー5（+70度・右）
     timing : int
         測定間隔（マイクロ秒）
+    servo_pwm : GPIO.PWM
+        サーボ用PWMオブジェクト
     iterations : int, optional
         測定回数（デフォルト: config.DEFAULT_ITERATIONS）
     """
@@ -102,8 +105,12 @@ def run_measurement_loop(tof1, tof2, tof3, tof4, tof5, timing, iterations=None):
         else:
             print(f"  Sensor 5 (+70°, Right): Error")
 
-        # TODO: ここに進行方向を計算するロジックを追加
-        # calculate_direction(distance1, distance2, distance3, distance4, distance5)
+        # 5つ全てのセンサーが有効な値を返している場合、ハンドリング計算を実行
+        if distance1 > 0 and distance2 > 0 and distance3 > 0 and distance4 > 0 and distance5 > 0:
+            steer_action = calculate_steering_from_five_sensors(
+                servo_pwm, distance1, distance2, distance3, distance4, distance5
+            )
+            print(f"  >> {steer_action}")
 
         time.sleep(timing/1000000.00)
 
@@ -158,7 +165,7 @@ def main():
     timing = get_timing(tof1)
 
     try:
-        run_measurement_loop(tof1, tof2, tof3, tof4, tof5, timing)
+        run_measurement_loop(tof1, tof2, tof3, tof4, tof5, timing, servo_pwm)
     except KeyboardInterrupt:
         print("\n\nProgram interrupted by user")
     finally:
