@@ -3,7 +3,7 @@
 import pytest
 import numpy as np
 from src.physics.box2d_wrapper import PhysicsWorld
-from src.env.sensors import LiDARSensor
+from src.env.sensors import LiDARSensor, LIDAR_MAX_RANGE
 
 
 def test_lidar_creation():
@@ -13,7 +13,7 @@ def test_lidar_creation():
 
     assert lidar is not None
     assert lidar.num_rays == 72
-    assert lidar.max_range == 3.0
+    assert lidar.max_range == LIDAR_MAX_RANGE
 
 
 def test_lidar_scan_no_obstacles():
@@ -133,7 +133,7 @@ def test_lidar_range_limits():
     # 非常に遠くに壁を配置（max_rangeを超える）
     world.add_wall_segment((50, -10), (50, 10))
 
-    lidar = LiDARSensor(world.world, num_rays=72, max_range=3.0)
+    lidar = LiDARSensor(world.world, num_rays=72, max_range=LIDAR_MAX_RANGE)
     distances = lidar.scan(position=(0, 0), orientation=0)
 
     # max_rangeでクリップされる

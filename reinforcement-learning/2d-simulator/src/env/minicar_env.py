@@ -7,7 +7,7 @@ from typing import Tuple, Dict, Optional, Any
 
 from src.physics.box2d_wrapper import PhysicsWorld
 from src.env.vehicle import Vehicle
-from src.env.sensors import LiDARSensor
+from src.env.sensors import LiDARSensor, LIDAR_MAX_RANGE
 from src.env.course import Course
 from src.env.renderer import Renderer
 
@@ -58,7 +58,7 @@ class MinicarEnv(gym.Env):
         self.lidar = LiDARSensor(
             self.world.world,
             num_rays=5,
-            max_range=3.0,
+            max_range=LIDAR_MAX_RANGE,
             angle_min=-np.pi/3,  # -60度
             angle_max=np.pi/3    # +60度
         )
@@ -385,7 +385,7 @@ class MinicarEnv(gym.Env):
         self.lidar = LiDARSensor(
             self.world.world,
             num_rays=5,
-            max_range=3.0,
+            max_range=LIDAR_MAX_RANGE,
             angle_min=-np.pi/3,  # -60度
             angle_max=np.pi/3    # +60度
         )

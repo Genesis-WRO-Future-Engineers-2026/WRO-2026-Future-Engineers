@@ -107,14 +107,11 @@ def test_collision_detection():
     env = MinicarEnv(course_file="courses/easy/simple_oval.json")
     env.reset()
 
-    # 壁に向かって全速力（より積極的に衝突させる）
+    # 壁に向かって後退して確実に衝突させる
     collision_occurred = False
-    for step in range(500):  # ステップ数を増やす
-        # 前半は直進、後半は旋回して確実に壁に衝突させる
-        if step < 50:
-            action = np.array([0.0, 1.0])  # 直進
-        else:
-            action = np.array([1.0, 1.0])  # 右旋回＋全速力
+    for step in range(1000):  # ステップ数を増やす
+        # 後退しながら旋回（LiDARが見えない方向に進むため確実に衝突）
+        action = np.array([1.0, -1.0])  # 右旋回＋後退
 
         obs, reward, terminated, truncated, info = env.step(action)
 
