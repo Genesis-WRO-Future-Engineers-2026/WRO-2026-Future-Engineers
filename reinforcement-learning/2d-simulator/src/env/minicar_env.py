@@ -216,12 +216,12 @@ class MinicarEnv(gym.Env):
         state = self._cached_vehicle_state
         lidar_scan = self._cached_lidar_scan
 
-        # 1. 速度報酬
+        # 1. 速度報酬（速く走ることを奨励）
         speed = state["speed"]
         reward += speed * 0.1
 
-        # 2. 時間ペナルティ
-        reward -= 0.01
+        # 2. 時間ペナルティ（早くゴールすることを奨励）
+        reward -= 0.1
 
         # 3. 壁接近ペナルティ
         min_distance = np.min(lidar_scan)
@@ -237,14 +237,19 @@ class MinicarEnv(gym.Env):
         if self.next_checkpoint_index < len(checkpoints):
             # 次のチェックポイントのみ判定
             if self.course.check_checkpoint(state["position"], self.next_checkpoint_index):
-                reward += 50.0
+                reward += 100.0
                 self.next_checkpoint_index += 1  # 次へ進む
 
-        # 5. ゴール到達（全チェックポイントを順番に通過している必要がある）
+        # 5. ゴール到達 + 時間ボーナス（早くゴールするほど高い報酬）
         if self.course.check_goal(state["position"]):
             # 全チェックポイントを順番に通過している場合のみゴール報酬
             if self.next_checkpoint_index == len(checkpoints):
+                # 基本ゴール報酬
                 reward += 500.0
+                # 時間ボーナス（早いほど高い）
+                remaining_steps = self.max_steps - self.step_count
+                time_bonus = remaining_steps * 1.5
+                reward += time_bonus
 
         return reward
 
