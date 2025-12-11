@@ -68,6 +68,12 @@ def parse_args():
         "--clip-range", type=float, default=0.2, help="PPO clip range"
     )
     parser.add_argument(
+        "--clip-range-vf",
+        type=float,
+        default=None,
+        help="Value function clip range (None to disable clipping)",
+    )
+    parser.add_argument(
         "--entropy-coef",
         type=float,
         default=0.01,
@@ -81,6 +87,12 @@ def parse_args():
         type=float,
         default=0.5,
         help="Max gradient norm",
+    )
+    parser.add_argument(
+        "--reward-clip",
+        type=float,
+        default=10.0,
+        help="Reward clipping range (to prevent gradient explosion)",
     )
 
     # ネットワーク設定
@@ -222,6 +234,7 @@ def main():
         gamma=args.gamma,
         gae_lambda=args.gae_lambda,
         clip_range=args.clip_range,
+        clip_range_vf=args.clip_range_vf,
         entropy_coef=args.entropy_coef,
         value_coef=args.value_coef,
         max_grad_norm=args.max_grad_norm,
@@ -253,6 +266,7 @@ def main():
         n_steps=args.n_steps,
         n_epochs=args.n_epochs,
         batch_size=args.batch_size,
+        reward_clip=args.reward_clip,
         save_freq=args.save_freq,
         checkpoint_dir=args.checkpoint_dir,
         eval_freq=args.eval_freq,

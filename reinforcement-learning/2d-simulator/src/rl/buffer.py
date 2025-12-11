@@ -16,6 +16,7 @@ class RolloutBuffer:
         device: torch.device = torch.device("cpu"),
         gamma: float = 0.99,
         gae_lambda: float = 0.95,
+        reward_clip: float = 10.0,
     ):
         """
         Args:
@@ -25,6 +26,7 @@ class RolloutBuffer:
             device: PyTorchデバイス
             gamma: 割引率
             gae_lambda: GAEのλ
+            reward_clip: 報酬のクリッピング範囲（勾配爆発防止）
         """
         self.buffer_size = buffer_size
         self.obs_dim = obs_dim
@@ -32,6 +34,7 @@ class RolloutBuffer:
         self.device = device
         self.gamma = gamma
         self.gae_lambda = gae_lambda
+        self.reward_clip = reward_clip
 
         # バッファの初期化
         self.observations = np.zeros((buffer_size, obs_dim), dtype=np.float32)
@@ -88,6 +91,11 @@ class RolloutBuffer:
         Args:
             last_value: 最後の状態の価値
         """
+        # 報酬をクリッピング（勾配爆発防止）
+        clipped_rewards = np.clip(
+            self.rewards, -self.reward_clip, self.reward_clip
+        )
+
         last_gae_lam = 0
         for step in reversed(range(self.buffer_size)):
             if step == self.buffer_size - 1:
@@ -97,9 +105,9 @@ class RolloutBuffer:
                 next_non_terminal = 1.0 - self.dones[step]
                 next_value = self.values[step + 1]
 
-            # TD誤差
+            # TD誤差（クリッピングされた報酬を使用）
             delta = (
-                self.rewards[step]
+                clipped_rewards[step]
                 + self.gamma * next_value * next_non_terminal
                 - self.values[step]
             )

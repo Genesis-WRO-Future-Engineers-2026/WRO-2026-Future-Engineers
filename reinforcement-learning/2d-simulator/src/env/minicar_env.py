@@ -234,9 +234,11 @@ class MinicarEnv(gym.Env):
                     self.checkpoints_passed.add(i)
                     reward += 50.0
 
-        # 5. ゴール到達
+        # 5. ゴール到達（全チェックポイント通過が必須）
         if self.course.check_goal(state["position"]):
-            reward += 500.0
+            # 全チェックポイントを通過している場合のみゴール報酬
+            if len(self.checkpoints_passed) == len(checkpoints):
+                reward += 500.0
 
         return reward
 

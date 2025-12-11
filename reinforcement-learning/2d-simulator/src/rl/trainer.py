@@ -24,6 +24,7 @@ class PPOTrainer:
         n_steps: int = 2048,
         n_epochs: int = 10,
         batch_size: int = 64,
+        reward_clip: float = 10.0,
         # チェックポイント
         save_freq: int = 10,
         checkpoint_dir: str = "models/checkpoints",
@@ -41,6 +42,7 @@ class PPOTrainer:
             n_steps: ステップ数（1回の更新あたり）
             n_epochs: エポック数
             batch_size: バッチサイズ
+            reward_clip: 報酬のクリッピング範囲（勾配爆発防止）
             save_freq: 保存頻度（イテレーション単位）
             checkpoint_dir: チェックポイントディレクトリ
             eval_freq: 評価頻度（イテレーション単位）
@@ -68,6 +70,7 @@ class PPOTrainer:
             device=ppo.device,
             gamma=ppo.gamma,
             gae_lambda=ppo.gae_lambda,
+            reward_clip=reward_clip,
         )
 
         # 統計
