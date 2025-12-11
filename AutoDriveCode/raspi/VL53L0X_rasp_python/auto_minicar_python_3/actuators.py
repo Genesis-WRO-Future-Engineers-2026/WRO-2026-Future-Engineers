@@ -8,6 +8,8 @@ from config import (
     SENSOR1_SHUTDOWN,
     SENSOR2_SHUTDOWN,
     SENSOR3_SHUTDOWN,
+    SENSOR4_SHUTDOWN,
+    SENSOR5_SHUTDOWN,
     SERVO_PIN,
     ESC_PIN,
     PWM_FREQUENCY,
@@ -32,10 +34,12 @@ def initialize_gpio():
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BCM)
 
-    # センサー用ピンを設定
+    # センサー用ピンを設定（5つのセンサー）
     GPIO.setup(SENSOR1_SHUTDOWN, GPIO.OUT)
     GPIO.setup(SENSOR2_SHUTDOWN, GPIO.OUT)
     GPIO.setup(SENSOR3_SHUTDOWN, GPIO.OUT)
+    GPIO.setup(SENSOR4_SHUTDOWN, GPIO.OUT)
+    GPIO.setup(SENSOR5_SHUTDOWN, GPIO.OUT)
 
     # サーボとESCのピンを設定
     GPIO.setup(SERVO_PIN, GPIO.OUT)

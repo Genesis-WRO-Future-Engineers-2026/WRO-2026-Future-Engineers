@@ -3,24 +3,30 @@
 """
 
 # GPIO ピン番号設定
-# センサー用シャットダウンピン
-SENSOR1_SHUTDOWN = 20  # センサー1 (0度)
-SENSOR2_SHUTDOWN = 21  # センサー2 (20度)
-SENSOR3_SHUTDOWN = 16  # センサー3 (70度)
+# センサー用シャットダウンピン（5つのセンサー）
+SENSOR1_SHUTDOWN = 20  # センサー1 (-70度・左)
+SENSOR2_SHUTDOWN = 21  # センサー2 (-20度)
+SENSOR3_SHUTDOWN = 16  # センサー3 (0度・正面)
+SENSOR4_SHUTDOWN = 26  # センサー4 (+20度)
+SENSOR5_SHUTDOWN = 19  # センサー5 (+70度・右)
 
 # サーボとESCのGPIOピン
 SERVO_PIN = 12  # サーボ用GPIO 12
 ESC_PIN = 13    # ESC用GPIO 13
 
-# センサーI2Cアドレス
-SENSOR1_ADDRESS = 0x30  # センサー1のI2Cアドレス（0度・正面）
-SENSOR2_ADDRESS = 0x2B  # センサー2のI2Cアドレス（20度）
-SENSOR3_ADDRESS = 0x2D  # センサー3のI2Cアドレス（70度）
+# センサーI2Cアドレス（5つのセンサー）
+SENSOR1_ADDRESS = 0x30  # センサー1のI2Cアドレス（-70度・左）
+SENSOR2_ADDRESS = 0x2B  # センサー2のI2Cアドレス（-20度）
+SENSOR3_ADDRESS = 0x2D  # センサー3のI2Cアドレス（0度・正面）
+SENSOR4_ADDRESS = 0x2E  # センサー4のI2Cアドレス（+20度）
+SENSOR5_ADDRESS = 0x2F  # センサー5のI2Cアドレス（+70度・右）
 
-# センサー角度設定
-SENSOR1_ANGLE = 0   # センサー1の取り付け角度（度）- 正面
-SENSOR2_ANGLE = 20  # センサー2の取り付け角度（度）
-SENSOR3_ANGLE = 70  # センサー3の取り付け角度（度）
+# センサー角度設定（5つのセンサー）
+SENSOR1_ANGLE = -70  # センサー1の取り付け角度（度）- 左
+SENSOR2_ANGLE = -20  # センサー2の取り付け角度（度）
+SENSOR3_ANGLE = 0    # センサー3の取り付け角度（度）- 正面
+SENSOR4_ANGLE = 20   # センサー4の取り付け角度（度）
+SENSOR5_ANGLE = 70   # センサー5の取り付け角度（度）- 右
 
 # 壁追従制御パラメータ
 PARALLEL_ANGLE = 110.0      # 壁と平行時の基準角度（度）
