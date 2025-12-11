@@ -22,135 +22,83 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-メインプログラム - 5センサー距離測定表示
-センサー配置: -70度(左), -20度, 0度(正面), +20度, +70度(右)
-"""
+"""メインプログラム - 5センサー自動運転システム"""
 
 import time
 import RPi.GPIO as GPIO
+from typing import Dict
 
 from config import DEFAULT_ITERATIONS
-from sensors import initialize_sensors, get_timing, cleanup_sensors
-from actuators import initialize_gpio, cleanup_actuators
-from wall_tracking import calculate_steering_from_five_sensors
+from sensors import SensorManager
+from actuators import Actuator
+from steering_controller import SteeringController
 
 
-def run_measurement_loop(tof1, tof2, tof3, tof4, tof5, timing, servo_pwm, iterations=None):
-    """
-    5つの距離センサーの測定ループを実行し、距離を表示します。
+class AutoDriveCar:
+    """自動運転ミニカーのメインクラス"""
 
-    Parameters:
-    -----------
-    tof1 : VL53L0X
-        センサー1（-70度・左）
-    tof2 : VL53L0X
-        センサー2（-20度）
-    tof3 : VL53L0X
-        センサー3（0度・正面）
-    tof4 : VL53L0X
-        センサー4（+20度）
-    tof5 : VL53L0X
-        センサー5（+70度・右）
-    timing : int
-        測定間隔（マイクロ秒）
-    servo_pwm : GPIO.PWM
-        サーボ用PWMオブジェクト
-    iterations : int, optional
-        測定回数（デフォルト: config.DEFAULT_ITERATIONS）
-    """
-    if iterations is None:
-        iterations = DEFAULT_ITERATIONS
+    def __init__(self):
+        self.sensor_manager = SensorManager()
+        self.actuator = Actuator()
+        self.steering_controller = SteeringController(debug=True)
 
-    print("\nStarting distance measurements...")
-    print("=" * 70)
+    def run(self, iterations: int = DEFAULT_ITERATIONS):
+        """メインループを実行"""
+        timing = self.sensor_manager.get_timing()
 
-    for count in range(1, iterations + 1):
-        # 各センサーから距離を取得
-        distance1 = tof1.get_distance()  # -70度（左）
-        distance2 = tof2.get_distance()  # -20度
-        distance3 = tof3.get_distance()  # 0度（正面）
-        distance4 = tof4.get_distance()  # +20度
-        distance5 = tof5.get_distance()  # +70度（右）
+        print("\nStarting distance measurements...")
+        print("=" * 70)
 
-        print(f"\n--- Iteration {count}/{iterations} ---")
+        for count in range(1, iterations + 1):
+            # 1. センサー読み取り
+            distances = self.sensor_manager.read_all_distances()
 
-        # センサー1（-70度・左）
-        if distance1 > 0:
-            print(f"  Sensor 1 (-70°, Left):  {distance1:4d} mm ({distance1/10:.1f} cm)")
-        else:
-            print(f"  Sensor 1 (-70°, Left):  Error")
+            # 2. 距離表示
+            self._print_distances(count, iterations, distances)
 
-        # センサー2（-20度）
-        if distance2 > 0:
-            print(f"  Sensor 2 (-20°):        {distance2:4d} mm ({distance2/10:.1f} cm)")
-        else:
-            print(f"  Sensor 2 (-20°):        Error")
+            # 3. 全センサーが有効な場合、ステアリング計算
+            if self._all_sensors_valid(distances):
+                decision = self.steering_controller.calculate_steering(
+                    distances,
+                    self.sensor_manager.get_sensor_angles()
+                )
 
-        # センサー3（0度・正面）
-        if distance3 > 0:
-            print(f"  Sensor 3 (  0°, Front): {distance3:4d} mm ({distance3/10:.1f} cm)")
-        else:
-            print(f"  Sensor 3 (  0°, Front): Error")
+                # 4. アクチュエーターに適用
+                self.actuator.set_steering_angle(decision.angle)
 
-        # センサー4（+20度）
-        if distance4 > 0:
-            print(f"  Sensor 4 (+20°):        {distance4:4d} mm ({distance4/10:.1f} cm)")
-        else:
-            print(f"  Sensor 4 (+20°):        Error")
+                # 5. 結果表示
+                print(f"  >> Steer: {decision.angle:+.1f}° ({decision.direction}) - {decision.reason}")
 
-        # センサー5（+70度・右）
-        if distance5 > 0:
-            print(f"  Sensor 5 (+70°, Right): {distance5:4d} mm ({distance5/10:.1f} cm)")
-        else:
-            print(f"  Sensor 5 (+70°, Right): Error")
+            time.sleep(timing / 1000000.0)
 
-        # 5つ全てのセンサーが有効な値を返している場合、ハンドリング計算を実行
-        if distance1 > 0 and distance2 > 0 and distance3 > 0 and distance4 > 0 and distance5 > 0:
-            steer_action = calculate_steering_from_five_sensors(
-                servo_pwm, distance1, distance2, distance3, distance4, distance5
-            )
-            print(f"  >> {steer_action}")
+        print("\n" + "=" * 70)
+        print("Measurements completed")
 
-        time.sleep(timing/1000000.00)
+    def _print_distances(self, count: int, total: int, distances: Dict[str, float]):
+        """距離を表示"""
+        print(f"\n--- Iteration {count}/{total} ---")
+        for sensor_id, distance in distances.items():
+            angle = self.sensor_manager.get_sensor_angles()[sensor_id]
+            if distance > 0:
+                print(f"  {sensor_id} ({angle:+3d}°): {distance:4d} mm ({distance/10:.1f} cm)")
+            else:
+                print(f"  {sensor_id} ({angle:+3d}°): Error")
 
-    print("\n" + "=" * 70)
-    print("Measurements completed")
+    def _all_sensors_valid(self, distances: Dict[str, float]) -> bool:
+        """全センサーが有効な値を返しているか確認"""
+        return all(d > 0 for d in distances.values())
 
-
-def cleanup_all(tof1, tof2, tof3, tof4, tof5, servo_pwm, esc_pwm):
-    """
-    すべてのハードウェアをクリーンアップします。
-
-    Parameters:
-    -----------
-    tof1 : VL53L0X
-        センサー1（-70度）
-    tof2 : VL53L0X
-        センサー2（-20度）
-    tof3 : VL53L0X
-        センサー3（0度）
-    tof4 : VL53L0X
-        センサー4（+20度）
-    tof5 : VL53L0X
-        センサー5（+70度）
-    servo_pwm : GPIO.PWM
-        サーボ用PWMオブジェクト
-    esc_pwm : GPIO.PWM
-        ESC用PWMオブジェクト
-    """
-    cleanup_sensors(tof1, tof2, tof3, tof4, tof5)
-    cleanup_actuators(servo_pwm, esc_pwm)
-    GPIO.cleanup()
-    print("Cleanup completed")
+    def cleanup(self):
+        """クリーンアップ"""
+        self.sensor_manager.cleanup()
+        self.actuator.cleanup()
+        GPIO.cleanup()
+        print("Cleanup completed")
 
 
 def main():
-    """
-    メインプログラム：5つの距離センサーで測定して距離を表示
-    """
     print("=" * 70)
-    print("5-Sensor Distance Measurement System")
+    print("5-Sensor Auto Drive System")
     print("Sensor Configuration:")
     print("  Sensor 1: -70° (Left)")
     print("  Sensor 2: -20°")
@@ -159,17 +107,13 @@ def main():
     print("  Sensor 5: +70° (Right)")
     print("=" * 70)
 
-    # GPIOとセンサーの初期化
-    servo_pwm, esc_pwm = initialize_gpio()
-    tof1, tof2, tof3, tof4, tof5 = initialize_sensors()
-    timing = get_timing(tof1)
-
+    car = AutoDriveCar()
     try:
-        run_measurement_loop(tof1, tof2, tof3, tof4, tof5, timing, servo_pwm)
+        car.run()
     except KeyboardInterrupt:
         print("\n\nProgram interrupted by user")
     finally:
-        cleanup_all(tof1, tof2, tof3, tof4, tof5, servo_pwm, esc_pwm)
+        car.cleanup()
 
 
 if __name__ == "__main__":
