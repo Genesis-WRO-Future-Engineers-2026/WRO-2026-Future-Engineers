@@ -1,5 +1,5 @@
 """
-壁追従制御モジュール - 壁検出計算とステアリング制御ロジック（pigpio版）
+壁追従制御モジュール - 壁検出計算とステアリング制御ロジック
 """
 
 import math
@@ -105,15 +105,15 @@ def calculate_wall_distance(distance2, angle, sensor_angle=None):
     return wall_distance
 
 
-def apply_counter_steer(pi, angle, wall_distance):
+def apply_counter_steer(servo_pwm, angle, wall_distance):
     """
-    壁との角度と距離に基づいて動的ステアリングを適用します（比例制御）（pigpio版）。
+    壁との角度と距離に基づいて動的ステアリングを適用します（比例制御）。
     ※センサーは車体の左側を向いています
 
     Parameters:
     -----------
-    pi : pigpio.pi
-        pigpioインスタンス
+    servo_pwm : GPIO.PWM
+        サーボ用PWMオブジェクト
     angle : float
         壁との角度（度）
     wall_distance : float
@@ -159,7 +159,7 @@ def apply_counter_steer(pi, angle, wall_distance):
         steering_angle = _apply_steering_smoothing(steering_angle)
 
     # 8. サーボに適用
-    set_servo_angle(pi, steering_angle)
+    set_servo_angle(servo_pwm, steering_angle)
 
     # 9. 詳細ログを返す
     return _format_steer_action(
@@ -257,14 +257,14 @@ def detect_straight_path(distance1, distance2):
     return (False, "", 0)
 
 
-def turn_to_straight_path(pi, detected_direction, distance0, distance1, distance2):
+def turn_to_straight_path(servo_pwm, detected_direction, distance0, distance1, distance2):
     """
-    検出された直線方向に向けて、0度センサーの距離が最大になるように旋回します（pigpio版）。
+    検出された直線方向に向けて、0度センサーの距離が最大になるように旋回します。
 
     Parameters:
     -----------
-    pi : pigpio.pi
-        pigpioインスタンス
+    servo_pwm : GPIO.PWM
+        サーボ用PWMオブジェクト
     detected_direction : str
         直線を検出したセンサーの方向（"20deg" または "70deg"）
     distance0 : float
@@ -282,7 +282,7 @@ def turn_to_straight_path(pi, detected_direction, distance0, distance1, distance
     """
     # 0度センサーの距離が20度と70度の両方より大きければ、正面を向いている
     if distance0 > distance1 and distance0 > distance2:
-        set_servo_angle(pi, 0)  # 直進
+        set_servo_angle(servo_pwm, 0)  # 直進
         return (False, f"Front sensor maximized ({distance0:.0f}mm) - straight ahead")
 
     # まだ旋回が必要な場合、検出した方向に旋回
@@ -293,7 +293,7 @@ def turn_to_straight_path(pi, detected_direction, distance0, distance1, distance
         # 70度方向に旋回（左にステアリング）
         steering_angle = -TURN_TO_STRAIGHT_ANGLE
 
-    set_servo_angle(pi, steering_angle)
+    set_servo_angle(servo_pwm, steering_angle)
 
     direction = "left" if steering_angle < 0 else "right" if steering_angle > 0 else "straight"
     return (True, f"Turning to {detected_direction} path: {steering_angle:+.1f}° ({direction}) | Front:{distance0:.0f}mm, 20deg:{distance1:.0f}mm, 70deg:{distance2:.0f}mm")

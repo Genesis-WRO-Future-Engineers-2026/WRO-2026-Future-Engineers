@@ -23,15 +23,16 @@
 # SOFTWARE.
 
 """
-メインプログラム - 5センサー距離測定表示（pigpio版）
+メインプログラム - 5センサー距離測定表示
 センサー配置: -70度(左), -20度, 0度(正面), +20度, +70度(右)
 """
 
 import time
+import RPi.GPIO as GPIO
 
 from config import DEFAULT_ITERATIONS
 from sensors import initialize_sensors, get_timing, cleanup_sensors
-from actuators import initialize_pigpio, cleanup_actuators
+from actuators import initialize_gpio, cleanup_actuators
 
 
 def run_measurement_loop(tof1, tof2, tof3, tof4, tof5, timing, iterations=None):
@@ -110,14 +111,12 @@ def run_measurement_loop(tof1, tof2, tof3, tof4, tof5, timing, iterations=None):
     print("Measurements completed")
 
 
-def cleanup_all(pi, tof1, tof2, tof3, tof4, tof5):
+def cleanup_all(tof1, tof2, tof3, tof4, tof5, servo_pwm, esc_pwm):
     """
-    すべてのハードウェアをクリーンアップします（pigpio版）。
+    すべてのハードウェアをクリーンアップします。
 
     Parameters:
     -----------
-    pi : pigpio.pi
-        pigpioインスタンス
     tof1 : VL53L0X
         センサー1（-70度）
     tof2 : VL53L0X
@@ -128,20 +127,23 @@ def cleanup_all(pi, tof1, tof2, tof3, tof4, tof5):
         センサー4（+20度）
     tof5 : VL53L0X
         センサー5（+70度）
+    servo_pwm : GPIO.PWM
+        サーボ用PWMオブジェクト
+    esc_pwm : GPIO.PWM
+        ESC用PWMオブジェクト
     """
-    cleanup_sensors(pi, tof1, tof2, tof3, tof4, tof5)
-    cleanup_actuators(pi)
-    pi.stop()
-    print("pigpio disconnected")
+    cleanup_sensors(tof1, tof2, tof3, tof4, tof5)
+    cleanup_actuators(servo_pwm, esc_pwm)
+    GPIO.cleanup()
     print("Cleanup completed")
 
 
 def main():
     """
-    メインプログラム：5つの距離センサーで測定して距離を表示（pigpio版）
+    メインプログラム：5つの距離センサーで測定して距離を表示
     """
     print("=" * 70)
-    print("5-Sensor Distance Measurement System (pigpio version)")
+    print("5-Sensor Distance Measurement System")
     print("Sensor Configuration:")
     print("  Sensor 1: -70° (Left)")
     print("  Sensor 2: -20°")
@@ -150,26 +152,17 @@ def main():
     print("  Sensor 5: +70° (Right)")
     print("=" * 70)
 
+    # GPIOとセンサーの初期化
+    servo_pwm, esc_pwm = initialize_gpio()
+    tof1, tof2, tof3, tof4, tof5 = initialize_sensors()
+    timing = get_timing(tof1)
+
     try:
-        # pigpioとセンサーの初期化
-        pi = initialize_pigpio()
-        tof1, tof2, tof3, tof4, tof5 = initialize_sensors(pi)
-        timing = get_timing(tof1)
-
-        # 測定ループ実行
         run_measurement_loop(tof1, tof2, tof3, tof4, tof5, timing)
-
     except KeyboardInterrupt:
         print("\n\nProgram interrupted by user")
-    except RuntimeError as e:
-        print(f"\nError: {e}")
-        print("\nヒント: pigpiodデーモンを起動してください:")
-        print("  sudo pigpiod")
     finally:
-        try:
-            cleanup_all(pi, tof1, tof2, tof3, tof4, tof5)
-        except:
-            print("Cleanup failed - pigpio may not be initialized")
+        cleanup_all(tof1, tof2, tof3, tof4, tof5, servo_pwm, esc_pwm)
 
 
 if __name__ == "__main__":
