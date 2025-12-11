@@ -113,7 +113,7 @@ class MinicarEnv(gym.Env):
         self.step_count = 0
         self.last_action = np.zeros(2)
         self.total_reward = 0.0
-        self.checkpoints_passed = set()
+        self.next_checkpoint_index = 0  # 次のチェックポイントをリセット
         self.is_collision = False  # 衝突フラグをリセット
 
         # キャッシュを初期化
@@ -226,18 +226,18 @@ class MinicarEnv(gym.Env):
         if min_distance <= self.COLLISION_DISTANCE:
             reward += self.COLLISION_PENALTY  # 大きなペナルティ
 
-        # 4. チェックポイント報酬
+        # 4. チェックポイント報酬（順序通りに通過する必要がある）
         checkpoints = self.course.get_checkpoints()
-        for i, checkpoint in enumerate(checkpoints):
-            if i not in self.checkpoints_passed:
-                if self.course.check_checkpoint(state["position"], i):
-                    self.checkpoints_passed.add(i)
-                    reward += 50.0
+        if self.next_checkpoint_index < len(checkpoints):
+            # 次のチェックポイントのみ判定
+            if self.course.check_checkpoint(state["position"], self.next_checkpoint_index):
+                reward += 50.0
+                self.next_checkpoint_index += 1  # 次へ進む
 
-        # 5. ゴール到達（全チェックポイント通過が必須）
+        # 5. ゴール到達（全チェックポイントを順番に通過している必要がある）
         if self.course.check_goal(state["position"]):
-            # 全チェックポイントを通過している場合のみゴール報酬
-            if len(self.checkpoints_passed) == len(checkpoints):
+            # 全チェックポイントを順番に通過している場合のみゴール報酬
+            if self.next_checkpoint_index == len(checkpoints):
                 reward += 500.0
 
         return reward
@@ -253,9 +253,9 @@ class MinicarEnv(gym.Env):
         state = self._cached_vehicle_state
         lidar_scan = self._cached_lidar_scan
 
-        # ゴール到達（すべてのチェックポイントを通過している必要がある）
+        # ゴール到達（すべてのチェックポイントを順番に通過している必要がある）
         checkpoints = self.course.get_checkpoints()
-        all_checkpoints_passed = len(self.checkpoints_passed) == len(checkpoints)
+        all_checkpoints_passed = self.next_checkpoint_index == len(checkpoints)
         if all_checkpoints_passed and self.course.check_goal(state["position"]):
             return True
 
@@ -278,13 +278,16 @@ class MinicarEnv(gym.Env):
         state = self._cached_vehicle_state
         lidar_scan = self._cached_lidar_scan
 
+        checkpoints = self.course.get_checkpoints()
         return {
             "position": state["position"],
             "speed": state["speed"],
             "angle": state["angle"],
             "step_count": self.step_count,
             "total_reward": self.total_reward,
-            "checkpoints_passed": len(self.checkpoints_passed),
+            "next_checkpoint_index": self.next_checkpoint_index,
+            "total_checkpoints": len(checkpoints),
+            "checkpoints_remaining": len(checkpoints) - self.next_checkpoint_index,
             "min_distance": np.min(lidar_scan),
             "is_collision": self.is_collision,  # 衝突フラグ
         }
@@ -396,7 +399,7 @@ class MinicarEnv(gym.Env):
         self.step_count = 0
         self.last_action = np.zeros(2)
         self.total_reward = 0.0
-        self.checkpoints_passed = set()
+        self.next_checkpoint_index = 0  # 次のチェックポイントをリセット
         self.is_collision = False  # 衝突フラグをリセット
         self._cached_lidar = None
 
