@@ -35,6 +35,17 @@ class SensorManager:
 
     def _initialize_all_sensors(self):
         """全センサーを初期化"""
+        # GPIOモードを設定（Actuatorより先に呼ばれる場合に備えて）
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BCM)
+
+        # GPIOピンをセットアップ
+        GPIO.setup(SENSOR1_SHUTDOWN, GPIO.OUT)
+        GPIO.setup(SENSOR2_SHUTDOWN, GPIO.OUT)
+        GPIO.setup(SENSOR3_SHUTDOWN, GPIO.OUT)
+        GPIO.setup(SENSOR4_SHUTDOWN, GPIO.OUT)
+        GPIO.setup(SENSOR5_SHUTDOWN, GPIO.OUT)
+
         # 全センサーをシャットダウン
         GPIO.output(SENSOR1_SHUTDOWN, GPIO.LOW)
         GPIO.output(SENSOR2_SHUTDOWN, GPIO.LOW)
