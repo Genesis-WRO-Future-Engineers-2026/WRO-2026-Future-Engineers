@@ -86,9 +86,9 @@ Course (JSON) → PhysicsWorld (Box2D) → Vehicle → LiDARSensor
                                      PPO → Trainer
 ```
 
-### 観測空間構成 (77次元)
+### 観測空間構成 (10次元)
 
-- LiDAR: 72次元（72方向のレイキャスト距離）
+- LiDAR: 5次元（前方120度を5方向でカバー: -60° ~ +60°）
 - 速度: 2次元（vx, vy）
 - 角速度: 1次元
 - 前回の行動: 2次元（steering, throttle）
@@ -105,10 +105,19 @@ Course (JSON) → PhysicsWorld (Box2D) → Vehicle → LiDARSensor
 - 速度報酬: `speed * 0.1`
 - 時間ペナルティ: `-0.01`
 - 壁接近ペナルティ: `min_distance < 0.3`で発動
+- 衝突ペナルティ: `-100.0` (Box2D物理衝突検出)
 - チェックポイント報酬: `+50.0`
 - ゴール到達報酬: `+500.0`
 
 報酬関数を変更する場合はこのメソッドを編集。
+
+### 衝突判定
+
+Box2Dの物理エンジンによる衝突検出を使用（`src/physics/collision_listener.py`）:
+
+- **全方向・全角度の正確な衝突検出**（前後左右すべて）
+- LiDARは観測空間として使用（前方120度のみ）
+- 衝突時はエピソードが即座に終了
 
 ### PPOパラメータ
 

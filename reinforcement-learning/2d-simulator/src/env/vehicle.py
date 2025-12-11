@@ -74,6 +74,9 @@ class Vehicle:
             angularDamping=0.8,  # 回転抵抗
         )
 
+        # 車両の識別子を設定（衝突検出用）
+        self.body.userData = "vehicle"
+
         # 車両の形状（矩形）
         self.body.CreatePolygonFixture(
             box=(self.length / 2, self.width / 2),

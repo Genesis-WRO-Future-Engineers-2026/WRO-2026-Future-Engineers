@@ -96,6 +96,10 @@ class Course:
             angle=angle,
             shapes=b2PolygonShape(box=(length / 2, thickness / 2)),
         )
+
+        # 壁の識別子を設定（衝突検出用）
+        body.userData = "wall"
+
         return body
 
     def get_start_pose(self) -> Tuple[Tuple[float, float], float]:

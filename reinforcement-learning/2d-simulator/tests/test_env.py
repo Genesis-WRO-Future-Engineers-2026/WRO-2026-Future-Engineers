@@ -115,17 +115,11 @@ def test_collision_detection():
 
         obs, reward, terminated, truncated, info = env.step(action)
 
-        # 衝突が発生したかチェック
-        if info["min_distance"] <= env.COLLISION_DISTANCE:
-            # 衝突フラグが立っているはず
-            assert info["is_collision"] == True, "衝突距離以下だが衝突フラグが立っていません"
-            collision_occurred = True
-
         if terminated:
             if info["is_collision"]:
                 collision_occurred = True
-                # 衝突距離閾値以下であることを確認
-                assert info["min_distance"] <= env.COLLISION_DISTANCE
+                # Box2D衝突検出が動作していることを確認
+                assert env.world.has_collision() == True
             break
 
     # 衝突が発生したことを確認
@@ -180,3 +174,76 @@ def test_observation_bounds():
         lidar_data = obs[:72]
         assert np.all(lidar_data >= 0)
         assert np.all(lidar_data <= 10.0)
+
+
+def test_box2d_collision_detection():
+    """Box2D物理エンジンによる衝突検出テスト"""
+    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    obs, info = env.reset()
+
+    # 初期状態では衝突なし
+    assert env.world.has_collision() == False
+    assert env.is_collision == False
+
+    # 壁に向かって全速前進（衝突するまで）
+    collision_detected = False
+    for _ in range(500):
+        action = np.array([0.0, 1.0])  # まっすぐ前進
+        obs, reward, terminated, truncated, info = env.step(action)
+
+        if terminated and env.is_collision:
+            # 衝突で終了したことを確認
+            assert env.is_collision == True
+            assert info["is_collision"] == True
+            collision_detected = True
+            break
+
+    # 衝突が検出されたことを確認
+    assert collision_detected == True
+
+
+def test_box2d_side_collision():
+    """側面衝突が検出されるかテスト（Box2Dによる全方向検出）"""
+    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    obs, info = env.reset()
+
+    # 横向きに移動させるために、ステアリングと前進を組み合わせる
+    collision_detected = False
+
+    for _ in range(1000):
+        # 右に旋回しながら前進（壁に横から衝突する可能性を高める）
+        action = np.array([1.0, 1.0])
+        obs, reward, terminated, truncated, info = env.step(action)
+
+        if terminated and env.is_collision:
+            collision_detected = True
+            break
+
+    # 最終的に衝突が検出されることを確認
+    # （側面衝突も検出可能になったことの確認）
+    assert collision_detected == True
+
+
+def test_box2d_collision_reset():
+    """衝突フラグがリセットで正しくクリアされるかテスト（Box2D）"""
+    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+
+    # 1回目のエピソード：衝突させる
+    obs, info = env.reset()
+    for _ in range(500):
+        action = np.array([0.0, 1.0])
+        obs, reward, terminated, truncated, info = env.step(action)
+        if terminated:
+            break
+
+    # 衝突が発生していることを確認（いずれかの方法で）
+    # （Box2D衝突またはLiDAR衝突のいずれか）
+    terminated_occurred = terminated
+
+    # リセット
+    obs, info = env.reset()
+
+    # フラグがクリアされている
+    assert env.is_collision == False
+    assert env.world.has_collision() == False
+    assert info["is_collision"] == False

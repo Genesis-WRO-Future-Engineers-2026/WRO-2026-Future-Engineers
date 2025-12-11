@@ -6,6 +6,7 @@ import numpy as np
 from typing import Tuple, Dict, Optional, Any
 
 from src.physics.box2d_wrapper import PhysicsWorld
+from src.physics.collision_listener import CollisionListener
 from src.env.vehicle import Vehicle
 from src.env.sensors import LiDARSensor, LIDAR_MAX_RANGE
 from src.env.course import Course
@@ -18,9 +19,8 @@ class MinicarEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
 
     # 衝突判定パラメータ
-    # 車両の対角線半径は約0.224m（幅0.2m × 長さ0.4m）
-    # LiDARは車両中心から発射されるため、壁接触時のmin_distanceは約0.22mになる
-    COLLISION_DISTANCE = 0.22  # 壁衝突とみなす距離（m）
+    # NOTE: 衝突判定はBox2Dの物理エンジンで行うため、距離ベースの閾値は不要
+    # WALL_APPROACH_DISTANCEは報酬設計で壁接近ペナルティを与えるために使用
     WALL_APPROACH_DISTANCE = 0.3  # 壁接近ペナルティの閾値（m）
     COLLISION_PENALTY = -100.0  # 衝突時の報酬ペナルティ
 
@@ -44,8 +44,11 @@ class MinicarEnv(gym.Env):
         # コースのロード
         self.course = Course(course_file)
 
-        # 物理世界
-        self.world = PhysicsWorld()
+        # 衝突検出リスナーを作成
+        self.collision_listener = CollisionListener()
+
+        # 物理世界（ContactListenerを登録）
+        self.world = PhysicsWorld(collision_listener=self.collision_listener)
 
         # 壁の作成
         self.course.create_walls(self.world.world)
@@ -115,6 +118,9 @@ class MinicarEnv(gym.Env):
         self.total_reward = 0.0
         self.next_checkpoint_index = 0  # 次のチェックポイントをリセット
         self.is_collision = False  # 衝突フラグをリセット
+
+        # 衝突検出リスナーをリセット
+        self.world.reset_collision()
 
         # キャッシュを初期化
         state = self.vehicle.get_state()
@@ -222,8 +228,8 @@ class MinicarEnv(gym.Env):
         if min_distance < self.WALL_APPROACH_DISTANCE:
             reward -= (self.WALL_APPROACH_DISTANCE - min_distance) * 10
 
-        # 3.5. 衝突ペナルティ
-        if min_distance <= self.COLLISION_DISTANCE:
+        # 3.5. 衝突ペナルティ（Box2D物理衝突検出を使用）
+        if self.world.has_collision():
             reward += self.COLLISION_PENALTY  # 大きなペナルティ
 
         # 4. チェックポイント報酬（順序通りに通過する必要がある）
@@ -251,7 +257,6 @@ class MinicarEnv(gym.Env):
         """
         # キャッシュされたデータを使用
         state = self._cached_vehicle_state
-        lidar_scan = self._cached_lidar_scan
 
         # ゴール到達（すべてのチェックポイントを順番に通過している必要がある）
         checkpoints = self.course.get_checkpoints()
@@ -259,9 +264,8 @@ class MinicarEnv(gym.Env):
         if all_checkpoints_passed and self.course.check_goal(state["position"]):
             return True
 
-        # 壁衝突（LiDARの最小距離が衝突閾値以下）
-        min_distance = np.min(lidar_scan)
-        if min_distance <= self.COLLISION_DISTANCE:
+        # 壁衝突（Box2Dの物理衝突検出を使用）
+        if self.world.has_collision():
             self.is_collision = True  # 衝突フラグを立てる
             return True
 
@@ -374,8 +378,11 @@ class MinicarEnv(gym.Env):
         if hasattr(self, 'course') and self.course.course_file == course_file:
             return
 
-        # 物理世界をリセット
-        self.world = PhysicsWorld()
+        # 衝突検出リスナーをリセット
+        self.collision_listener.reset()
+
+        # 物理世界をリセット（同じリスナーを再利用）
+        self.world = PhysicsWorld(collision_listener=self.collision_listener)
 
         # 新しいコースをロード
         self.course = Course(course_file)
