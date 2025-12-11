@@ -218,10 +218,10 @@ class MinicarEnv(gym.Env):
 
         # 1. 速度報酬（速く走ることを奨励）
         speed = state["speed"]
-        reward += speed * 0.01
+        reward += speed * 0.05
 
         # 2. 時間ペナルティ（早くゴールすることを奨励）
-        reward -= 0.5
+        reward -= 0.3
 
         # 3. 壁接近ペナルティ
         min_distance = np.min(lidar_scan)
