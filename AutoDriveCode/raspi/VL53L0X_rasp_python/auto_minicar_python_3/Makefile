@@ -1,16 +1,40 @@
-.PHONY: run test clean
+.PHONY: help run test test-cov docker-build docker-shell clean docker-clean
 
-# メインプログラムの実行
+# デフォルトターゲット
+.DEFAULT_GOAL := help
+
+# ヘルプ
+help:
+	@echo "使用可能なコマンド:"
+	@echo ""
+	@echo "  make run              - メインプログラムを実行（Raspberry Pi上）"
+	@echo ""
+	@echo "  make test             - Docker でテストを実行"
+	@echo "  make test-cov         - Docker でテスト（カバレッジ付き）"
+	@echo "  make docker-shell     - Docker コンテナに入る（デバッグ用）"
+	@echo ""
+	@echo "  make clean            - キャッシュファイルを削除"
+	@echo "  make docker-clean     - Docker イメージを削除"
+
+# メインプログラムの実行（Raspberry Pi上で）
 run:
 	sudo python3 main.py
 
-# テストの実行
-test:
-	pytest -v
+# Docker イメージをビルド
+docker-build:
+	docker build -t minicar-test .
 
-# テスト（カバレッジ付き）
-test-cov:
-	pytest --cov=. --cov-report=html --cov-report=term
+# Docker でテストを実行
+test: docker-build
+	docker run --rm minicar-test
+
+# Docker でテスト（カバレッジ付き）
+test-cov: docker-build
+	docker run --rm minicar-test pytest --cov=. --cov-report=term
+
+# Docker コンテナに入る（デバッグ用）
+docker-shell: docker-build
+	docker run --rm -it minicar-test /bin/bash
 
 # クリーンアップ
 clean:
@@ -18,11 +42,6 @@ clean:
 	find . -type f -name "*.pyc" -delete
 	rm -rf .pytest_cache htmlcov .coverage
 
-# ヘルプ
-help:
-	@echo "使用可能なコマンド:"
-	@echo "  make run       - メインプログラムを実行"
-	@echo "  make test      - テストを実行"
-	@echo "  make test-cov  - テストをカバレッジ付きで実行"
-	@echo "  make clean     - キャッシュファイルを削除"
-	@echo "  make help      - このヘルプを表示"
+# Docker イメージを削除
+docker-clean:
+	docker rmi minicar-test 2>/dev/null || true

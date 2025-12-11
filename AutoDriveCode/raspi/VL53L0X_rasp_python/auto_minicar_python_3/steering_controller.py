@@ -76,30 +76,37 @@ class SteeringController:
         right_line = Line.from_two_points(points['sensor4'], points['sensor5'])
         return left_line, right_line
 
-    # FIXME: うまくいかない場合、直進に至るロジックを調整する
     def _determine_angle(self,
                         left_y: Optional[float],
                         right_y: Optional[float],
                         front_dist: float) -> Tuple[float, str]:
         """交点からステアリング角度を決定"""
-        # 両方の交点が存在
-        if left_y is not None and right_y is not None and left_y > 0 and right_y > 0:
+        # 壁検出の閾値（この距離より遠い交点は無視）
+        MAX_WALL_DISTANCE = 1500.0
+
+        # 有効な壁の判定
+        left_valid = left_y is not None and 0 < left_y < MAX_WALL_DISTANCE
+        right_valid = right_y is not None and 0 < right_y < MAX_WALL_DISTANCE
+
+        # 両方の壁が有効
+        if left_valid and right_valid:
             y_diff = left_y - right_y
-            steering = y_diff * INTERSECTION_DIFF_GAIN
+            # left_y > right_y = 左壁が遠い = 右寄り = 左にステアリング（負）
+            steering = -y_diff * INTERSECTION_DIFF_GAIN
             steering = max(-MAX_STEER_ANGLE, min(MAX_STEER_ANGLE, steering))
             return steering, f"両壁検出: 左{left_y:.0f}mm, 右{right_y:.0f}mm"
 
-        # 左のみ存在（右側が開けている）
-        elif left_y is not None and left_y > 0:
+        # 左のみ有効（右側が開けている）
+        elif left_valid and not right_valid:
             steering = MAX_STEER_ANGLE * ONE_SIDE_OPEN_STEER_RATIO
             return steering, f"右側開放: 左壁{left_y:.0f}mm"
 
-        # 右のみ存在（左側が開けている）
-        elif right_y is not None and right_y > 0:
+        # 右のみ有効（左側が開けている）
+        elif right_valid and not left_valid:
             steering = -MAX_STEER_ANGLE * ONE_SIDE_OPEN_STEER_RATIO
             return steering, f"左側開放: 右壁{right_y:.0f}mm"
 
-        # どちらも存在しない
+        # どちらも無効
         else:
             return 0.0, "交点なし: 直進"
 
