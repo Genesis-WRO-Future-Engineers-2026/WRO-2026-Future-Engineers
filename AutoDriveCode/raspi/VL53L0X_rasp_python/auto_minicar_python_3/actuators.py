@@ -1,9 +1,9 @@
 """
-アクチュエータ制御モジュール - サーボモーターとESCの制御
+アクチュエータ制御モジュール - サーボモーターとESCの制御（pigpio版）
 """
 
 import time
-import RPi.GPIO as GPIO
+import pigpio
 from config import (
     SENSOR1_SHUTDOWN,
     SENSOR2_SHUTDOWN,
@@ -12,103 +12,103 @@ from config import (
     SENSOR5_SHUTDOWN,
     SERVO_PIN,
     ESC_PIN,
-    PWM_FREQUENCY,
-    SERVO_MIN_PULSE_WIDTH_MS,
-    SERVO_MAX_PULSE_WIDTH_MS,
+    SERVO_MIN_PULSE_WIDTH_US,
+    SERVO_MAX_PULSE_WIDTH_US,
+    SERVO_CENTER_PULSE_WIDTH_US,
     NEUTRAL_ANGLE,
-    STOP_PULSE
+    STOP_PULSE_US
 )
 
 
-def initialize_gpio():
+def initialize_pigpio():
     """
-    GPIOピンを初期化します（センサー、サーボ、ESC）
+    pigpioデーモンに接続し、GPIOピンを初期化します。
 
     Returns:
     --------
-    servo_pwm : GPIO.PWM
-        サーボ用PWMオブジェクト
-    esc_pwm : GPIO.PWM
-        ESC用PWMオブジェクト
+    pi : pigpio.pi
+        pigpioインスタンス
     """
-    GPIO.setwarnings(False)
-    GPIO.setmode(GPIO.BCM)
+    # pigpioデーモンに接続
+    pi = pigpio.pi()
+
+    if not pi.connected:
+        raise RuntimeError("pigpioデーモンに接続できません。'sudo pigpiod'を実行してください。")
+
+    print("pigpio connected successfully")
 
     # センサー用ピンを設定（5つのセンサー）
-    GPIO.setup(SENSOR1_SHUTDOWN, GPIO.OUT)
-    GPIO.setup(SENSOR2_SHUTDOWN, GPIO.OUT)
-    GPIO.setup(SENSOR3_SHUTDOWN, GPIO.OUT)
-    GPIO.setup(SENSOR4_SHUTDOWN, GPIO.OUT)
-    GPIO.setup(SENSOR5_SHUTDOWN, GPIO.OUT)
+    pi.set_mode(SENSOR1_SHUTDOWN, pigpio.OUTPUT)
+    pi.set_mode(SENSOR2_SHUTDOWN, pigpio.OUTPUT)
+    pi.set_mode(SENSOR3_SHUTDOWN, pigpio.OUTPUT)
+    pi.set_mode(SENSOR4_SHUTDOWN, pigpio.OUTPUT)
+    pi.set_mode(SENSOR5_SHUTDOWN, pigpio.OUTPUT)
 
     # サーボとESCのピンを設定
-    GPIO.setup(SERVO_PIN, GPIO.OUT)
-    GPIO.setup(ESC_PIN, GPIO.OUT)
-
-    # PWM初期化
-    servo_pwm = GPIO.PWM(SERVO_PIN, PWM_FREQUENCY)
-    esc_pwm = GPIO.PWM(ESC_PIN, PWM_FREQUENCY)
-    servo_pwm.start(0)
-    esc_pwm.start(0)
+    pi.set_mode(SERVO_PIN, pigpio.OUTPUT)
+    pi.set_mode(ESC_PIN, pigpio.OUTPUT)
 
     # 初期状態に設定
-    set_servo_angle(servo_pwm, NEUTRAL_ANGLE)
-    set_esc_speed(esc_pwm, STOP_PULSE)
+    set_servo_angle(pi, NEUTRAL_ANGLE)
+    set_esc_speed(pi, STOP_PULSE_US)
     time.sleep(1)
 
-    return servo_pwm, esc_pwm
+    return pi
 
 
-def set_servo_angle(servo_pwm, angle):
+def set_servo_angle(pi, angle):
     """
-    サーボの角度を設定します。
+    サーボの角度を設定します（pigpio版）。
 
     Parameters:
     -----------
-    servo_pwm : GPIO.PWM
-        サーボ用PWMオブジェクト
+    pi : pigpio.pi
+        pigpioインスタンス
     angle : float
         設定する角度（-90～90度）
     """
-    # 角度をパルス幅に変換
-    pulse_width_ms = ((angle + 90) / 180) * (
-        SERVO_MAX_PULSE_WIDTH_MS - SERVO_MIN_PULSE_WIDTH_MS
-    ) + SERVO_MIN_PULSE_WIDTH_MS
+    # 角度をパルス幅（マイクロ秒）に変換
+    pulse_width_us = ((angle + 90) / 180) * (
+        SERVO_MAX_PULSE_WIDTH_US - SERVO_MIN_PULSE_WIDTH_US
+    ) + SERVO_MIN_PULSE_WIDTH_US
 
-    # パルス幅をデューティサイクルに変換（50Hzの場合、1周期は20ms）
-    duty_cycle = (pulse_width_ms / 20.0) * 100
-    servo_pwm.ChangeDutyCycle(duty_cycle)
+    # パルス幅を整数に変換
+    pulse_width_us = int(pulse_width_us)
+
+    # pigpioでサーボにパルス幅を設定
+    pi.set_servo_pulsewidth(SERVO_PIN, pulse_width_us)
 
 
-def set_esc_speed(esc_pwm, pulse_width_ms):
+def set_esc_speed(pi, pulse_width_us):
     """
-    ESCの速度を設定します。
+    ESCの速度を設定します（pigpio版）。
 
     Parameters:
     -----------
-    esc_pwm : GPIO.PWM
-        ESC用PWMオブジェクト
-    pulse_width_ms : float
-        パルス幅（ms）
+    pi : pigpio.pi
+        pigpioインスタンス
+    pulse_width_us : int
+        パルス幅（マイクロ秒）
     """
-    # パルス幅をデューティサイクルに変換（50Hzの場合、1周期は20ms）
-    duty_cycle = (pulse_width_ms / 20.0) * 100
-    esc_pwm.ChangeDutyCycle(duty_cycle)
+    # pigpioでESCにパルス幅を設定
+    pi.set_servo_pulsewidth(ESC_PIN, pulse_width_us)
 
 
-def cleanup_actuators(servo_pwm, esc_pwm):
+def cleanup_actuators(pi):
     """
-    サーボとESCをクリーンアップします。
+    サーボとESCをクリーンアップします（pigpio版）。
 
     Parameters:
     -----------
-    servo_pwm : GPIO.PWM
-        サーボ用PWMオブジェクト
-    esc_pwm : GPIO.PWM
-        ESC用PWMオブジェクト
+    pi : pigpio.pi
+        pigpioインスタンス
     """
-    set_servo_angle(servo_pwm, NEUTRAL_ANGLE)
-    set_esc_speed(esc_pwm, STOP_PULSE)
+    set_servo_angle(pi, NEUTRAL_ANGLE)
+    set_esc_speed(pi, STOP_PULSE_US)
     time.sleep(0.5)
-    servo_pwm.stop()
-    esc_pwm.stop()
+
+    # サーボとESCのPWMを停止
+    pi.set_servo_pulsewidth(SERVO_PIN, 0)
+    pi.set_servo_pulsewidth(ESC_PIN, 0)
+
+    print("Actuators cleaned up")

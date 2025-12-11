@@ -38,16 +38,17 @@ DISTANCE_TOLERANCE = 20.0   # 距離の許容誤差（mm）
 COUNTER_STEER_ANGLE = 30  # カウンターステア角度（度）
 NEUTRAL_ANGLE = 0         # ニュートラル角度（直進）
 
-# モーター速度パラメータ
-SPEED_PULSE = 1.44   # 前進速度（パルス幅 ms）
-STOP_PULSE = 1.5     # 停止（パルス幅 ms）
+# モーター速度パラメータ（pigpio用：マイクロ秒）
+SPEED_PULSE_US = 1440   # 前進速度（パルス幅 マイクロ秒）
+STOP_PULSE_US = 1500    # 停止（パルス幅 マイクロ秒）
 
 # PWM周波数
 PWM_FREQUENCY = 50   # PWM周波数（Hz）
 
-# サーボパルス幅範囲
-SERVO_MIN_PULSE_WIDTH_MS = 0.5   # 最小パルス幅（ms）
-SERVO_MAX_PULSE_WIDTH_MS = 2.4   # 最大パルス幅（ms）
+# サーボパルス幅範囲（pigpio用：マイクロ秒）
+SERVO_MIN_PULSE_WIDTH_US = 500   # 最小パルス幅（マイクロ秒）
+SERVO_MAX_PULSE_WIDTH_US = 2400  # 最大パルス幅（マイクロ秒）
+SERVO_CENTER_PULSE_WIDTH_US = 1500  # 中央パルス幅（マイクロ秒）
 
 # 測定パラメータ
 DEFAULT_ITERATIONS = 10000  # デフォルトの測定回数

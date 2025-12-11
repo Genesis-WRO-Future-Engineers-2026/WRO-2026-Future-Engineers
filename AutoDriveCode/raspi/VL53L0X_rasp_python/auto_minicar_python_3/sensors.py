@@ -1,11 +1,10 @@
 """
-センサー関連モジュール - VL53L0X距離センサーの初期化と制御
+センサー関連モジュール - VL53L0X距離センサーの初期化と制御（pigpio版）
 """
 
 import sys
 import os
 import time
-import RPi.GPIO as GPIO
 
 # VL53L0Xモジュールのパスを追加
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'python'))
@@ -25,9 +24,9 @@ from config import (
 )
 
 
-def initialize_sensors():
+def initialize_sensors(pi):
     """
-    VL53L0X距離センサーを初期化します（5つのセンサー）。
+    VL53L0X距離センサーを初期化します（5つのセンサー）（pigpio版）。
 
     複数のVL53L0Xセンサーを使用する場合、各センサーを順番に起動して
     I2Cアドレスを変更する必要があります。全てのセンサーはデフォルトで
@@ -39,6 +38,11 @@ def initialize_sensors():
     5. センサー4を起動してアドレスを変更
     6. センサー5を起動してアドレスを変更
 
+    Parameters:
+    -----------
+    pi : pigpio.pi
+        pigpioインスタンス
+
     Returns:
     --------
     tuple : (tof1, tof2, tof3, tof4, tof5)
@@ -49,16 +53,16 @@ def initialize_sensors():
         tof5 : VL53L0X - センサー5（+70度・右）のオブジェクト
     """
     # すべてのセンサーをシャットダウン
-    GPIO.output(SENSOR1_SHUTDOWN, GPIO.LOW)
-    GPIO.output(SENSOR2_SHUTDOWN, GPIO.LOW)
-    GPIO.output(SENSOR3_SHUTDOWN, GPIO.LOW)
-    GPIO.output(SENSOR4_SHUTDOWN, GPIO.LOW)
-    GPIO.output(SENSOR5_SHUTDOWN, GPIO.LOW)
+    pi.write(SENSOR1_SHUTDOWN, 0)
+    pi.write(SENSOR2_SHUTDOWN, 0)
+    pi.write(SENSOR3_SHUTDOWN, 0)
+    pi.write(SENSOR4_SHUTDOWN, 0)
+    pi.write(SENSOR5_SHUTDOWN, 0)
     time.sleep(0.50)
 
     # センサー1を起動してアドレスを設定（-70度・左）
     print("Initializing sensor 1 (-70 deg, left)...")
-    GPIO.output(SENSOR1_SHUTDOWN, GPIO.HIGH)
+    pi.write(SENSOR1_SHUTDOWN, 1)
     time.sleep(0.50)
     tof1 = VL53L0X.VL53L0X(address=0x29)  # デフォルトアドレスで起動
     tof1.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
@@ -70,7 +74,7 @@ def initialize_sensors():
 
     # センサー2を起動してアドレスを設定（-20度）
     print("Initializing sensor 2 (-20 deg)...")
-    GPIO.output(SENSOR2_SHUTDOWN, GPIO.HIGH)
+    pi.write(SENSOR2_SHUTDOWN, 1)
     time.sleep(0.50)
     tof2 = VL53L0X.VL53L0X(address=0x29)  # デフォルトアドレスで起動
     tof2.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
@@ -82,7 +86,7 @@ def initialize_sensors():
 
     # センサー3を起動してアドレスを設定（0度・正面）
     print("Initializing sensor 3 (0 deg, front)...")
-    GPIO.output(SENSOR3_SHUTDOWN, GPIO.HIGH)
+    pi.write(SENSOR3_SHUTDOWN, 1)
     time.sleep(0.50)
     tof3 = VL53L0X.VL53L0X(address=0x29)  # デフォルトアドレスで起動
     tof3.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
@@ -94,7 +98,7 @@ def initialize_sensors():
 
     # センサー4を起動してアドレスを設定（+20度）
     print("Initializing sensor 4 (+20 deg)...")
-    GPIO.output(SENSOR4_SHUTDOWN, GPIO.HIGH)
+    pi.write(SENSOR4_SHUTDOWN, 1)
     time.sleep(0.50)
     tof4 = VL53L0X.VL53L0X(address=0x29)  # デフォルトアドレスで起動
     tof4.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
@@ -106,7 +110,7 @@ def initialize_sensors():
 
     # センサー5を起動してアドレスを設定（+70度・右）
     print("Initializing sensor 5 (+70 deg, right)...")
-    GPIO.output(SENSOR5_SHUTDOWN, GPIO.HIGH)
+    pi.write(SENSOR5_SHUTDOWN, 1)
     time.sleep(0.50)
     tof5 = VL53L0X.VL53L0X(address=0x29)  # デフォルトアドレスで起動
     tof5.start_ranging(VL53L0X.VL53L0X_BETTER_ACCURACY_MODE)
@@ -162,12 +166,14 @@ def read_distance(tof):
         return None
 
 
-def cleanup_sensors(tof1, tof2, tof3, tof4, tof5):
+def cleanup_sensors(pi, tof1, tof2, tof3, tof4, tof5):
     """
-    センサーをクリーンアップします（5つのセンサー）。
+    センサーをクリーンアップします（5つのセンサー）（pigpio版）。
 
     Parameters:
     -----------
+    pi : pigpio.pi
+        pigpioインスタンス
     tof1 : VL53L0X
         センサー1（-70度）
     tof2 : VL53L0X
@@ -180,12 +186,14 @@ def cleanup_sensors(tof1, tof2, tof3, tof4, tof5):
         センサー5（+70度）
     """
     tof5.stop_ranging()
-    GPIO.output(SENSOR5_SHUTDOWN, GPIO.LOW)
+    pi.write(SENSOR5_SHUTDOWN, 0)
     tof4.stop_ranging()
-    GPIO.output(SENSOR4_SHUTDOWN, GPIO.LOW)
+    pi.write(SENSOR4_SHUTDOWN, 0)
     tof3.stop_ranging()
-    GPIO.output(SENSOR3_SHUTDOWN, GPIO.LOW)
+    pi.write(SENSOR3_SHUTDOWN, 0)
     tof2.stop_ranging()
-    GPIO.output(SENSOR2_SHUTDOWN, GPIO.LOW)
+    pi.write(SENSOR2_SHUTDOWN, 0)
     tof1.stop_ranging()
-    GPIO.output(SENSOR1_SHUTDOWN, GPIO.LOW)
+    pi.write(SENSOR1_SHUTDOWN, 0)
+
+    print("Sensors cleaned up")
