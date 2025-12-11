@@ -42,7 +42,7 @@ class LiDARSensor:
         self,
         world: b2World,
         num_rays: int = 72,
-        max_range: float = 1.0,
+        max_range: float = 3.0,
         angle_min: float = 0.0,
         angle_max: float = 2 * np.pi,
     ):

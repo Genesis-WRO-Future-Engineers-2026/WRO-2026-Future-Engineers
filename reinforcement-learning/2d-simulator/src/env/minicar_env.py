@@ -58,7 +58,7 @@ class MinicarEnv(gym.Env):
         self.lidar = LiDARSensor(
             self.world.world,
             num_rays=5,
-            max_range=1.0,
+            max_range=3.0,
             angle_min=-np.pi/3,  # -60度
             angle_max=np.pi/3    # +60度
         )
@@ -385,7 +385,7 @@ class MinicarEnv(gym.Env):
         self.lidar = LiDARSensor(
             self.world.world,
             num_rays=5,
-            max_range=1.0,
+            max_range=3.0,
             angle_min=-np.pi/3,  # -60度
             angle_max=np.pi/3    # +60度
         )
