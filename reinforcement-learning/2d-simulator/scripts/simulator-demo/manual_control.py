@@ -171,7 +171,7 @@ def main():
             print("エピソード終了!")
             print(f"  ステップ数: {info['step_count']}")
             print(f"  総報酬: {info['total_reward']:.2f}")
-            print(f"  チェックポイント通過: {info['checkpoints_passed']}")
+            print(f"  チェックポイント通過: {info['next_checkpoint_index']}/{info['total_checkpoints']}")
             print(f"  最終速度: {info['speed']:.2f} m/s")
             print()
 

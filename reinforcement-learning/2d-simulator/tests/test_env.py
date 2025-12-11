@@ -86,16 +86,16 @@ def test_checkpoint_passing():
     env = MinicarEnv(course_file="courses/easy/simple_oval.json")
     env.reset()
 
-    initial_checkpoints = 0
+    initial_checkpoint_index = 0
 
     # 前進を続ける
     for _ in range(500):
         action = np.array([0.0, 0.8])  # まっすぐ前進
         obs, reward, terminated, truncated, info = env.step(action)
 
-        if info["checkpoints_passed"] > initial_checkpoints:
+        if info["next_checkpoint_index"] > initial_checkpoint_index:
             # チェックポイント通過を確認
-            assert info["checkpoints_passed"] >= 1
+            assert info["next_checkpoint_index"] >= 1
             break
 
         if terminated or truncated:

@@ -130,10 +130,11 @@ class PPOTrainer:
 
                 # カリキュラム学習: 成功/失敗を記録
                 if self.curriculum is not None:
-                    # 成功判定（ゴール到達）
+                    # 成功判定（全チェックポイント通過してゴール到達）
+                    total_checkpoints = info.get("total_checkpoints", 0)
                     success = (
                         terminated
-                        and info.get("checkpoints_passed", 0) > 0
+                        and info.get("next_checkpoint_index", 0) == total_checkpoints
                         and info.get("min_distance", 0) > 0.1
                     )
                     self.curriculum.update(success)
@@ -308,10 +309,11 @@ class PPOTrainer:
             episode_rewards.append(episode_reward)
             episode_lengths.append(episode_length)
 
-            # 成功判定（ゴール到達）
+            # 成功判定（全チェックポイント通過してゴール到達）
+            total_checkpoints = info.get("total_checkpoints", 0)
             success = (
                 terminated
-                and info.get("checkpoints_passed", 0) > 0
+                and info.get("next_checkpoint_index", 0) == total_checkpoints
                 and info.get("min_distance", 0) > 0.1
             )
             successes.append(success)

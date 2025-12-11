@@ -189,7 +189,7 @@ def test_with_env():
     print(f"Episode finished in {steps} steps")
     print(f"Total reward: {total_reward:.2f}")
     print(f"Final position: {info['position']}")
-    print(f"Checkpoints passed: {info['checkpoints_passed']}")
+    print(f"Checkpoints passed: {info['next_checkpoint_index']}/{info['total_checkpoints']}")
 
     env.close()
 

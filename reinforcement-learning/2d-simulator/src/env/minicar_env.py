@@ -317,7 +317,8 @@ class MinicarEnv(gym.Env):
         # チェックポイントを描画
         checkpoints = self.course.get_checkpoints()
         for i, cp in enumerate(checkpoints):
-            if i not in self.checkpoints_passed:
+            if i >= self.next_checkpoint_index:
+                # まだ通過していないチェックポイントのみ描画
                 self.renderer.draw_checkpoint(
                     tuple(cp["position"]), cp.get("radius", 1.0)
                 )
@@ -345,7 +346,7 @@ class MinicarEnv(gym.Env):
             "Speed": info["speed"],
             "Step": info["step_count"],
             "Reward": info["total_reward"],
-            "CPs": f"{info['checkpoints_passed']}/{len(checkpoints)}",
+            "CPs": f"{info['next_checkpoint_index']}/{info['total_checkpoints']}",
             "Min Dist": info["min_distance"],
         }
         self.renderer.draw_debug_info(debug_info)
