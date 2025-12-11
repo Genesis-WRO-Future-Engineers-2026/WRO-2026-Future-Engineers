@@ -76,6 +76,7 @@ class SteeringController:
         right_line = Line.from_two_points(points['sensor4'], points['sensor5'])
         return left_line, right_line
 
+    # FIXME: うまくいかない場合、直進に至るロジックを調整する
     def _determine_angle(self,
                         left_y: Optional[float],
                         right_y: Optional[float],
