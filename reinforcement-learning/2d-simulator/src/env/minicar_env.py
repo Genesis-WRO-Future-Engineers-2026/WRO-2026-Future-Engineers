@@ -87,7 +87,7 @@ class MinicarEnv(gym.Env):
         self.step_count = 0
         self.last_action = np.zeros(2)
         self.total_reward = 0.0
-        self.checkpoints_passed = set()
+        self.next_checkpoint_index = 0  # 次に通過すべきチェックポイントのインデックス
         self.is_collision = False  # 衝突フラグ
 
         # LiDARスキャンと車両状態のキャッシュ（パフォーマンス最適化）
