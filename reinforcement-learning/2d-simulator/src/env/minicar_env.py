@@ -29,17 +29,20 @@ class MinicarEnv(gym.Env):
         course_file: str = "courses/easy/simple_oval.json",
         render_mode: Optional[str] = None,
         max_steps: int = 2000,
+        deployment_mode: bool = False,
     ):
         """
         Args:
             course_file: コース定義ファイル
             render_mode: 描画モード ('human', 'rgb_array', None)
             max_steps: 最大ステップ数
+            deployment_mode: 本番環境モード（ゴール到達で終了しない）
         """
         super().__init__()
 
         self.render_mode = render_mode
         self.max_steps = max_steps
+        self.deployment_mode = deployment_mode
 
         # コースのロード
         self.course = Course(course_file)
@@ -216,18 +219,23 @@ class MinicarEnv(gym.Env):
 
         Returns:
             報酬
+
+        NOTE: 10次元観測空間（チェックポイント情報なし）に対応した報酬設計
+        - チェックポイント報酬を強化（偶然の通過を強く評価）
+        - 速度報酬を抑制（闇雲な走行を防ぐ）
+        - 時間ペナルティを緩和（探索時間を許容）
         """
         reward = 0.0
         # キャッシュされたデータを使用
         state = self._cached_vehicle_state
         lidar_scan = self._cached_lidar_scan
 
-        # 1. 速度報酬（速く走ることを奨励）
+        # 1. 速度報酬（速く走ることを奨励、ただし抑えめ）
         speed = state["speed"]
-        reward += speed * 0.05
+        reward += speed * 0.03  # 0.05 → 0.03（方向性のない速度を抑制）
 
-        # 2. 時間ペナルティ（早くゴールすることを奨励）
-        reward -= 0.3
+        # 2. 時間ペナルティ（早くゴールすることを奨励、ただし緩和）
+        reward -= 0.1  # 0.3 → 0.2 → 0.1（探索時間をさらに許容）
 
         # 3. 壁接近ペナルティ
         min_distance = np.min(lidar_scan)
@@ -239,11 +247,12 @@ class MinicarEnv(gym.Env):
             reward += self.COLLISION_PENALTY  # 大きなペナルティ
 
         # 4. チェックポイント報酬（順序通りに通過する必要がある）
+        # NOTE: チェックポイント方向が観測できないため、報酬を大幅強化（オプション2）
         checkpoints = self.course.get_checkpoints()
         if self.next_checkpoint_index < len(checkpoints):
             # 次のチェックポイントのみ判定
             if self.course.check_checkpoint(state["position"], self.next_checkpoint_index):
-                reward += 100.0
+                reward += 300.0  # 100.0 → 200.0 → 300.0（偶然の通過を極めて強く評価）
                 self.next_checkpoint_index += 1  # 次へ進む
 
         # 5. ゴール到達 + 時間ボーナス（早くゴールするほど高い報酬）
@@ -265,11 +274,22 @@ class MinicarEnv(gym.Env):
 
         Returns:
             終了したかどうか
+
+        NOTE: deployment_mode=True の場合、ゴール到達では終了しない
+        - 学習モード: ゴール到達・衝突で終了
+        - 本番モード: 衝突のみ終了（リスタート用）、ゴール到達は継続
         """
         # キャッシュされたデータを使用
         state = self._cached_vehicle_state
 
-        # ゴール到達（すべてのチェックポイントを順番に通過している必要がある）
+        # 本番環境モード: 衝突のみ終了判定
+        if self.deployment_mode:
+            if self.world.has_collision():
+                self.is_collision = True
+                return True
+            return False
+
+        # 学習モード: ゴール到達で終了
         checkpoints = self.course.get_checkpoints()
         all_checkpoints_passed = self.next_checkpoint_index == len(checkpoints)
         if all_checkpoints_passed and self.course.check_goal(state["position"]):

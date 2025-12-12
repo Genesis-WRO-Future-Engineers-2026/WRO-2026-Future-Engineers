@@ -5,13 +5,12 @@ env:
   course: "courses/easy/simple_oval.json"  # 初期コース（カリキュラムで上書きされる）
   max_steps: 2000
 
-# カリキュラム学習設定
+# カリキュラム学習設定（本番コース用）
 curriculum:
   enabled: true
   courses:
-    - "courses/easy/simple_oval.json"
-    - "courses/medium/narrow_oval.json"
-    - "courses/hard/tight_oval.json"
+    - "courses/easy/simple_oval.json"            # Level 0: 基本走行スキル獲得
+    - "courses/real/real_course_fixed.json"      # Level 1: 本番コース
   success_threshold: 0.75          # レベルアップに必要な成功率
   degradation_threshold: 0.25      # レベルダウンする成功率
   evaluation_window: 100           # 成功率を計算する直近エピソード数
