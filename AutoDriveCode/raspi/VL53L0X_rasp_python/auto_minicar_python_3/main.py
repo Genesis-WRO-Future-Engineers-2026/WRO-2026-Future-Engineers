@@ -22,191 +22,98 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-メインプログラム - 壁検出カウンターステア制御
-"""
+"""メインプログラム - 5センサー自動運転システム"""
 
 import time
 import RPi.GPIO as GPIO
+from typing import Dict
 
-from config import (
-    PARALLEL_ANGLE,
-    ANGLE_TOLERANCE,
-    TARGET_DISTANCE,
-    DISTANCE_TOLERANCE,
-    SPEED_PULSE,
-    STOP_PULSE,
-    NEUTRAL_ANGLE,
-    DEFAULT_ITERATIONS
-)
-from sensors import initialize_sensors, get_timing, cleanup_sensors
-from actuators import initialize_gpio, set_esc_speed, set_servo_angle, cleanup_actuators
-from wall_tracking import (
-    calculate_wall_approach_angle,
-    calculate_wall_distance,
-    apply_counter_steer,
-    detect_straight_path,
-    turn_to_straight_path
-)
+from config import DEFAULT_ITERATIONS
+from sensors import SensorManager
+from actuators import Actuator
+from steering_controller import SteeringController
 
 
-def run_measurement_loop(tof, tof1, tof2, timing, servo_pwm, esc_pwm, iterations=None):
-    """
-    距離センサーの測定ループを実行し、直線検出と壁追従制御を行います。
+class AutoDriveCar:
+    """自動運転ミニカーのメインクラス"""
 
-    Parameters:
-    -----------
-    tof : VL53L0X
-        センサー1（0度）
-    tof1 : VL53L0X
-        センサー2（20度）
-    tof2 : VL53L0X
-        センサー3（70度）
-    timing : int
-        測定間隔（マイクロ秒）
-    servo_pwm : GPIO.PWM
-        サーボ用PWMオブジェクト
-    esc_pwm : GPIO.PWM
-        ESC用PWMオブジェクト
-    iterations : int, optional
-        測定回数（デフォルト: config.DEFAULT_ITERATIONS）
-    """
-    if iterations is None:
-        iterations = DEFAULT_ITERATIONS
+    def __init__(self):
+        self.sensor_manager = SensorManager()
+        self.actuator = Actuator()
+        self.steering_controller = SteeringController(debug=True)
 
-    # モーターを前進させる
-    set_esc_speed(esc_pwm, SPEED_PULSE)
-    print("Motor forward started")
+    def run(self, iterations: int = DEFAULT_ITERATIONS):
+        """メインループを実行"""
+        timing = self.sensor_manager.get_timing()
 
-    # 直線検出モードの状態管理
-    straight_path_mode = False
-    detected_direction = ""
+        print("\nStarting distance measurements...")
+        print("=" * 70)
 
-    for count in range(1, iterations + 1):
-        distance0 = tof.get_distance()    # 0度センサー
-        distance1 = tof1.get_distance()   # 20度センサー
-        distance2 = tof2.get_distance()   # 70度センサー
+        for count in range(1, iterations + 1):
+            # 1. センサー読み取り
+            distances = self.sensor_manager.read_all_distances()
 
-        # センサー0の距離表示
-        if distance0 > 0:
-            print("sensor 0deg - %d mm, %d cm, iteration %d" % (
-                distance0, distance0/10, count
-            ))
-        else:
-            print("sensor 0deg - Error")
+            # 2. 距離表示
+            self._print_distances(count, iterations, distances)
 
-        # センサー1の距離表示
-        if distance1 > 0:
-            print("sensor 20deg - %d mm, %d cm, iteration %d" % (
-                distance1, distance1/10, count
-            ))
-        else:
-            print("sensor 20deg - Error")
-
-        # センサー2の距離表示
-        if distance2 > 0:
-            print("sensor 70deg - %d mm, %d cm, iteration %d" % (
-                distance2, distance2/10, count
-            ))
-        else:
-            print("sensor 70deg - Error")
-
-        # 3つのセンサーが正常に距離を取得できた場合
-        if distance0 > 0 and distance1 > 0 and distance2 > 0:
-            # 直線検出モードでない場合、直線を検出
-            if not straight_path_mode:
-                straight_detected, direction, detected_dist = detect_straight_path(distance1, distance2)
-                if straight_detected:
-                    straight_path_mode = True
-                    detected_direction = direction
-                    print(f"  >>> STRAIGHT PATH DETECTED at {direction} ({detected_dist:.0f}mm) - entering turn mode")
-
-            # 直線検出モード：0度センサーが最大になるまで旋回
-            if straight_path_mode:
-                continue_turning, turn_action = turn_to_straight_path(
-                    servo_pwm, detected_direction, distance0, distance1, distance2
+            # 3. 全センサーが有効な場合、ステアリング計算
+            if self._all_sensors_valid(distances):
+                decision = self.steering_controller.calculate_steering(
+                    distances,
+                    self.sensor_manager.get_sensor_angles()
                 )
-                print(f"  [TURN MODE] {turn_action}")
 
-                if not continue_turning:
-                    # 0度センサーが最大を向いたので、通常の壁追従モードに戻る
-                    straight_path_mode = False
-                    print("  >>> Front sensor maximized - returning to wall tracking mode")
+                # 4. アクチュエーターに適用
+                self.actuator.set_steering_angle(decision.angle)
 
-            # 通常の壁追従モード（20度と70度で壁追従）
+                # 5. 結果表示
+                print(f"  >> Steer: {decision.angle:+.1f}° ({decision.direction}) - {decision.reason}")
+
+            time.sleep(timing / 1000000.0)
+
+        print("\n" + "=" * 70)
+        print("Measurements completed")
+
+    def _print_distances(self, count: int, total: int, distances: Dict[str, float]):
+        """距離を表示"""
+        print(f"\n--- Iteration {count}/{total} ---")
+        for sensor_id, distance in distances.items():
+            angle = self.sensor_manager.get_sensor_angles()[sensor_id]
+            if distance > 0:
+                print(f"  {sensor_id} ({angle:+3d}°): {distance:4d} mm ({distance/10:.1f} cm)")
             else:
-                angle = calculate_wall_approach_angle(distance1, distance2)
-                wall_distance = calculate_wall_distance(distance2, angle)
+                print(f"  {sensor_id} ({angle:+3d}°): Error")
 
-                print("  Wall angle: %.2f deg, Wall distance: %.1f mm" % (
-                    angle, wall_distance
-                ), end="")
+    def _all_sensors_valid(self, distances: Dict[str, float]) -> bool:
+        """全センサーが有効な値を返しているか確認"""
+        return all(d > 0 for d in distances.values())
 
-                # カウンターステアを適用（角度と距離の両方を考慮）
-                steer_action = apply_counter_steer(servo_pwm, angle, wall_distance)
-
-                if wall_distance < TARGET_DISTANCE - DISTANCE_TOLERANCE:
-                    print(" -> Too close to wall [%s]" % steer_action)
-                elif wall_distance > TARGET_DISTANCE + DISTANCE_TOLERANCE:
-                    print(" -> Too far from wall [%s]" % steer_action)
-                elif angle > PARALLEL_ANGLE + ANGLE_TOLERANCE:
-                    print(" -> Distance OK, moving away from wall [%s]" % steer_action)
-                elif angle < PARALLEL_ANGLE - ANGLE_TOLERANCE:
-                    print(" -> Distance OK, approaching wall [%s]" % steer_action)
-                else:
-                    print(" -> Distance OK, parallel to wall [%s]" % steer_action)
-
-        print()  # 空行を追加して見やすく
-        time.sleep(timing/1000000.00)
-
-    # 測定終了後、停止
-    set_esc_speed(esc_pwm, STOP_PULSE)
-    set_servo_angle(servo_pwm, NEUTRAL_ANGLE)
-    print("Motor stopped")
-
-
-def cleanup_all(tof, tof1, tof2, servo_pwm, esc_pwm):
-    """
-    すべてのハードウェアをクリーンアップします。
-
-    Parameters:
-    -----------
-    tof : VL53L0X
-        センサー1
-    tof1 : VL53L0X
-        センサー2
-    tof2 : VL53L0X
-        センサー3
-    servo_pwm : GPIO.PWM
-        サーボ用PWMオブジェクト
-    esc_pwm : GPIO.PWM
-        ESC用PWMオブジェクト
-    """
-    cleanup_sensors(tof, tof1, tof2)
-    cleanup_actuators(servo_pwm, esc_pwm)
-    GPIO.cleanup()
-    print("Cleanup completed")
+    def cleanup(self):
+        """クリーンアップ"""
+        self.sensor_manager.cleanup()
+        self.actuator.cleanup()
+        GPIO.cleanup()
+        print("Cleanup completed")
 
 
 def main():
-    """
-    メインプログラム：距離センサーによる壁追従と直線検出制御
-    """
-    print("=" * 50)
-    print("3-Sensor Wall Tracking & Straight Path Detection")
-    print("Sensors: 0deg (front), 20deg, 70deg (left)")
-    print("=" * 50)
+    print("=" * 70)
+    print("5-Sensor Auto Drive System")
+    print("Sensor Configuration:")
+    print("  Sensor 1: -70° (Left)")
+    print("  Sensor 2: -20°")
+    print("  Sensor 3:   0° (Front)")
+    print("  Sensor 4: +20°")
+    print("  Sensor 5: +70° (Right)")
+    print("=" * 70)
 
-    servo_pwm, esc_pwm = initialize_gpio()
-    tof, tof1, tof2 = initialize_sensors()
-    timing = get_timing(tof)
-
+    car = AutoDriveCar()
     try:
-        run_measurement_loop(tof, tof1, tof2, timing, servo_pwm, esc_pwm)
+        car.run()
     except KeyboardInterrupt:
-        print("\nProgram interrupted")
+        print("\n\nProgram interrupted by user")
     finally:
-        cleanup_all(tof, tof1, tof2, servo_pwm, esc_pwm)
+        car.cleanup()
 
 
 if __name__ == "__main__":
