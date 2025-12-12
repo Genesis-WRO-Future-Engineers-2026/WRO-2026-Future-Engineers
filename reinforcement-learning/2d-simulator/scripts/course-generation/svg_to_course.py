@@ -132,13 +132,22 @@ def svg_to_course(svg_file: str,
     tree = ET.parse(svg_file)
     root = tree.getroot()
 
+    # SVGの高さを取得（Y軸反転のため）
+    svg_height = float(root.get('height', 0))
+    print(f"  SVG高さ: {svg_height}px")
+
     # SVGの名前空間を取得
-    # Figmaなどは xmlns="http://www.w3.org/2000/svg" を使用
-    ns_match = re.search(r'xmlns="([^"]+)"', ET.tostring(root, encoding='unicode'))
-    ns = {'svg': ns_match.group(1)} if ns_match else {}
+    # rootタグから名前空間を抽出（{namespace}tagname形式）
+    ns = {}
+    if '}' in root.tag:
+        namespace = root.tag.split('}')[0].strip('{')
+        ns = {'svg': namespace}
 
     # パス要素を検索（名前空間あり・なし両方に対応）
-    paths = root.findall('.//svg:path', ns) if ns else root.findall('.//path')
+    if ns:
+        paths = root.findall('.//svg:path', ns)
+    else:
+        paths = root.findall('.//path')
 
     if len(paths) == 0:
         print("警告: SVGファイル内にパスが見つかりません")
@@ -156,11 +165,13 @@ def svg_to_course(svg_file: str,
             print(f"  スキップ: パス#{i} (頂点数が少なすぎる)")
             continue
 
-        # スケール変換
+        # スケール変換（Y軸を反転）
         vertices = []
         for x, y in vertices_px:
             x_sim = x * scale * sim_scale
-            y_sim = y * scale * sim_scale
+            # Y軸を反転: SVGは上が0、シミュレーターは下が0
+            y_flipped = svg_height - y
+            y_sim = y_flipped * scale * sim_scale
             vertices.append([round(x_sim, 2), round(y_sim, 2)])
 
         # 壁として追加
