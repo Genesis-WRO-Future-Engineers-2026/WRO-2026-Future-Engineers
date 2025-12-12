@@ -269,50 +269,50 @@
   "checkpoints": [
     {
       "position": [
-        1.0,
-        2.0
+        0.8,
+        3.5
       ],
-      "radius": 0.8,
+      "radius": 0.7,
       "index": 0
     },
     {
       "position": [
         2.5,
-        5.0
+        7.5
       ],
-      "radius": 0.7,
+      "radius": 0.6,
       "index": 1
     },
     {
       "position": [
-        4.0,
-        7.0
+        5.0,
+        6.5
       ],
       "radius": 0.8,
       "index": 2
     },
     {
       "position": [
-        7.0,
-        5.0
+        9.0,
+        6.2
       ],
       "radius": 0.8,
       "index": 3
     },
     {
       "position": [
-        9.5,
-        4.5
+        12.2,
+        5.5
       ],
       "radius": 0.8,
       "index": 4
     },
     {
       "position": [
-        8.3,
-        2.2
+        10.0,
+        1.1
       ],
-      "radius": 0.5,
+      "radius": 0.8,
       "index": 5
     }
   ]
