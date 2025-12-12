@@ -1,0 +1,17 @@
+{
+  "name": "Real Course - From SVG",
+  "description": "Figma/InkscapeからエクスポートしたSVG",
+  "difficulty": "medium",
+  "start_position": [
+    3.0,
+    10.0
+  ],
+  "start_angle": 0.0,
+  "goal_position": [
+    3.0,
+    10.0
+  ],
+  "goal_radius": 1.0,
+  "walls": [],
+  "checkpoints": []
+}
