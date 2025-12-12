@@ -16,7 +16,7 @@ def test_env_reset():
     env = MinicarEnv(course_file="courses/easy/simple_oval.json")
     obs, info = env.reset()
 
-    # 観測の形状確認
+    # 観測の形状確認（Sim2Real対応: 10次元）
     assert obs.shape == (10,)
     assert isinstance(info, dict)
     assert "position" in info
@@ -32,7 +32,7 @@ def test_env_step():
     action = np.array([0.0, 0.5])
     obs, reward, terminated, truncated, info = env.step(action)
 
-    # 戻り値の型確認
+    # 戻り値の型確認（Sim2Real対応: 10次元）
     assert obs.shape == (10,)
     assert isinstance(reward, (int, float))
     assert isinstance(terminated, bool)
@@ -58,7 +58,7 @@ def test_observation_space():
     """観測空間のテスト"""
     env = MinicarEnv(course_file="courses/easy/simple_oval.json")
 
-    # 観測空間の形状
+    # 観測空間の形状（Sim2Real対応: 10次元）
     assert env.observation_space.shape == (10,)
 
 
@@ -162,7 +162,7 @@ def test_observation_bounds():
     obs, info = env.reset()
 
     # LiDARの範囲（0〜max_range）
-    lidar_data = obs[:72]
+    lidar_data = obs[:5]  # 5方向LiDAR
     assert np.all(lidar_data >= 0)
     assert np.all(lidar_data <= 10.0)  # max_range
 
@@ -171,7 +171,7 @@ def test_observation_bounds():
         action = np.array([0.0, 0.5])
         obs, reward, terminated, truncated, info = env.step(action)
 
-        lidar_data = obs[:72]
+        lidar_data = obs[:5]  # 5方向LiDAR
         assert np.all(lidar_data >= 0)
         assert np.all(lidar_data <= 10.0)
 

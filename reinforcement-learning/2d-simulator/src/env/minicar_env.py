@@ -82,6 +82,8 @@ class MinicarEnv(gym.Env):
         )
 
         # 観測空間: LiDAR(5) + velocity(2) + angular_velocity(1) + last_action(2) = 10
+        # NOTE: チェックポイント情報は含めない（Sim2Real対応）
+        # チェックポイントは報酬計算でのみ使用
         self.observation_space = spaces.Box(
             low=-np.inf, high=np.inf, shape=(10,), dtype=np.float32
         )
@@ -180,19 +182,60 @@ class MinicarEnv(gym.Env):
 
         return obs, reward, terminated, truncated, info
 
+    def _get_next_checkpoint_info(self) -> Tuple[float, float]:
+        """
+        次のチェックポイントへの距離と角度を計算
+
+        Returns:
+            (distance, angle): 距離（m）と角度（rad、-π ~ π）
+        """
+        # キャッシュされた車両状態を使用
+        vehicle_pos = self._cached_vehicle_state["position"]
+        vehicle_angle = self._cached_vehicle_state["angle"]
+
+        checkpoints = self.course.get_checkpoints()
+
+        # 全チェックポイントを通過済みの場合はゴールを目標とする
+        if self.next_checkpoint_index >= len(checkpoints):
+            target_pos, _ = self.course.get_goal_info()
+        else:
+            checkpoint = checkpoints[self.next_checkpoint_index]
+            target_pos = checkpoint["position"]
+
+        # 距離を計算
+        dx = target_pos[0] - vehicle_pos[0]
+        dy = target_pos[1] - vehicle_pos[1]
+        distance = np.sqrt(dx**2 + dy**2)
+
+        # 絶対角度を計算（ワールド座標系）
+        target_angle_world = np.arctan2(dy, dx)
+
+        # 車両座標系での相対角度に変換
+        # 車両の正面方向が0、右が正、左が負
+        relative_angle = target_angle_world - vehicle_angle
+
+        # -π ~ π の範囲に正規化
+        relative_angle = np.arctan2(np.sin(relative_angle), np.cos(relative_angle))
+
+        return distance, relative_angle
+
     def _get_observation(self) -> np.ndarray:
         """
         現在の観測を取得
 
         Returns:
             観測ベクトル (10次元)
+
+        NOTE: Sim2Real対応のため、チェックポイント情報は含めない。
+        チェックポイントは報酬計算でのみ使用し、エージェントは
+        LiDARと速度情報だけで走行を学習する。
         """
         # キャッシュされたデータを使用
         lidar_scan = self._cached_lidar_scan
         velocity = np.array(self._cached_vehicle_state["velocity"])
         angular_velocity = np.array([self._cached_vehicle_state["angular_velocity"]])
 
-        # 観測を結合
+        # 観測を結合（チェックポイント情報は含めない）
         obs = np.concatenate(
             [
                 lidar_scan,  # 5

@@ -93,6 +93,12 @@ Course (JSON) → PhysicsWorld (Box2D) → Vehicle → LiDARSensor
 - 角速度: 1次元
 - 前回の行動: 2次元（steering, throttle）
 
+**Sim2Real対応**:
+- チェックポイント情報は観測空間に含めない
+- 学習時はチェックポイントを報酬計算に使用（進捗管理・学習補助）
+- エージェントはLiDARと速度情報のみで走行を学習
+- 本番環境（6分間連続周回レース）でも同じ10次元観測空間を使用
+
 ### 行動空間 (2次元連続)
 
 - steering: [-1.0, 1.0] (左/右)
@@ -102,12 +108,13 @@ Course (JSON) → PhysicsWorld (Box2D) → Vehicle → LiDARSensor
 
 `src/env/minicar_env.py`の`_compute_reward()`メソッドで実装:
 
-- 速度報酬: `speed * 0.1`
-- 時間ペナルティ: `-0.01`
+- 速度報酬: `speed * 0.05`
+- 時間ペナルティ: `-0.3`
 - 壁接近ペナルティ: `min_distance < 0.3`で発動
 - 衝突ペナルティ: `-100.0` (Box2D物理衝突検出)
-- チェックポイント報酬: `+50.0`
+- チェックポイント報酬: `+100.0`
 - ゴール到達報酬: `+500.0`
+- 時間ボーナス: `(max_steps - current_step) * 1.5` (早くゴールするほど高い)
 
 報酬関数を変更する場合はこのメソッドを編集。
 
