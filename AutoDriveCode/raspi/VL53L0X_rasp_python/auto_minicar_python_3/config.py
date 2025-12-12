@@ -68,18 +68,18 @@ INTERSECTION_DIFF_GAIN = 0.1   # 左右交点の差から操舵角を計算す�
 ONE_SIDE_OPEN_STEER_RATIO = 0.5  # 片側のみ開けている場合のステアリング比率
 
 # ============================================================================
-# シリアル通信設定（Arduino連携用）
+# Serial Communication Settings (for Arduino integration)
 # ============================================================================
 
-# シリアルポート設定
-SERIAL_PORT = '/dev/serial0'  # Arduinoとのシリアルポート（GPIO14/15）
-SERIAL_BAUDRATE = 115200      # ボーレート（通信速度）
-SERIAL_TIMEOUT = 0.1          # タイムアウト時間（秒）
+# Serial port configuration
+SERIAL_PORT = '/dev/serial0'  # Serial port for Arduino (GPIO14/15)
+SERIAL_BAUDRATE = 115200      # Baud rate (communication speed)
+SERIAL_TIMEOUT = 0.1          # Timeout in seconds
 
-# サーボパルス幅範囲（マイクロ秒）- Arduinoに送信する値の範囲
-SERVO_MIN_PULSE_WIDTH_US = 500   # サーボ最小パルス幅（-90度）
-SERVO_MAX_PULSE_WIDTH_US = 2400  # サーボ最大パルス幅（+90度）
+# Servo pulse width range (microseconds) - Values sent to Arduino
+SERVO_MIN_PULSE_WIDTH_US = 500   # Servo minimum pulse width (-90 degrees)
+SERVO_MAX_PULSE_WIDTH_US = 2400  # Servo maximum pulse width (+90 degrees)
 
-# ESCパルス幅範囲（マイクロ秒）- Arduinoに送信する値の範囲
-ESC_MIN_PULSE_WIDTH_US = 1000  # ESC最小パルス幅（最大後退）
-ESC_MAX_PULSE_WIDTH_US = 2000  # ESC最大パルス幅（最大前進）
+# ESC pulse width range (microseconds) - Values sent to Arduino
+ESC_MIN_PULSE_WIDTH_US = 1000  # ESC minimum pulse width (max reverse)
+ESC_MAX_PULSE_WIDTH_US = 2000  # ESC maximum pulse width (max forward)

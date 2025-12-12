@@ -1,4 +1,4 @@
-"""アクチュエーター制御モジュール - Arduino経由でサーボとESCを制御"""
+"""Actuator control module - Control servo and ESC via Arduino"""
 
 import time
 import RPi.GPIO as GPIO
@@ -13,35 +13,35 @@ from serial_comm import ArduinoSerial
 
 class Actuator:
     """
-    サーボとESCを管理するクラス（Arduino経由）
+    Class to manage servo and ESC (via Arduino)
 
-    Raspberry Piでパルス幅を計算し、シリアル通信でArduinoに送信。
-    Arduinoがパルス波を生成してサーボ・ESCを制御します。
+    Raspberry Pi calculates pulse width and sends it to Arduino via serial.
+    Arduino generates PWM pulses to control servo and ESC.
     """
 
     def __init__(self, serial_port: str = '/dev/serial0'):
         """
-        初期化
+        Initialize actuator
 
         Parameters:
-            serial_port: Arduinoと接続するシリアルポート
+            serial_port: Serial port connected to Arduino
         """
         self._initialize_gpio()
 
-        # Arduino とのシリアル通信を初期化
+        # Initialize serial communication with Arduino
         self.arduino = ArduinoSerial(port=serial_port)
 
-        # 初期状態に設定（ニュートラル・停止）
+        # Set initial state (neutral steering, stopped motor)
         self.set_steering_angle(NEUTRAL_ANGLE)
         self.set_speed(STOP_PULSE)
         time.sleep(1)
 
     def _initialize_gpio(self):
-        """センサー用のGPIOピンを初期化"""
+        """Initialize GPIO pins for sensors"""
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
 
-        # センサー用ピンを設定
+        # Setup sensor pins
         GPIO.setup(SENSOR1_SHUTDOWN, GPIO.OUT)
         GPIO.setup(SENSOR2_SHUTDOWN, GPIO.OUT)
         GPIO.setup(SENSOR3_SHUTDOWN, GPIO.OUT)
@@ -50,58 +50,58 @@ class Actuator:
 
     def set_steering_angle(self, angle: float):
         """
-        ステアリング角度を設定
+        Set steering angle
 
         Parameters:
-            angle: ステアリング角度（-90～90度）
+            angle: Steering angle (-90 to 90 degrees)
 
-        処理の流れ:
-            1. 角度をパルス幅（ms）に変換
-            2. ミリ秒をマイクロ秒に変換
-            3. Arduinoにシリアル送信
+        Processing flow:
+            1. Convert angle to pulse width (ms)
+            2. Convert milliseconds to microseconds
+            3. Send to Arduino via serial
         """
-        # 1. 角度をパルス幅（ms）に変換
+        # 1. Convert angle to pulse width (ms)
         pulse_width_ms = ((angle + 90) / 180) * (
             SERVO_MAX_PULSE_WIDTH_MS - SERVO_MIN_PULSE_WIDTH_MS
         ) + SERVO_MIN_PULSE_WIDTH_MS
 
-        # 2. ミリ秒をマイクロ秒に変換
+        # 2. Convert milliseconds to microseconds
         pulse_width_us = int(pulse_width_ms * 1000)
 
-        # 3. Arduinoにサーボパルス幅を送信
+        # 3. Send servo pulse width to Arduino
         self.arduino.send_servo_pulse(pulse_width_us)
 
     def set_speed(self, pulse_width_ms: float):
         """
-        モーター速度を設定
+        Set motor speed
 
         Parameters:
-            pulse_width_ms: パルス幅（ms）
+            pulse_width_ms: Pulse width in milliseconds
 
-        処理の流れ:
-            1. ミリ秒をマイクロ秒に変換
-            2. Arduinoにシリアル送信
+        Processing flow:
+            1. Convert milliseconds to microseconds
+            2. Send to Arduino via serial
         """
-        # 1. ミリ秒をマイクロ秒に変換
+        # 1. Convert milliseconds to microseconds
         pulse_width_us = int(pulse_width_ms * 1000)
 
-        # 2. ArduinoにESCパルス幅を送信
+        # 2. Send ESC pulse width to Arduino
         self.arduino.send_esc_pulse(pulse_width_us)
 
     def stop(self):
         """
-        停止状態に設定
+        Set to stop state
 
-        ステアリングをニュートラル、ESCを停止パルスに設定
+        Set steering to neutral and ESC to stop pulse
         """
         self.set_steering_angle(NEUTRAL_ANGLE)
         self.set_speed(STOP_PULSE)
 
     def cleanup(self):
         """
-        クリーンアップ
+        Cleanup
 
-        停止状態にしてからシリアル通信を切断
+        Stop and disconnect serial communication
         """
         self.stop()
         time.sleep(0.5)

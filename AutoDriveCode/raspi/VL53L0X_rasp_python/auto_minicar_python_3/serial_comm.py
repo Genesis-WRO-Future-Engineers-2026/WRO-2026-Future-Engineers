@@ -1,4 +1,4 @@
-"""シリアル通信モジュール - ArduinoへPWMパルス幅を送信"""
+"""Serial communication module - Send PWM pulse width to Arduino"""
 
 import serial
 import time
@@ -17,21 +17,21 @@ from config import (
 
 class ArduinoSerial:
     """
-    Arduinoとシリアル通信でパルス幅を送受信するクラス
+    Class for serial communication with Arduino to send/receive pulse widths
 
-    通信プロトコル:
-        サーボ: "S<パルス幅μs>" 例: "S1500" → 1500マイクロ秒
-        ESC:   "E<パルス幅μs>" 例: "E1500" → 1500マイクロ秒
+    Communication protocol:
+        Servo: "S<pulse_width_us>" e.g., "S1500" -> 1500 microseconds
+        ESC:   "E<pulse_width_us>" e.g., "E1500" -> 1500 microseconds
     """
 
     def __init__(self, port: str = SERIAL_PORT, baudrate: int = SERIAL_BAUDRATE, timeout: float = SERIAL_TIMEOUT):
         """
-        シリアルポートを初期化
+        Initialize serial port
 
         Parameters:
-            port: シリアルポート名（デフォルト: config.SERIAL_PORT）
-            baudrate: ボーレート（デフォルト: config.SERIAL_BAUDRATE）
-            timeout: タイムアウト時間（秒、デフォルト: config.SERIAL_TIMEOUT）
+            port: Serial port name (default: config.SERIAL_PORT)
+            baudrate: Baud rate (default: config.SERIAL_BAUDRATE)
+            timeout: Timeout in seconds (default: config.SERIAL_TIMEOUT)
         """
         self.port = port
         self.baudrate = baudrate
@@ -40,7 +40,7 @@ class ArduinoSerial:
         self._connect()
 
     def _connect(self):
-        """シリアルポートに接続"""
+        """Connect to serial port"""
         try:
             self.serial_connection = serial.Serial(
                 port=self.port,
@@ -48,7 +48,7 @@ class ArduinoSerial:
                 timeout=self.timeout,
                 write_timeout=self.timeout
             )
-            # Arduinoのリセット待ち（シリアル接続時にArduinoがリセットされる）
+            # Wait for Arduino reset (Arduino resets when serial connection is established)
             time.sleep(2)
             print(f"Serial connected: {self.port} @ {self.baudrate}bps")
         except serial.SerialException as e:
@@ -57,15 +57,15 @@ class ArduinoSerial:
 
     def send_servo_pulse(self, pulse_width_us: int) -> bool:
         """
-        サーボ用パルス幅をArduinoに送信
+        Send servo pulse width to Arduino
 
         Parameters:
-            pulse_width_us: パルス幅（マイクロ秒）
+            pulse_width_us: Pulse width in microseconds
 
         Returns:
-            送信成功時True、失敗時False
+            True on success, False on failure
         """
-        # パルス幅の範囲チェック（config.pyの設定範囲内に制限）
+        # Constrain pulse width to range defined in config.py
         pulse_width_us = max(SERVO_MIN_PULSE_WIDTH_US, min(SERVO_MAX_PULSE_WIDTH_US, pulse_width_us))
 
         command = f"S{pulse_width_us}\n"
@@ -73,15 +73,15 @@ class ArduinoSerial:
 
     def send_esc_pulse(self, pulse_width_us: int) -> bool:
         """
-        ESC用パルス幅をArduinoに送信
+        Send ESC pulse width to Arduino
 
         Parameters:
-            pulse_width_us: パルス幅（マイクロ秒）
+            pulse_width_us: Pulse width in microseconds
 
         Returns:
-            送信成功時True、失敗時False
+            True on success, False on failure
         """
-        # パルス幅の範囲チェック（config.pyの設定範囲内に制限）
+        # Constrain pulse width to range defined in config.py
         pulse_width_us = max(ESC_MIN_PULSE_WIDTH_US, min(ESC_MAX_PULSE_WIDTH_US, pulse_width_us))
 
         command = f"E{pulse_width_us}\n"
@@ -89,13 +89,13 @@ class ArduinoSerial:
 
     def _send_command(self, command: str) -> bool:
         """
-        コマンドをシリアルポートに送信
+        Send command to serial port
 
         Parameters:
-            command: 送信するコマンド文字列
+            command: Command string to send
 
         Returns:
-            送信成功時True、失敗時False
+            True on success, False on failure
         """
         if self.serial_connection is None or not self.serial_connection.is_open:
             print("Serial connection not available")
@@ -113,11 +113,11 @@ class ArduinoSerial:
             return False
 
     def close(self):
-        """シリアルポートを閉じる"""
+        """Close serial port"""
         if self.serial_connection and self.serial_connection.is_open:
             self.serial_connection.close()
             print("Serial connection closed")
 
     def __del__(self):
-        """デストラクタ - シリアルポートを確実に閉じる"""
+        """Destructor - Ensure serial port is closed"""
         self.close()
