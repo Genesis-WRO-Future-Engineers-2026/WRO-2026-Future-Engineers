@@ -66,3 +66,20 @@ MIN_TIMING = 20000         # 最小タイミング（マイクロ秒）
 MAX_STEER_ANGLE = 30           # 最大操舵角（度）
 INTERSECTION_DIFF_GAIN = 0.1   # 左右交点の差から操舵角を計算するゲイン（deg/mm）
 ONE_SIDE_OPEN_STEER_RATIO = 0.5  # 片側のみ開けている場合のステアリング比率
+
+# ============================================================================
+# Serial Communication Settings (for Arduino integration)
+# ============================================================================
+
+# Serial port configuration
+SERIAL_PORT = '/dev/serial0'  # Serial port for Arduino (GPIO14/15)
+SERIAL_BAUDRATE = 115200      # Baud rate (communication speed)
+SERIAL_TIMEOUT = 0.1          # Timeout in seconds
+
+# Servo pulse width range (microseconds) - Values sent to Arduino
+SERVO_MIN_PULSE_WIDTH_US = 500   # Servo minimum pulse width (-90 degrees)
+SERVO_MAX_PULSE_WIDTH_US = 2400  # Servo maximum pulse width (+90 degrees)
+
+# ESC pulse width range (microseconds) - Values sent to Arduino
+ESC_MIN_PULSE_WIDTH_US = 1000  # ESC minimum pulse width (max reverse)
+ESC_MAX_PULSE_WIDTH_US = 2000  # ESC maximum pulse width (max forward)

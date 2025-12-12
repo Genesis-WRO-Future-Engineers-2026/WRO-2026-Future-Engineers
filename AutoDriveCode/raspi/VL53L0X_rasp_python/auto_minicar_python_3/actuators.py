@@ -1,87 +1,109 @@
-"""アクチュエーター制御モジュール - サーボとESCの制御"""
+"""Actuator control module - Control servo and ESC via Arduino"""
 
 import time
 import RPi.GPIO as GPIO
 
 from config import (
     SENSOR1_SHUTDOWN, SENSOR2_SHUTDOWN, SENSOR3_SHUTDOWN, SENSOR4_SHUTDOWN, SENSOR5_SHUTDOWN,
-    SERVO_PIN, ESC_PIN, PWM_FREQUENCY,
     SERVO_MIN_PULSE_WIDTH_MS, SERVO_MAX_PULSE_WIDTH_MS,
     NEUTRAL_ANGLE, STOP_PULSE
 )
+from serial_comm import ArduinoSerial
 
 
 class Actuator:
-    """サーボとESCを管理するクラス"""
+    """
+    Class to manage servo and ESC (via Arduino)
 
-    def __init__(self):
-        """GPIO初期化"""
-        self.servo_pwm = None
-        self.esc_pwm = None
+    Raspberry Pi calculates pulse width and sends it to Arduino via serial.
+    Arduino generates PWM pulses to control servo and ESC.
+    """
+
+    def __init__(self, serial_port: str = '/dev/serial0'):
+        """
+        Initialize actuator
+
+        Parameters:
+            serial_port: Serial port connected to Arduino
+        """
         self._initialize_gpio()
 
+        # Initialize serial communication with Arduino
+        self.arduino = ArduinoSerial(port=serial_port)
+
+        # Set initial state (neutral steering, stopped motor)
+        self.set_steering_angle(NEUTRAL_ANGLE)
+        self.set_speed(STOP_PULSE)
+        time.sleep(1)
+
     def _initialize_gpio(self):
-        """GPIOピンを初期化"""
+        """Initialize GPIO pins for sensors"""
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
 
-        # センサー用ピンを設定
+        # Setup sensor pins
         GPIO.setup(SENSOR1_SHUTDOWN, GPIO.OUT)
         GPIO.setup(SENSOR2_SHUTDOWN, GPIO.OUT)
         GPIO.setup(SENSOR3_SHUTDOWN, GPIO.OUT)
         GPIO.setup(SENSOR4_SHUTDOWN, GPIO.OUT)
         GPIO.setup(SENSOR5_SHUTDOWN, GPIO.OUT)
 
-        # サーボとESCのピンを設定
-        GPIO.setup(SERVO_PIN, GPIO.OUT)
-        GPIO.setup(ESC_PIN, GPIO.OUT)
-
-        # PWM初期化
-        self.servo_pwm = GPIO.PWM(SERVO_PIN, PWM_FREQUENCY)
-        self.esc_pwm = GPIO.PWM(ESC_PIN, PWM_FREQUENCY)
-        self.servo_pwm.start(0)
-        self.esc_pwm.start(0)
-
-        # 初期状態に設定
-        self.set_steering_angle(NEUTRAL_ANGLE)
-        self.set_speed(STOP_PULSE)
-        time.sleep(1)
-
     def set_steering_angle(self, angle: float):
         """
-        ステアリング角度を設定
+        Set steering angle
 
         Parameters:
-            angle: ステアリング角度（-90～90度）
+            angle: Steering angle (-90 to 90 degrees)
+
+        Processing flow:
+            1. Convert angle to pulse width (ms)
+            2. Convert milliseconds to microseconds
+            3. Send to Arduino via serial
         """
-        # 角度をパルス幅に変換
+        # 1. Convert angle to pulse width (ms)
         pulse_width_ms = ((angle + 90) / 180) * (
             SERVO_MAX_PULSE_WIDTH_MS - SERVO_MIN_PULSE_WIDTH_MS
         ) + SERVO_MIN_PULSE_WIDTH_MS
 
-        # デューティサイクルに変換（50Hzの場合、1周期は20ms）
-        duty_cycle = (pulse_width_ms / 20.0) * 100
-        self.servo_pwm.ChangeDutyCycle(duty_cycle)
+        # 2. Convert milliseconds to microseconds
+        pulse_width_us = int(pulse_width_ms * 1000)
+
+        # 3. Send servo pulse width to Arduino
+        self.arduino.send_servo_pulse(pulse_width_us)
 
     def set_speed(self, pulse_width_ms: float):
         """
-        モーター速度を設定
+        Set motor speed
 
         Parameters:
-            pulse_width_ms: パルス幅（ms）
+            pulse_width_ms: Pulse width in milliseconds
+
+        Processing flow:
+            1. Convert milliseconds to microseconds
+            2. Send to Arduino via serial
         """
-        duty_cycle = (pulse_width_ms / 20.0) * 100
-        self.esc_pwm.ChangeDutyCycle(duty_cycle)
+        # 1. Convert milliseconds to microseconds
+        pulse_width_us = int(pulse_width_ms * 1000)
+
+        # 2. Send ESC pulse width to Arduino
+        self.arduino.send_esc_pulse(pulse_width_us)
 
     def stop(self):
-        """停止"""
+        """
+        Set to stop state
+
+        Set steering to neutral and ESC to stop pulse
+        """
         self.set_steering_angle(NEUTRAL_ANGLE)
         self.set_speed(STOP_PULSE)
 
     def cleanup(self):
-        """クリーンアップ"""
+        """
+        Cleanup
+
+        Stop and disconnect serial communication
+        """
         self.stop()
         time.sleep(0.5)
-        self.servo_pwm.stop()
-        self.esc_pwm.stop()
+        self.arduino.close()
         print("Actuators cleaned up")
