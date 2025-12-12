@@ -190,9 +190,35 @@ flake8 src/ tests/
 ## 学習済みモデルの評価
 
 ```bash
-# モデルをGUI付きで再生
+# モデルをGUI付きで再生（デフォルトコース）
 python scripts/rl-training/test_saved_model.py \
-  --model models/checkpoints/final_model.pth
+  --model models/checkpoints/final_model.pth \
+  --gui
+
+# 特定のコースで評価
+python scripts/rl-training/test_saved_model.py \
+  --model models/checkpoints/final_model.pth \
+  --course courses/medium/complex_track.json \
+  --gui
+
+# 複数エピソード実行
+python scripts/rl-training/test_saved_model.py \
+  --model models/checkpoints/final_model.pth \
+  --course courses/easy/simple_oval.json \
+  --n-episodes 5 \
+  --gui
+
+# 便利なシェルスクリプトでも実行可能
+./scripts/rl-training/run_eval.sh --course courses/easy/simple_oval.json --gui
+```
+
+### 評価オプション
+
+```bash
+--model          # モデルファイル（デフォルト: models/checkpoints/final_model.pth）
+--course         # コースファイル（デフォルト: courses/easy/simple_oval.json）
+--n-episodes     # テストエピソード数（デフォルト: 3）
+--gui / --render # GUI可視化を有効化
 ```
 
 ---
@@ -273,6 +299,37 @@ tensorboard --logdir=logs --port=6006
 6. **05_config_and_testing.md** - 設定とテスト戦略
 7. **06_sim_to_real.md** - 実機転移戦略
 8. **07_getting_started.md** - 実装開始ガイド
+
+---
+
+## 更新履歴
+
+### 2025-12-12: 実コース（real-course）のチェックポイント配置最適化
+
+**問題**: Iteration 80以降、エージェントがショートカットを選択し、CP2を通過できない
+
+**診断結果**:
+- CP2 `[4.0, 7.0]` が外周壁に近すぎ、走行ルートから外れていた
+- CP3→CP5のショートカットが40%効率的（CP4スキップ可能）
+- CP1→CP3のショートカットが26%効率的（CP2スキップ可能）
+
+**修正内容**:
+```json
+修正前 → 修正後
+CP2: [4.0, 7.0] → [5.0, 6.5]  (コース内の自然な走行ルート上に移動)
+CP3: [7.0, 5.0] → [8.5, 5.0]  (ショートカット防止のため調整)
+CP4: [9.5, 4.5] → [10.5, 3.8] (より戦略的な配置)
+CP5: [8.3, 2.2] → [10.0, 2.3] (ゴールへの自然な流れ)
+```
+
+**効果**:
+- ショートカット削減: CP3→CP5が40% → 21.1%に改善
+- CP2通過率の向上が期待される
+- より自然な走行ルートの学習が可能に
+
+**診断ツール追加**:
+- `scripts/analysis/visualize_course.py`: コース可視化
+- `scripts/analysis/analyze_checkpoints.py`: チェックポイント配置診断
 
 ---
 

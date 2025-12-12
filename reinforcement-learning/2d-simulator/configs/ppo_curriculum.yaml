@@ -37,7 +37,7 @@ ppo:
   gamma: 0.99           # 割引率
   gae_lambda: 0.95      # GAEのλ
   clip_range: 0.2       # クリッピング範囲
-  entropy_coef: 0.01    # エントロピー係数
+  entropy_coef: 0.03    # エントロピー係数
   value_coef: 0.5       # 価値関数係数
   max_grad_norm: 0.5    # 勾配クリッピング
 

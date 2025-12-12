@@ -278,23 +278,23 @@
       "index": 1
     },
     {
-      "position": [4.0, 7.0],
+      "position": [5.0, 6.5],
       "radius": 0.8,
       "index": 2
     },
     {
-      "position": [7.0, 5.0],
-      "radius": 0.8,
+      "position": [9.0, 6.2],
+      "radius": 0.7,
       "index": 3
     },
     {
-      "position": [9.5, 4.5],
-      "radius": 0.8,
+      "position": [8.0, 1.5],
+      "radius": 0.5,
       "index": 4
     },
     {
-      "position": [8.3, 2.2],
-      "radius": 0.5,
+      "position": [6.0, 1.5],
+      "radius": 0.7,
       "index": 5
     }
   ]

@@ -13,7 +13,7 @@ from src.env.minicar_env import MinicarEnv
 from src.rl.ppo import PPO
 
 
-def test_saved_model(model_path: str, n_episodes: int = 3, render: bool = False):
+def test_saved_model(model_path: str, n_episodes: int = 3, render: bool = False, course_file: str = "courses/easy/simple_oval.json"):
     """
     保存されたモデルをテスト
 
@@ -21,9 +21,11 @@ def test_saved_model(model_path: str, n_episodes: int = 3, render: bool = False)
         model_path: モデルファイルのパス
         n_episodes: テストエピソード数
         render: GUIで描画するかどうか
+        course_file: コースファイルのパス
     """
     print("=" * 60)
     print(f"Testing saved model: {model_path}")
+    print(f"Course: {course_file}")
     print("=" * 60)
 
     # デバイス
@@ -33,7 +35,7 @@ def test_saved_model(model_path: str, n_episodes: int = 3, render: bool = False)
     # 環境の作成
     render_mode = "human" if render else None
     print(f"[DEBUG] Creating environment with render_mode={render_mode}")
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json", render_mode=render_mode)
+    env = MinicarEnv(course_file=course_file, render_mode=render_mode)
     print(f"[DEBUG] Environment created, render_mode={env.render_mode}")
 
     # PPOの作成
@@ -127,8 +129,14 @@ if __name__ == "__main__":
         action="store_true",
         help="Enable GUI rendering (alias for --render)",
     )
+    parser.add_argument(
+        "--course",
+        type=str,
+        default="courses/easy/simple_oval.json",
+        help="Path to course file",
+    )
     args = parser.parse_args()
 
     # --gui または --render のいずれかが指定されていればrenderを有効にする
     render = args.render or args.gui
-    test_saved_model(args.model, args.n_episodes, render)
+    test_saved_model(args.model, args.n_episodes, render, args.course)
