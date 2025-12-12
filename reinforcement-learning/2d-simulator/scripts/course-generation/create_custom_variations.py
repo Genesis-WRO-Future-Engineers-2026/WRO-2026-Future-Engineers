@@ -33,11 +33,23 @@ def main():
 
     # バリエーション設定
     variations = [
-        {"id": 1, "noise": 0.03, "scale": 1.0, "desc": "小ノイズ(±3cm)"},
-        {"id": 2, "noise": 0.05, "scale": 1.0, "desc": "中ノイズ(±5cm)"},
-        {"id": 3, "noise": 0.08, "scale": 1.0, "desc": "大ノイズ(±8cm)"},
-        {"id": 4, "noise": 0.0, "scale": 1.05, "desc": "壁幅1.05倍拡大"},
-        {"id": 5, "noise": 0.0, "scale": 0.95, "desc": "壁幅0.95倍縮小"},
+        # ノイズのみ（各頂点に個別ノイズ）
+        {"id": 1, "noise": 0.01, "translation": 0.0, "desc": "極小ノイズ(±1cm)"},
+        {"id": 2, "noise": 0.02, "translation": 0.0, "desc": "小ノイズ(±2cm)"},
+        {"id": 3, "noise": 0.03, "translation": 0.0, "desc": "ノイズ(±3cm)"},
+        {"id": 4, "noise": 0.05, "translation": 0.0, "desc": "中ノイズ(±5cm)"},
+        {"id": 5, "noise": 0.07, "translation": 0.0, "desc": "大ノイズ(±7cm)"},
+        {"id": 6, "noise": 0.10, "translation": 0.0, "desc": "特大ノイズ(±10cm)"},
+
+        # 壁のずれ（隙間を作る）
+        {"id": 7, "noise": 0.0, "translation": 0.02, "desc": "壁ずれ小(±2cm)"},
+        {"id": 8, "noise": 0.0, "translation": 0.05, "desc": "壁ずれ中(±5cm)"},
+        {"id": 9, "noise": 0.0, "translation": 0.08, "desc": "壁ずれ大(±8cm)"},
+
+        # 組み合わせ
+        {"id": 10, "noise": 0.02, "translation": 0.03, "desc": "ノイズ+壁ずれ(小)"},
+        {"id": 11, "noise": 0.05, "translation": 0.05, "desc": "ノイズ+壁ずれ(中)"},
+        {"id": 12, "noise": 0.07, "translation": 0.08, "desc": "ノイズ+壁ずれ(大)"},
     ]
 
     # バリエーション生成
@@ -48,7 +60,7 @@ def main():
             base_course,
             variation_id=var_config["id"],
             noise_scale=var_config["noise"],
-            scale_factor=var_config["scale"],
+            translation_scale=var_config["translation"],
             seed=42 + var_config["id"]
         )
 
@@ -57,7 +69,7 @@ def main():
         save_course(variation, str(output_file))
 
     print("\n" + "=" * 60)
-    print("✅ 5個のカスタムバリエーション生成完了！")
+    print("✅ 12個のカスタムバリエーション生成完了！")
     print("=" * 60)
     print("\nバリエーション一覧:")
     for var_config in variations:

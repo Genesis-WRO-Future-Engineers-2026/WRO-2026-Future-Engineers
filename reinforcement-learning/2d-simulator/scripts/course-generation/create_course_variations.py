@@ -78,11 +78,39 @@ def scale_vertices(vertices: list, scale_factor: float, center: list = None) -> 
     return scaled_vertices
 
 
+def translate_vertices(vertices: list, offset_scale: float, seed: int = None) -> list:
+    """壁全体を平行移動（隙間を作る）
+
+    Args:
+        vertices: 頂点座標のリスト [[x1, y1], [x2, y2], ...]
+        offset_scale: オフセットの大きさ（標準偏差、単位: メートル）
+        seed: 乱数シード（再現性のため）
+
+    Returns:
+        平行移動後の頂点座標のリスト
+    """
+    if seed is not None:
+        random.seed(seed)
+        np.random.seed(seed)
+
+    # 壁全体に同じオフセットを適用（隙間を作る）
+    offset_x = np.random.normal(0, offset_scale)
+    offset_y = np.random.normal(0, offset_scale)
+
+    translated_vertices = []
+    for vertex in vertices:
+        x, y = vertex
+        translated_vertices.append([x + offset_x, y + offset_y])
+
+    return translated_vertices
+
+
 def create_variation(
     base_course: dict,
     variation_id: int,
     noise_scale: float = 0.0,
     scale_factor: float = 1.0,
+    translation_scale: float = 0.0,
     seed: int = None
 ) -> dict:
     """コースのバリエーションを生成
@@ -90,8 +118,9 @@ def create_variation(
     Args:
         base_course: 元のコースデータ
         variation_id: バリエーションID
-        noise_scale: 壁位置のノイズスケール（m）
+        noise_scale: 壁位置のノイズスケール（m）- 各頂点に個別にノイズ
         scale_factor: スケール係数（壁の拡大/縮小）
+        translation_scale: 壁全体の平行移動スケール（m）- 隙間を作る
         seed: 乱数シード
 
     Returns:
@@ -106,13 +135,15 @@ def create_variation(
         desc_parts.append(f"ノイズ±{noise_scale}m")
     if scale_factor != 1.0:
         desc_parts.append(f"スケール{scale_factor}x")
+    if translation_scale > 0:
+        desc_parts.append(f"壁ずれ±{translation_scale}m")
     description = ", ".join(desc_parts) if desc_parts else "オリジナル"
 
     variation["name"] = f"{base_course['name']} - Variation {variation_id}"
     variation["description"] = f"{description} (seed={seed})"
 
     # 各壁を変換
-    for wall in variation["walls"]:
+    for wall_idx, wall in enumerate(variation["walls"]):
         if "vertices" in wall:
             vertices = wall["vertices"]
 
@@ -120,7 +151,17 @@ def create_variation(
             if scale_factor != 1.0:
                 vertices = scale_vertices(vertices, scale_factor)
 
-            # ノイズ追加
+            # 壁全体の平行移動（隙間を作る）
+            if translation_scale > 0:
+                # 各壁ごとに異なるシードを使う
+                wall_seed = seed + wall_idx * 1000 if seed is not None else None
+                vertices = translate_vertices(
+                    vertices,
+                    offset_scale=translation_scale,
+                    seed=wall_seed
+                )
+
+            # ノイズ追加（各頂点に個別）
             if noise_scale > 0:
                 vertices = add_noise_to_vertices(
                     vertices,

@@ -17,6 +17,7 @@ from src.rl.ppo import PPO
 from src.rl.trainer import PPOTrainer
 from src.curriculum.curriculum_manager import CurriculumManager
 from src.utils.logger import create_logger
+from src.domain_randomization import get_config
 
 
 def parse_args():
@@ -56,6 +57,20 @@ def parse_args():
     )
     parser.add_argument(
         "--resume", type=str, default=None, help="Resume from checkpoint"
+    )
+
+    # Domain Randomization設定
+    parser.add_argument(
+        "--enable-domain-randomization",
+        action="store_true",
+        help="Enable Domain Randomization for robust policy learning",
+    )
+    parser.add_argument(
+        "--dr-level",
+        type=str,
+        default="standard",
+        choices=["disabled", "mild", "standard", "strong"],
+        help="Domain Randomization level (disabled/mild/standard/strong)",
     )
 
     return parser.parse_args()
@@ -129,6 +144,13 @@ def main():
         print(f"  Evaluation Window: {config['curriculum']['evaluation_window']}")
         print("=" * 60 + "\n")
 
+    # Domain Randomization設定を取得
+    if args.enable_domain_randomization:
+        dr_config = get_config(args.dr_level)
+        print(f"[INFO] Domain Randomization enabled: level={args.dr_level}")
+    else:
+        dr_config = get_config('disabled')
+
     # 環境の作成（初期コース）
     render_mode = "human" if args.gui else None
     if args.gui:
@@ -144,6 +166,9 @@ def main():
         course_file=initial_course,
         render_mode=render_mode,
         max_steps=config["env"]["max_steps"],
+        enable_domain_randomization=args.enable_domain_randomization,
+        physics_randomization_config=dr_config['physics'],
+        sensor_noise_config=dr_config['sensor'],
     )
 
     # カリキュラムマネージャーの作成
