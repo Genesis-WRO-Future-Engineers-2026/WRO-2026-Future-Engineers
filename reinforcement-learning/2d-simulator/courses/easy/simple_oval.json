@@ -2,10 +2,10 @@
   "name": "Simple Oval",
   "description": "シンプルな楕円コース - 初心者向け",
   "difficulty": "easy",
-  "start_position": [1, 1],
+  "start_position": [1.2, 1.2],
   "start_angle": 0.0,
-  "goal_position": [1, 1],
-  "goal_radius": 0.5,
+  "goal_position": [1.2, 1.2],
+  "goal_radius": 0.8,
   "walls": [
     {
       "type": "polygon",

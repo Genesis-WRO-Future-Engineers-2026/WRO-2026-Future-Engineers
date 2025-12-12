@@ -5,6 +5,7 @@ import numpy as np
 from typing import Optional, Dict
 import time
 from pathlib import Path
+import pygame
 
 from src.rl.ppo import PPO
 from src.rl.buffer import RolloutBuffer
@@ -79,6 +80,10 @@ class PPOTrainer:
         self.episode_rewards = []
         self.episode_lengths = []
 
+        # GUI制御
+        self.gui_enabled = (env.render_mode == "human")
+        self.show_gui = self.gui_enabled  # 動的にON/OFF可能
+
     def collect_rollouts(self) -> Dict[str, float]:
         """
         ロールアウトを収集
@@ -96,6 +101,19 @@ class PPOTrainer:
         obs, _ = self.env.reset()
 
         for step in range(self.n_steps):
+            # GUIイベントチェック（'G'キーでトグル）
+            if self.gui_enabled:
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_g:
+                            self.show_gui = not self.show_gui
+                            status = "ON" if self.show_gui else "OFF"
+                            print(f"\n[GUI] Display toggled: {status}\n")
+                    elif event.type == pygame.QUIT:
+                        # ウィンドウを閉じた場合はGUIを無効化（学習は継続）
+                        self.show_gui = False
+                        print("\n[GUI] Window closed, GUI disabled (training continues)\n")
+
             # 行動を取得
             action, log_prob, value = self.ppo.get_action(obs)
 
@@ -105,8 +123,8 @@ class PPOTrainer:
             )
             done = terminated or truncated
 
-            # レンダリング（GUIモードの場合）
-            if self.env.render_mode == "human":
+            # レンダリング（GUIがONの場合のみ）
+            if self.gui_enabled and self.show_gui:
                 self.env.render()
 
             # バッファに追加
@@ -292,6 +310,18 @@ class PPOTrainer:
             done = False
 
             while not done:
+                # GUIイベントチェック（'G'キーでトグル）
+                if self.gui_enabled:
+                    for event in pygame.event.get():
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_g:
+                                self.show_gui = not self.show_gui
+                                status = "ON" if self.show_gui else "OFF"
+                                print(f"\n[GUI] Display toggled: {status}\n")
+                        elif event.type == pygame.QUIT:
+                            self.show_gui = False
+                            print("\n[GUI] Window closed, GUI disabled (evaluation continues)\n")
+
                 # 決定的に行動を選択
                 action, _, _ = self.ppo.get_action(obs, deterministic=True)
                 obs, reward, terminated, truncated, info = self.env.step(
@@ -299,8 +329,8 @@ class PPOTrainer:
                 )
                 done = terminated or truncated
 
-                # レンダリング（GUIモードの場合）
-                if self.env.render_mode == "human":
+                # レンダリング（GUIがONの場合のみ）
+                if self.gui_enabled and self.show_gui:
                     self.env.render()
 
                 episode_reward += reward
