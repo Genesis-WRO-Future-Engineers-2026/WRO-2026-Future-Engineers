@@ -66,3 +66,20 @@ MIN_TIMING = 20000         # 最小タイミング（マイクロ秒）
 MAX_STEER_ANGLE = 30           # 最大操舵角（度）
 INTERSECTION_DIFF_GAIN = 0.1   # 左右交点の差から操舵角を計算するゲイン（deg/mm）
 ONE_SIDE_OPEN_STEER_RATIO = 0.5  # 片側のみ開けている場合のステアリング比率
+
+# ============================================================================
+# シリアル通信設定（Arduino連携用）
+# ============================================================================
+
+# シリアルポート設定
+SERIAL_PORT = '/dev/serial0'  # Arduinoとのシリアルポート（GPIO14/15）
+SERIAL_BAUDRATE = 115200      # ボーレート（通信速度）
+SERIAL_TIMEOUT = 0.1          # タイムアウト時間（秒）
+
+# サーボパルス幅範囲（マイクロ秒）- Arduinoに送信する値の範囲
+SERVO_MIN_PULSE_WIDTH_US = 500   # サーボ最小パルス幅（-90度）
+SERVO_MAX_PULSE_WIDTH_US = 2400  # サーボ最大パルス幅（+90度）
+
+# ESCパルス幅範囲（マイクロ秒）- Arduinoに送信する値の範囲
+ESC_MIN_PULSE_WIDTH_US = 1000  # ESC最小パルス幅（最大後退）
+ESC_MAX_PULSE_WIDTH_US = 2000  # ESC最大パルス幅（最大前進）

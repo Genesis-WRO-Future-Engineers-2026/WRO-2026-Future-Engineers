@@ -4,6 +4,16 @@ import serial
 import time
 from typing import Optional
 
+from config import (
+    SERIAL_PORT,
+    SERIAL_BAUDRATE,
+    SERIAL_TIMEOUT,
+    SERVO_MIN_PULSE_WIDTH_US,
+    SERVO_MAX_PULSE_WIDTH_US,
+    ESC_MIN_PULSE_WIDTH_US,
+    ESC_MAX_PULSE_WIDTH_US
+)
+
 
 class ArduinoSerial:
     """
@@ -14,14 +24,14 @@ class ArduinoSerial:
         ESC:   "E<パルス幅μs>" 例: "E1500" → 1500マイクロ秒
     """
 
-    def __init__(self, port: str = '/dev/serial0', baudrate: int = 115200, timeout: float = 0.1):
+    def __init__(self, port: str = SERIAL_PORT, baudrate: int = SERIAL_BAUDRATE, timeout: float = SERIAL_TIMEOUT):
         """
         シリアルポートを初期化
 
         Parameters:
-            port: シリアルポート名（Raspberry PiのGPIO14/15は /dev/serial0）
-            baudrate: ボーレート（デフォルト: 115200bps）
-            timeout: タイムアウト時間（秒）
+            port: シリアルポート名（デフォルト: config.SERIAL_PORT）
+            baudrate: ボーレート（デフォルト: config.SERIAL_BAUDRATE）
+            timeout: タイムアウト時間（秒、デフォルト: config.SERIAL_TIMEOUT）
         """
         self.port = port
         self.baudrate = baudrate
@@ -50,13 +60,13 @@ class ArduinoSerial:
         サーボ用パルス幅をArduinoに送信
 
         Parameters:
-            pulse_width_us: パルス幅（マイクロ秒）500～2400μs
+            pulse_width_us: パルス幅（マイクロ秒）
 
         Returns:
             送信成功時True、失敗時False
         """
-        # パルス幅の範囲チェック（サーボの一般的な範囲）
-        pulse_width_us = max(500, min(2400, pulse_width_us))
+        # パルス幅の範囲チェック（config.pyの設定範囲内に制限）
+        pulse_width_us = max(SERVO_MIN_PULSE_WIDTH_US, min(SERVO_MAX_PULSE_WIDTH_US, pulse_width_us))
 
         command = f"S{pulse_width_us}\n"
         return self._send_command(command)
@@ -66,13 +76,13 @@ class ArduinoSerial:
         ESC用パルス幅をArduinoに送信
 
         Parameters:
-            pulse_width_us: パルス幅（マイクロ秒）1000～2000μs
+            pulse_width_us: パルス幅（マイクロ秒）
 
         Returns:
             送信成功時True、失敗時False
         """
-        # パルス幅の範囲チェック（ESCの一般的な範囲）
-        pulse_width_us = max(1000, min(2000, pulse_width_us))
+        # パルス幅の範囲チェック（config.pyの設定範囲内に制限）
+        pulse_width_us = max(ESC_MIN_PULSE_WIDTH_US, min(ESC_MAX_PULSE_WIDTH_US, pulse_width_us))
 
         command = f"E{pulse_width_us}\n"
         return self._send_command(command)
