@@ -17,10 +17,10 @@ curriculum:
     - "courses/real/variations/real_course_var4.json"  #   - var3: 大ノイズ(±8cm)
     - "courses/real/variations/real_course_var5.json"  #   - var4: 壁幅1.05倍拡大
                                                         #   - var5: 壁幅0.95倍縮小
-  success_threshold: 0.75          # レベルアップに必要な成功率
-  degradation_threshold: 0.25      # レベルダウンする成功率
-  evaluation_window: 100           # 成功率を計算する直近エピソード数
-  min_episodes_before_advance: 50  # レベルアップ判定の最小エピソード数
+  success_threshold: 0.80          # レベルアップに必要な成功率
+  degradation_threshold: 0.30      # レベルダウンする成功率
+  evaluation_window: 50            # 成功率を計算する直近エピソード数
+  min_episodes_before_advance: 30  # レベルアップ判定の最小エピソード数
   allow_degradation: true          # 難易度を下げることを許可
   randomize_from_level: 2          # Level 2以降でランダムにバリエーションを選択
 
@@ -33,11 +33,11 @@ training:
 
 # PPOパラメータ
 ppo:
-  learning_rate: 3.0e-4
-  gamma: 0.99           # 割引率
-  gae_lambda: 0.95      # GAEのλ
-  clip_range: 0.2       # クリッピング範囲
-  entropy_coef: 0.03    # エントロピー係数
+  learning_rate: 1.0e-4      # 学習率（3e-4→1e-4: 安定化のため低下）
+  gamma: 0.99                # 割引率
+  gae_lambda: 0.95           # GAEのλ
+  clip_range: 0.15           # クリッピング範囲（0.2→0.15: より強いクリッピング）
+  entropy_coef: 0.05         # エントロピー係数（0.03→0.05: 探索強化、退化防止）
   value_coef: 0.5       # 価値関数係数
   max_grad_norm: 0.5    # 勾配クリッピング
 
@@ -48,12 +48,12 @@ network:
 
 # チェックポイント
 checkpoint:
-  save_freq: 100         # カリキュラム学習では頻度を上げる
+  save_freq: 20          # 保存頻度（100→20: こまめに保存）
   checkpoint_dir: "models/checkpoints_curriculum"
 
 # 評価
 evaluation:
-  eval_freq: 50
+  eval_freq: 20          # 評価頻度（50→20: こまめに評価）
   n_eval_episodes: 5
 
 # ロギング
