@@ -12,6 +12,16 @@ from src.env.sensors import LiDARSensor, LIDAR_MAX_RANGE
 from src.env.course import Course
 from src.env.renderer import Renderer
 
+# Domain Randomization
+from src.domain_randomization.physics_randomizer import (
+    PhysicsRandomizer,
+    PhysicsRandomizationConfig,
+)
+from src.domain_randomization.sensor_noise import (
+    SensorNoiseRandomizer,
+    SensorNoiseConfig,
+)
+
 
 class MinicarEnv(gym.Env):
     """ミニカーレースのGym互換環境"""
@@ -30,6 +40,10 @@ class MinicarEnv(gym.Env):
         render_mode: Optional[str] = None,
         max_steps: int = 2000,
         deployment_mode: bool = False,
+        # Domain Randomization用の追加パラメータ
+        enable_domain_randomization: bool = False,
+        physics_randomization_config: Optional[PhysicsRandomizationConfig] = None,
+        sensor_noise_config: Optional[SensorNoiseConfig] = None,
     ):
         """
         Args:
@@ -37,12 +51,40 @@ class MinicarEnv(gym.Env):
             render_mode: 描画モード ('human', 'rgb_array', None)
             max_steps: 最大ステップ数
             deployment_mode: 本番環境モード（ゴール到達で終了しない）
+            enable_domain_randomization: Domain Randomizationを有効化
+            physics_randomization_config: 物理ランダム化の設定
+            sensor_noise_config: センサーノイズの設定
         """
         super().__init__()
 
         self.render_mode = render_mode
         self.max_steps = max_steps
         self.deployment_mode = deployment_mode
+
+        # Domain Randomization設定
+        self.enable_domain_randomization = enable_domain_randomization
+
+        if self.enable_domain_randomization:
+            # 物理ランダム化
+            if physics_randomization_config is not None:
+                self.physics_randomizer = PhysicsRandomizer(physics_randomization_config)
+            else:
+                # デフォルト設定を使用
+                from src.domain_randomization.physics_randomizer import DEFAULT_PHYSICS_CONFIG
+                self.physics_randomizer = PhysicsRandomizer(DEFAULT_PHYSICS_CONFIG)
+
+            # センサーノイズ
+            if sensor_noise_config is not None:
+                self.sensor_noise_randomizer = SensorNoiseRandomizer(sensor_noise_config)
+            else:
+                # デフォルト設定を使用
+                from src.domain_randomization.sensor_noise import DEFAULT_SENSOR_NOISE_CONFIG
+                self.sensor_noise_randomizer = SensorNoiseRandomizer(DEFAULT_SENSOR_NOISE_CONFIG)
+
+            print("[INFO] Domain Randomization enabled")
+        else:
+            self.physics_randomizer = None
+            self.sensor_noise_randomizer = None
 
         # コースのロード
         self.course = Course(course_file)
@@ -113,9 +155,28 @@ class MinicarEnv(gym.Env):
         """
         super().reset(seed=seed)
 
-        # 車両をリセット
+        # Domain Randomization: 物理パラメータをランダム化
+        if self.enable_domain_randomization and self.physics_randomizer:
+            physics_params = self.physics_randomizer.randomize()
+        else:
+            physics_params = {}
+
+        # 車両をリセット（ランダム化されたパラメータで）
         start_pos, start_angle = self.course.get_start_pose()
-        self.vehicle.reset(start_pos, start_angle)
+
+        if physics_params:
+            self.vehicle.reset(
+                start_pos,
+                start_angle,
+                mass=physics_params.get('mass'),
+                friction=physics_params.get('friction'),
+                linear_damping=physics_params.get('linear_damping'),
+                angular_damping=physics_params.get('angular_damping'),
+                max_motor_force=physics_params.get('motor_force'),
+                max_lateral_impulse=physics_params.get('max_lateral_impulse'),
+            )
+        else:
+            self.vehicle.reset(start_pos, start_angle)
 
         # 状態をリセット
         self.step_count = 0
@@ -197,16 +258,27 @@ class MinicarEnv(gym.Env):
         LiDARと速度情報だけで走行を学習する。
         """
         # キャッシュされたデータを使用
-        lidar_scan = self._cached_lidar_scan
+        lidar_scan = self._cached_lidar_scan.copy()
+
+        # Domain Randomization: センサーノイズを適用
+        if self.enable_domain_randomization and self.sensor_noise_randomizer:
+            lidar_scan = self.sensor_noise_randomizer.apply_noise(
+                self.lidar,
+                lidar_scan
+            )
+
+        # LiDARの正規化
+        lidar_normalized = lidar_scan / LIDAR_MAX_RANGE
+
         velocity = np.array(self._cached_vehicle_state["velocity"])
         angular_velocity = np.array([self._cached_vehicle_state["angular_velocity"]])
 
         # 観測を結合（チェックポイント情報は含めない）
         obs = np.concatenate(
             [
-                lidar_scan,  # 5
-                velocity,  # 2
-                angular_velocity,  # 1
+                lidar_normalized,  # 5
+                velocity / 3.0,  # 2（正規化）
+                angular_velocity / 5.0,  # 1（正規化）
                 self.last_action,  # 2
             ]
         )

@@ -268,13 +268,13 @@
   ],
   "checkpoints": [
     {
-      "position": [1.0, 2.0],
-      "radius": 0.8,
+      "position": [0.8, 3.5],
+      "radius": 0.7,
       "index": 0
     },
     {
-      "position": [2.5, 5.0],
-      "radius": 0.7,
+      "position": [2.5, 7.0],
+      "radius": 0.6,
       "index": 1
     },
     {
@@ -284,17 +284,17 @@
     },
     {
       "position": [9.0, 6.2],
-      "radius": 0.7,
+      "radius": 0.6,
       "index": 3
     },
     {
-      "position": [8.0, 1.5],
+      "position": [11.5, 5.5],
       "radius": 0.5,
       "index": 4
     },
     {
-      "position": [6.0, 1.5],
-      "radius": 0.7,
+      "position": [10.0, 1.5],
+      "radius": 0.5,
       "index": 5
     }
   ]

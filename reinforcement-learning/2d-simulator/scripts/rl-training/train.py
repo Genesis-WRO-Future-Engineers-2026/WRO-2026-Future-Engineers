@@ -14,6 +14,7 @@ from src.env.minicar_env import MinicarEnv
 from src.rl.ppo import PPO
 from src.rl.trainer import PPOTrainer
 from src.utils.logger import create_logger
+from src.domain_randomization import get_config
 
 
 def parse_args():
@@ -172,6 +173,20 @@ def parse_args():
         help="Enable GUI visualization during training",
     )
 
+    # Domain Randomization設定
+    parser.add_argument(
+        "--enable-domain-randomization",
+        action="store_true",
+        help="Enable Domain Randomization for robust policy learning",
+    )
+    parser.add_argument(
+        "--dr-level",
+        type=str,
+        default="standard",
+        choices=["disabled", "mild", "standard", "strong"],
+        help="Domain Randomization level (disabled/mild/standard/strong)",
+    )
+
     return parser.parse_args()
 
 
@@ -212,6 +227,13 @@ def main():
 
     print(f"Experiment: {args.experiment_name}")
 
+    # Domain Randomization設定を取得
+    if args.enable_domain_randomization:
+        dr_config = get_config(args.dr_level)
+        print(f"[INFO] Domain Randomization enabled: level={args.dr_level}")
+    else:
+        dr_config = get_config('disabled')
+
     # 環境の作成
     render_mode = "human" if args.gui else None
     if args.gui:
@@ -221,6 +243,9 @@ def main():
         course_file=args.course,
         render_mode=render_mode,
         max_steps=args.max_steps,
+        enable_domain_randomization=args.enable_domain_randomization,
+        physics_randomization_config=dr_config['physics'],
+        sensor_noise_config=dr_config['sensor'],
     )
 
     # PPOの作成

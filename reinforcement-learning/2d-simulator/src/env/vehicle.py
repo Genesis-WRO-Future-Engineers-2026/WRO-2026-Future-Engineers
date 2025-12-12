@@ -47,31 +47,44 @@ class Vehicle:
         world: b2World,
         start_pos: Tuple[float, float],
         start_angle: float = 0.0,
+        # Domain Randomization用の追加パラメータ
+        mass: float = 1.4,
+        friction: float = 0.7,
+        linear_damping: float = 0.5,
+        angular_damping: float = 0.8,
+        max_motor_force: float = 20.0,
+        max_lateral_impulse: float = 2.5,
     ):
         """
         Args:
             world: Box2Dの物理世界
             start_pos: 初期位置 (x, y)
             start_angle: 初期角度 (rad)
+            mass: 質量 (kg) - Domain Randomization対応
+            friction: 摩擦係数 - Domain Randomization対応
+            linear_damping: 線形減衰 - Domain Randomization対応
+            angular_damping: 角減衰 - Domain Randomization対応
+            max_motor_force: 最大モーター力 (N) - Domain Randomization対応
+            max_lateral_impulse: 最大横滑りインパルス - Domain Randomization対応
         """
         self.world = world
 
         # 車両パラメータ（実機TT-02に合わせた寸法）
         self.width = 0.188  # m (実機: 188mm)
         self.length = 0.479  # m (実機: 479mm)
-        self.mass = 1.4  # kg (車体1.2kg + バッテリー0.2kg)
+        self.mass = mass  # Domain Randomization対応
         self.wheelbase = 0.257  # m (実機: 257mm、標準設定)
 
         self.max_steering_angle = 0.5  # rad (約28度)
-        self.max_motor_force = 20.0  # N
-        self.max_lateral_impulse = 2.5  # 横滑り抑制の最大インパルス（安定性のため）
+        self.max_motor_force = max_motor_force  # Domain Randomization対応
+        self.max_lateral_impulse = max_lateral_impulse  # Domain Randomization対応
 
         # Box2Dボディ作成
         self.body = self.world.CreateDynamicBody(
             position=b2Vec2(*start_pos),
             angle=start_angle,
-            linearDamping=0.5,  # 空気抵抗
-            angularDamping=0.8,  # 回転抵抗
+            linearDamping=linear_damping,  # Domain Randomization対応
+            angularDamping=angular_damping,  # Domain Randomization対応
         )
 
         # 車両の識別子を設定（衝突検出用）
@@ -81,7 +94,7 @@ class Vehicle:
         self.body.CreatePolygonFixture(
             box=(self.length / 2, self.width / 2),
             density=self.mass / (self.length * self.width),
-            friction=0.7,
+            friction=friction,  # Domain Randomization対応
         )
 
     def apply_control(self, steering: float, throttle: float, debug: bool = False):
@@ -309,14 +322,58 @@ class Vehicle:
             ),
         }
 
-    def reset(self, position: Tuple[float, float], angle: float = 0.0):
+    def reset(
+        self,
+        position: Tuple[float, float],
+        angle: float = 0.0,
+        # Domain Randomization用パラメータ
+        mass: Optional[float] = None,
+        friction: Optional[float] = None,
+        linear_damping: Optional[float] = None,
+        angular_damping: Optional[float] = None,
+        max_motor_force: Optional[float] = None,
+        max_lateral_impulse: Optional[float] = None,
+    ):
         """
         車両を初期状態にリセット
 
         Args:
             position: リセット位置 (x, y)
             angle: リセット角度 (rad)
+            mass: 質量（Noneの場合は現在値を維持）
+            friction: 摩擦係数（Noneの場合は現在値を維持）
+            linear_damping: 線形減衰（Noneの場合は現在値を維持）
+            angular_damping: 角減衰（Noneの場合は現在値を維持）
+            max_motor_force: 最大モーター力（Noneの場合は現在値を維持）
+            max_lateral_impulse: 最大横滑りインパルス（Noneの場合は現在値を維持）
         """
+        # パラメータを更新（指定された場合のみ）
+        if mass is not None:
+            self.mass = mass
+        if max_motor_force is not None:
+            self.max_motor_force = max_motor_force
+        if max_lateral_impulse is not None:
+            self.max_lateral_impulse = max_lateral_impulse
+
+        # ボディの物理パラメータを更新
+        if linear_damping is not None:
+            self.body.linearDamping = linear_damping
+        if angular_damping is not None:
+            self.body.angularDamping = angular_damping
+
+        # フィクスチャの摩擦係数を更新
+        if friction is not None:
+            for fixture in self.body.fixtures:
+                fixture.friction = friction
+
+        # 質量が変わった場合は密度を更新
+        if mass is not None:
+            for fixture in self.body.fixtures:
+                fixture.density = self.mass / (self.length * self.width)
+            # 質量データを再計算
+            self.body.ResetMassData()
+
+        # 位置と速度をリセット
         self.body.position = b2Vec2(*position)
         self.body.angle = angle
         self.body.linearVelocity = b2Vec2(0, 0)
