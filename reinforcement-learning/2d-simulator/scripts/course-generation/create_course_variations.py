@@ -50,10 +50,39 @@ def add_noise_to_vertices(vertices: list, noise_scale: float, seed: int = None) 
     return noisy_vertices
 
 
+def scale_vertices(vertices: list, scale_factor: float, center: list = None) -> list:
+    """頂点座標をスケール変換
+
+    Args:
+        vertices: 頂点座標のリスト [[x1, y1], [x2, y2], ...]
+        scale_factor: スケール係数（1.0より大きいと拡大、小さいと縮小）
+        center: スケールの中心点 [cx, cy]（Noneの場合は重心を使用）
+
+    Returns:
+        スケール変換後の頂点座標のリスト
+    """
+    if center is None:
+        # 重心を計算
+        cx = sum(v[0] for v in vertices) / len(vertices)
+        cy = sum(v[1] for v in vertices) / len(vertices)
+        center = [cx, cy]
+
+    scaled_vertices = []
+    for vertex in vertices:
+        x, y = vertex
+        # 中心からの相対座標をスケール
+        dx = (x - center[0]) * scale_factor
+        dy = (y - center[1]) * scale_factor
+        scaled_vertices.append([center[0] + dx, center[1] + dy])
+
+    return scaled_vertices
+
+
 def create_variation(
     base_course: dict,
     variation_id: int,
-    noise_scale: float,
+    noise_scale: float = 0.0,
+    scale_factor: float = 1.0,
     seed: int = None
 ) -> dict:
     """コースのバリエーションを生成
@@ -62,6 +91,7 @@ def create_variation(
         base_course: 元のコースデータ
         variation_id: バリエーションID
         noise_scale: 壁位置のノイズスケール（m）
+        scale_factor: スケール係数（壁の拡大/縮小）
         seed: 乱数シード
 
     Returns:
@@ -71,17 +101,34 @@ def create_variation(
     variation = json.loads(json.dumps(base_course))
 
     # 名前を変更
-    variation["name"] = f"{base_course['name']} - Variation {variation_id}"
-    variation["description"] = f"壁位置ノイズ: ±{noise_scale}m (seed={seed})"
+    desc_parts = []
+    if noise_scale > 0:
+        desc_parts.append(f"ノイズ±{noise_scale}m")
+    if scale_factor != 1.0:
+        desc_parts.append(f"スケール{scale_factor}x")
+    description = ", ".join(desc_parts) if desc_parts else "オリジナル"
 
-    # 各壁にノイズを追加
+    variation["name"] = f"{base_course['name']} - Variation {variation_id}"
+    variation["description"] = f"{description} (seed={seed})"
+
+    # 各壁を変換
     for wall in variation["walls"]:
         if "vertices" in wall:
-            wall["vertices"] = add_noise_to_vertices(
-                wall["vertices"],
-                noise_scale=noise_scale,
-                seed=seed
-            )
+            vertices = wall["vertices"]
+
+            # スケール変換
+            if scale_factor != 1.0:
+                vertices = scale_vertices(vertices, scale_factor)
+
+            # ノイズ追加
+            if noise_scale > 0:
+                vertices = add_noise_to_vertices(
+                    vertices,
+                    noise_scale=noise_scale,
+                    seed=seed
+                )
+
+            wall["vertices"] = vertices
 
     return variation
 

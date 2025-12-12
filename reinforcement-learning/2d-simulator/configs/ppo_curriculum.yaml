@@ -10,17 +10,19 @@ curriculum:
   enabled: true
   courses:
     - "courses/easy/simple_oval.json"                  # Level 0: 基本走行スキル獲得
-    - "courses/real/real_course_fixed.json"            # Level 1: 本番コース（元）
-    - "courses/real/variations/real_course_var1.json"  # Level 2: バリエーション1
-    - "courses/real/variations/real_course_var2.json"  # Level 3: バリエーション2
-    - "courses/real/variations/real_course_var3.json"  # Level 4: バリエーション3
-    - "courses/real/variations/real_course_var4.json"  # Level 5: バリエーション4
-    - "courses/real/variations/real_course_var5.json"  # Level 6: バリエーション5
+    - "courses/real/real-course_course.json"           # Level 1: 本番コース（ベース）
+    - "courses/real/variations/real_course_var1.json"  # Level 2-6: バリエーション（ランダム選択）
+    - "courses/real/variations/real_course_var2.json"  #   - var1: 小ノイズ(±3cm)
+    - "courses/real/variations/real_course_var3.json"  #   - var2: 中ノイズ(±5cm)
+    - "courses/real/variations/real_course_var4.json"  #   - var3: 大ノイズ(±8cm)
+    - "courses/real/variations/real_course_var5.json"  #   - var4: 壁幅1.05倍拡大
+                                                        #   - var5: 壁幅0.95倍縮小
   success_threshold: 0.75          # レベルアップに必要な成功率
   degradation_threshold: 0.25      # レベルダウンする成功率
   evaluation_window: 100           # 成功率を計算する直近エピソード数
   min_episodes_before_advance: 50  # レベルアップ判定の最小エピソード数
   allow_degradation: true          # 難易度を下げることを許可
+  randomize_from_level: 2          # Level 2以降でランダムにバリエーションを選択
 
 # 学習設定
 training:

@@ -158,6 +158,7 @@ def main():
                 "min_episodes_before_advance"
             ],
             allow_degradation=config["curriculum"]["allow_degradation"],
+            randomize_from_level=config["curriculum"].get("randomize_from_level"),
         )
         print(f"Created CurriculumManager: {curriculum}")
 

@@ -35,6 +35,7 @@ class CurriculumManager:
         evaluation_window: int = 100,
         min_episodes_before_advance: int = 50,
         allow_degradation: bool = True,
+        randomize_from_level: Optional[int] = None,
     ):
         """
         Args:
@@ -44,6 +45,7 @@ class CurriculumManager:
             evaluation_window: 成功率を計算する直近エピソード数
             min_episodes_before_advance: レベルアップ判定の最小エピソード数
             allow_degradation: 難易度を下げることを許可するか
+            randomize_from_level: このレベル以降でランダムにコースを選択（Noneで無効）
         """
         if not courses:
             raise ValueError("At least one course must be provided")
@@ -71,6 +73,7 @@ class CurriculumManager:
         self.evaluation_window = evaluation_window
         self.min_episodes_before_advance = min_episodes_before_advance
         self.allow_degradation = allow_degradation
+        self.randomize_from_level = randomize_from_level
 
         # 最近のエピソード結果を保存（True=成功, False=失敗）
         self.recent_results = deque(maxlen=evaluation_window)
@@ -85,6 +88,8 @@ class CurriculumManager:
         )
         logger.info(f"Success threshold: {success_threshold}")
         logger.info(f"Degradation threshold: {degradation_threshold}")
+        if randomize_from_level is not None:
+            logger.info(f"Randomization enabled from level {randomize_from_level}")
 
     def update(self, success: bool) -> None:
         """エピソード結果を記録
@@ -101,7 +106,16 @@ class CurriculumManager:
 
         Returns:
             現在のレベルに対応するコースファイルパス
+            randomize_from_level以降では、そのレベル以降のコースからランダムに選択
         """
+        # ランダム化が有効で、指定レベル以降の場合
+        if (self.randomize_from_level is not None and
+            self.current_level >= self.randomize_from_level):
+            # 指定レベル以降のコースからランダムに選択
+            available_courses = self.courses[self.randomize_from_level:]
+            return np.random.choice(available_courses)
+
+        # 通常の固定選択
         return self.courses[self.current_level]
 
     def get_success_rate(self) -> float:
