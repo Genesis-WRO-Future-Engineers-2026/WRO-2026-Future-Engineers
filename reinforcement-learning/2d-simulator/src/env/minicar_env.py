@@ -296,18 +296,20 @@ class MinicarEnv(gym.Env):
         - チェックポイント報酬を強化（偶然の通過を強く評価）
         - 速度報酬を抑制（闇雲な走行を防ぐ）
         - 時間ペナルティを緩和（探索時間を許容）
+        - 角速度ペナルティを追加（左右振動を抑制）
+        - 前進速度報酬を追加（直進性を奨励）
         """
         reward = 0.0
         # キャッシュされたデータを使用
         state = self._cached_vehicle_state
         lidar_scan = self._cached_lidar_scan
 
-        # 1. 速度報酬（速く走ることを奨励、ただし抑えめ）
-        speed = state["speed"]
-        reward += speed * 0.03  # 0.05 → 0.03（方向性のない速度を抑制）
+        # 1. 生存報酬（長く走ることを最優先）
+        reward += 1.0  # 各ステップで+1.0（生存を強く奨励）
 
-        # 2. 時間ペナルティ（早くゴールすることを奨励、ただし緩和）
-        reward -= 0.1  # 0.3 → 0.2 → 0.1（探索時間をさらに許容）
+        # 2. 速度報酬（速く走ることを奨励）
+        speed = state["speed"]
+        reward += speed * 0.1  # シンプルな速度報酬
 
         # 3. 壁接近ペナルティ
         min_distance = np.min(lidar_scan)
