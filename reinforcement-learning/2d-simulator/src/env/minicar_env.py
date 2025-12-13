@@ -287,7 +287,7 @@ class MinicarEnv(gym.Env):
 
     def _compute_reward(self) -> float:
         """
-        報酬を計算（v3.0設計に基づく）
+        報酬を計算（v3.1設計に基づく）
 
         Returns:
             報酬
@@ -297,6 +297,11 @@ class MinicarEnv(gym.Env):
         - 矛盾がないこと（時間ペナルティで早さを奨励）
         - タスクの本質: 壁にぶつからず、なるべく早く、ゴールに到達
 
+        v3.1での変更点:
+        - 時間ペナルティ強化: -0.5 → -1.0
+        - チェックポイント方向報酬抑制: 1.0 → 0.5
+        - チェックポイント通過報酬増加: 100 → 200
+
         詳細: src/env/REWARD_DESIGN.md 参照
         """
         reward = 0.0
@@ -305,7 +310,7 @@ class MinicarEnv(gym.Env):
         lidar_scan = self._cached_lidar_scan
 
         # 1. 時間ペナルティ（早くゴールするインセンティブ）
-        reward -= 0.5
+        reward -= 1.0  # v3.1: -0.5 → -1.0（強化）
 
         # 2. チェックポイント方向報酬（正しい方向へのガイダンス）
         checkpoints = self.course.get_checkpoints()
@@ -318,11 +323,12 @@ class MinicarEnv(gym.Env):
             # 距離が近いほど高報酬（遠くても報酬あり）
             max_distance = 20.0  # コースサイズに応じて調整
             normalized_distance = min(distance_to_cp, max_distance)
-            reward += (max_distance - normalized_distance) / max_distance
+            # v3.1: 報酬を0.5倍に抑制（時間ペナルティとのバランス）
+            reward += (max_distance - normalized_distance) / max_distance * 0.5
 
             # 2.1. チェックポイント通過報酬
             if self.course.check_checkpoint(state["position"], self.next_checkpoint_index):
-                reward += 100.0
+                reward += 200.0  # v3.1: 100 → 200（増加）
                 self.next_checkpoint_index += 1  # 次へ進む
         else:
             # 全チェックポイント通過後、ゴール方向報酬
@@ -332,7 +338,8 @@ class MinicarEnv(gym.Env):
             )
             max_distance = 20.0
             normalized_distance = min(distance_to_goal, max_distance)
-            reward += (max_distance - normalized_distance) / max_distance
+            # v3.1: 報酬を0.5倍に抑制
+            reward += (max_distance - normalized_distance) / max_distance * 0.5
 
         # 3. ゴール到達報酬（最終目標の達成）
         if self.course.check_goal(state["position"]):
