@@ -22,6 +22,9 @@ from src.domain_randomization.sensor_noise import (
     SensorNoiseConfig,
 )
 
+# Adaptive Reward Scaling
+from src.rl.adaptive_reward import AdaptiveRewardScaler, RewardCoefficients
+
 
 class MinicarEnv(gym.Env):
     """ミニカーレースのGym互換環境"""
@@ -44,6 +47,8 @@ class MinicarEnv(gym.Env):
         enable_domain_randomization: bool = False,
         physics_randomization_config: Optional[PhysicsRandomizationConfig] = None,
         sensor_noise_config: Optional[SensorNoiseConfig] = None,
+        # Adaptive Reward Scaling用のパラメータ
+        adaptive_reward_scaler: Optional[AdaptiveRewardScaler] = None,
     ):
         """
         Args:
@@ -54,6 +59,7 @@ class MinicarEnv(gym.Env):
             enable_domain_randomization: Domain Randomizationを有効化
             physics_randomization_config: 物理ランダム化の設定
             sensor_noise_config: センサーノイズの設定
+            adaptive_reward_scaler: 適応的報酬スケーラー
         """
         super().__init__()
 
@@ -85,6 +91,9 @@ class MinicarEnv(gym.Env):
         else:
             self.physics_randomizer = None
             self.sensor_noise_randomizer = None
+
+        # Adaptive Reward Scaler
+        self.adaptive_reward_scaler = adaptive_reward_scaler
 
         # コースのロード
         self.course = Course(course_file)
@@ -287,7 +296,7 @@ class MinicarEnv(gym.Env):
 
     def _compute_reward(self) -> float:
         """
-        報酬を計算（v3.1設計に基づく）
+        報酬を計算（適応的報酬スケーリング対応）
 
         Returns:
             報酬
@@ -296,11 +305,7 @@ class MinicarEnv(gym.Env):
         - シンプルであること（必要最小限の5項目）
         - 矛盾がないこと（時間ペナルティで早さを奨励）
         - タスクの本質: 壁にぶつからず、なるべく早く、ゴールに到達
-
-        v3.1での変更点:
-        - 時間ペナルティ強化: -0.5 → -1.0
-        - チェックポイント方向報酬抑制: 1.0 → 0.5
-        - チェックポイント通過報酬増加: 100 → 200
+        - 適応的スケーリング: 学習の進捗に応じて係数を自動調整
 
         詳細: src/env/REWARD_DESIGN.md 参照
         """
@@ -309,8 +314,22 @@ class MinicarEnv(gym.Env):
         state = self._cached_vehicle_state
         lidar_scan = self._cached_lidar_scan
 
+        # 適応的報酬スケーリングが有効な場合は係数を取得、そうでない場合はv3.2のデフォルト値
+        if self.adaptive_reward_scaler is not None:
+            coeffs = self.adaptive_reward_scaler.get_coefficients()
+        else:
+            # v3.2のデフォルト係数
+            coeffs = RewardCoefficients(
+                time_penalty=0.7,
+                direction_reward_scale=0.7,
+                checkpoint_reward=200.0,
+                goal_reward=500.0,
+                collision_penalty=-100.0,
+                time_bonus_scale=2.0,
+            )
+
         # 1. 時間ペナルティ（早くゴールするインセンティブ）
-        reward -= 1.0  # v3.1: -0.5 → -1.0（強化）
+        reward -= coeffs.time_penalty
 
         # 2. チェックポイント方向報酬（正しい方向へのガイダンス）
         checkpoints = self.course.get_checkpoints()
@@ -323,12 +342,12 @@ class MinicarEnv(gym.Env):
             # 距離が近いほど高報酬（遠くても報酬あり）
             max_distance = 20.0  # コースサイズに応じて調整
             normalized_distance = min(distance_to_cp, max_distance)
-            # v3.1: 報酬を0.5倍に抑制（時間ペナルティとのバランス）
-            reward += (max_distance - normalized_distance) / max_distance * 0.5
+            # 適応的スケーリング係数を使用
+            reward += (max_distance - normalized_distance) / max_distance * coeffs.direction_reward_scale
 
             # 2.1. チェックポイント通過報酬
             if self.course.check_checkpoint(state["position"], self.next_checkpoint_index):
-                reward += 200.0  # v3.1: 100 → 200（増加）
+                reward += coeffs.checkpoint_reward
                 self.next_checkpoint_index += 1  # 次へ進む
         else:
             # 全チェックポイント通過後、ゴール方向報酬
@@ -338,23 +357,23 @@ class MinicarEnv(gym.Env):
             )
             max_distance = 20.0
             normalized_distance = min(distance_to_goal, max_distance)
-            # v3.1: 報酬を0.5倍に抑制
-            reward += (max_distance - normalized_distance) / max_distance * 0.5
+            # 適応的スケーリング係数を使用
+            reward += (max_distance - normalized_distance) / max_distance * coeffs.direction_reward_scale
 
         # 3. ゴール到達報酬（最終目標の達成）
         if self.course.check_goal(state["position"]):
             # 全チェックポイントを順番に通過している場合のみ
             if self.next_checkpoint_index == len(checkpoints):
                 # 基本ゴール報酬
-                reward += 500.0
+                reward += coeffs.goal_reward
                 # 時間ボーナス（早くゴールするほど高報酬）
                 remaining_steps = self.max_steps - self.step_count
-                time_bonus = remaining_steps * 2.0
+                time_bonus = remaining_steps * coeffs.time_bonus_scale
                 reward += time_bonus
 
         # 4. 衝突ペナルティ（壁にぶつからない）
         if self.world.has_collision():
-            reward += self.COLLISION_PENALTY  # -100
+            reward += coeffs.collision_penalty
 
         return reward
 

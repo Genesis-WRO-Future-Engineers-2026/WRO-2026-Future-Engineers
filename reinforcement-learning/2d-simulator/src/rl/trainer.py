@@ -246,6 +246,26 @@ class PPOTrainer:
                 stats["curriculum/success_rate"] = curriculum_stats['success_rate']
                 stats["curriculum/level_episodes"] = curriculum_stats['level_episodes']
 
+            # 適応的報酬スケーリング: フェーズ調整と統計記録
+            if hasattr(self.env, 'adaptive_reward_scaler') and self.env.adaptive_reward_scaler is not None:
+                # 評価時の統計でフェーズ遷移判定
+                if (iteration + 1) % self.eval_freq == 0 and hasattr(self, '_last_eval_stats'):
+                    eval_stats = self._last_eval_stats
+                    success_rate = eval_stats.get('eval/success_rate', 0.0)
+                    # チェックポイント通過率を計算（簡易版）
+                    avg_cp_passed = success_rate  # 成功率で代用
+
+                    # 適応的報酬スケーラーを更新
+                    self.env.adaptive_reward_scaler.update_statistics(
+                        success_rate=success_rate,
+                        avg_checkpoints_passed=avg_cp_passed,
+                    )
+
+                # フェーズ情報をログ
+                phase_info = self.env.adaptive_reward_scaler.get_phase_info()
+                stats["reward/phase"] = phase_info['reward_phase']
+                stats["reward/episodes_in_phase"] = phase_info['episodes_in_phase']
+
             # ログ
             if self.logger is not None:
                 self.logger.log(stats, step=self.total_timesteps)
@@ -278,6 +298,7 @@ class PPOTrainer:
             # 評価
             if (iteration + 1) % self.eval_freq == 0:
                 eval_stats = self.evaluate()
+                self._last_eval_stats = eval_stats  # 適応的報酬スケーリング用に保存
                 if self.logger is not None:
                     self.logger.log(eval_stats, step=self.total_timesteps)
                 print(
