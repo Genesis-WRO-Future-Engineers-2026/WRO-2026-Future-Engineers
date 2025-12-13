@@ -287,58 +287,67 @@ class MinicarEnv(gym.Env):
 
     def _compute_reward(self) -> float:
         """
-        報酬を計算
+        報酬を計算（v3.0設計に基づく）
 
         Returns:
             報酬
 
-        NOTE: 10次元観測空間（チェックポイント情報なし）に対応した報酬設計
-        - チェックポイント報酬を強化（偶然の通過を強く評価）
-        - 速度報酬を抑制（闇雲な走行を防ぐ）
-        - 時間ペナルティを緩和（探索時間を許容）
-        - 角速度ペナルティを追加（左右振動を抑制）
-        - 前進速度報酬を追加（直進性を奨励）
+        設計方針:
+        - シンプルであること（必要最小限の5項目）
+        - 矛盾がないこと（時間ペナルティで早さを奨励）
+        - タスクの本質: 壁にぶつからず、なるべく早く、ゴールに到達
+
+        詳細: src/env/REWARD_DESIGN.md 参照
         """
         reward = 0.0
         # キャッシュされたデータを使用
         state = self._cached_vehicle_state
         lidar_scan = self._cached_lidar_scan
 
-        # 1. 生存報酬（長く走ることを最優先）
-        reward += 1.0  # 各ステップで+1.0（生存を強く奨励）
+        # 1. 時間ペナルティ（早くゴールするインセンティブ）
+        reward -= 0.5
 
-        # 2. 速度報酬（速く走ることを奨励）
-        speed = state["speed"]
-        reward += speed * 0.1  # シンプルな速度報酬
-
-        # 3. 壁接近ペナルティ
-        min_distance = np.min(lidar_scan)
-        if min_distance < self.WALL_APPROACH_DISTANCE:
-            reward -= (self.WALL_APPROACH_DISTANCE - min_distance) * 10
-
-        # 3.5. 衝突ペナルティ（Box2D物理衝突検出を使用）
-        if self.world.has_collision():
-            reward += self.COLLISION_PENALTY  # 大きなペナルティ
-
-        # 4. チェックポイント報酬（順序通りに通過する必要がある）
-        # NOTE: チェックポイント方向が観測できないため、報酬を大幅強化（オプション2）
+        # 2. チェックポイント方向報酬（正しい方向へのガイダンス）
         checkpoints = self.course.get_checkpoints()
         if self.next_checkpoint_index < len(checkpoints):
-            # 次のチェックポイントのみ判定
-            if self.course.check_checkpoint(state["position"], self.next_checkpoint_index):
-                reward += 300.0  # 100.0 → 200.0 → 300.0（偶然の通過を極めて強く評価）
-                self.next_checkpoint_index += 1  # 次へ進む
+            # 次のチェックポイントまでの距離を計算
+            cp_pos = checkpoints[self.next_checkpoint_index]["position"]
+            distance_to_cp = np.linalg.norm(
+                np.array(state["position"]) - np.array(cp_pos)
+            )
+            # 距離が近いほど高報酬（遠くても報酬あり）
+            max_distance = 20.0  # コースサイズに応じて調整
+            normalized_distance = min(distance_to_cp, max_distance)
+            reward += (max_distance - normalized_distance) / max_distance
 
-        # 5. ゴール到達 + 時間ボーナス（早くゴールするほど高い報酬）
+            # 2.1. チェックポイント通過報酬
+            if self.course.check_checkpoint(state["position"], self.next_checkpoint_index):
+                reward += 100.0
+                self.next_checkpoint_index += 1  # 次へ進む
+        else:
+            # 全チェックポイント通過後、ゴール方向報酬
+            goal_pos, _ = self.course.get_goal_info()
+            distance_to_goal = np.linalg.norm(
+                np.array(state["position"]) - np.array(goal_pos)
+            )
+            max_distance = 20.0
+            normalized_distance = min(distance_to_goal, max_distance)
+            reward += (max_distance - normalized_distance) / max_distance
+
+        # 3. ゴール到達報酬（最終目標の達成）
         if self.course.check_goal(state["position"]):
-            # 全チェックポイントを順番に通過している場合のみゴール報酬
+            # 全チェックポイントを順番に通過している場合のみ
             if self.next_checkpoint_index == len(checkpoints):
                 # 基本ゴール報酬
                 reward += 500.0
-                # 時間ボーナス（早いほど高い）
+                # 時間ボーナス（早くゴールするほど高報酬）
                 remaining_steps = self.max_steps - self.step_count
-                time_bonus = remaining_steps * 1.5
+                time_bonus = remaining_steps * 2.0
                 reward += time_bonus
+
+        # 4. 衝突ペナルティ（壁にぶつからない）
+        if self.world.has_collision():
+            reward += self.COLLISION_PENALTY  # -100
 
         return reward
 
