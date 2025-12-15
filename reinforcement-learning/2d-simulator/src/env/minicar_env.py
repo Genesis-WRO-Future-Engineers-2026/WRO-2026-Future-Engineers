@@ -7,7 +7,18 @@ from typing import Tuple, Dict, Optional, Any
 
 from src.physics.box2d_wrapper import PhysicsWorld
 from src.physics.collision_listener import CollisionListener
-from src.env.vehicle import Vehicle
+
+# Vehicleクラスのインポート（vehicle.pyから直接）
+import importlib.util
+import os as _os
+_spec = importlib.util.spec_from_file_location(
+    "vehicle_main",
+    _os.path.join(_os.path.dirname(__file__), 'vehicle.py')
+)
+_vehicle_main = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_vehicle_main)
+Vehicle = _vehicle_main.Vehicle
+
 from src.env.sensors import LiDARSensor, LIDAR_MAX_RANGE
 from src.env.course import Course
 from src.env.renderer import Renderer

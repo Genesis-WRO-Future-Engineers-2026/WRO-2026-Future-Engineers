@@ -229,14 +229,15 @@ def main():
 
     print(f"Experiment: {args.experiment_name}")
 
-    # カリキュラム学習のコース設定
+    # カリキュラム学習のコース設定（段階的難易度）
+    # すべてcurriculum/ディレクトリに統一
     curriculum_courses = [
-        "courses/curriculum/level0_straight.json",      # Level 0: 直線
-        "courses/curriculum/level1_simple_curve.json",  # Level 1: 単純カーブ
-        "courses/curriculum/level2_s_curve.json",       # Level 2: S字
-        "courses/curriculum/level3_small_oval.json",    # Level 3: 小オーバル
-        "courses/easy/simple_oval.json",                # Level 4: オーバル
-        "courses/real-course/real-course.json",         # Level 5: 実コース
+        "courses/curriculum/level0_straight.json",      # Level 0: 直線（超簡単）
+        "courses/curriculum/level1_simple_curve.json",  # Level 1: 単純カーブ（簡単）
+        "courses/curriculum/level2_simple_oval.json",   # Level 2: 標準楕円（easy）
+        "courses/curriculum/level3_narrow_oval.json",   # Level 3: 狭い楕円（medium）
+        "courses/curriculum/level4_s_curve.json",       # Level 4: S字カーブ（hard）
+        "courses/curriculum/level5_real_course.json",   # Level 5: 実コース（最終目標）
     ]
 
     # カリキュラムマネージャーの作成

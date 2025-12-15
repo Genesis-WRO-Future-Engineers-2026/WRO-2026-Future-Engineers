@@ -24,36 +24,38 @@
 
 ### レベル構成
 
+**すべてのコースは `courses/curriculum/` ディレクトリに統一されています**
+
 ```
-Level 0: 直線コース (level0_straight.json)
+Level 0: 直線コース (curriculum/level0_straight.json)
   - 目的: 壁回避の基礎
   - チェックポイント: なし
-  - 難易度: ★☆☆☆☆☆
+  - 難易度: ★☆☆☆☆☆（超簡単）
 
-Level 1: 単純カーブ (level1_simple_curve.json)
+Level 1: 単純カーブ (curriculum/level1_simple_curve.json)
   - 目的: 操舵の基礎
   - チェックポイント: 1個
-  - 難易度: ★★☆☆☆☆
+  - 難易度: ★★☆☆☆☆（簡単）
 
-Level 2: S字カーブ (level2_s_curve.json)
-  - 目的: 連続操舵
-  - チェックポイント: 2個
-  - 難易度: ★★★☆☆☆
-
-Level 3: 小さな楕円 (level3_small_oval.json)
+Level 2: 標準楕円 (curriculum/level2_simple_oval.json)
   - 目的: 周回走行の基礎
-  - チェックポイント: 3個
-  - 難易度: ★★★★☆☆
-
-Level 4: 標準楕円 (simple_oval.json)
-  - 目的: 標準的な周回レース
   - チェックポイント: 4個
-  - 難易度: ★★★★★☆
+  - 難易度: ★★★☆☆☆（easy）
 
-Level 5: 実コース (real-course.json)
+Level 3: 狭い楕円 (curriculum/level3_narrow_oval.json)
+  - 目的: より正確な操舵
+  - チェックポイント: 4個
+  - 難易度: ★★★★☆☆（medium）
+
+Level 4: S字カーブ (curriculum/level4_s_curve.json)
+  - 目的: 複雑な経路
+  - チェックポイント: 4個
+  - 難易度: ★★★★★☆（hard）
+
+Level 5: 実コース (curriculum/level5_real_course.json)
   - 目的: 実機転移
   - チェックポイント: 5個
-  - 難易度: ★★★★★★
+  - 難易度: ★★★★★★（最終目標）
 ```
 
 ### レベルアップ条件
@@ -160,30 +162,33 @@ tensorboard --logdir=logs
 
 ## 期待される学習曲線
 
-### Iteration 1-100: Level 0（直線コース）
+### Iteration 1-50: Level 0（直線コース）
 - Episode Reward: -100 ~ 200
 - Success Rate: 0% → 80%
 - 行動: ランダム → 前進
+- **重要**: ここで学習が進まない場合は基本的な問題あり
 
-### Iteration 100-200: Level 1（単純カーブ）
+### Iteration 50-150: Level 1（単純カーブ）
 - Episode Reward: 200 ~ 500
 - Success Rate: 0% → 80%
 - 行動: 前進 → カーブ
 
-### Iteration 200-400: Level 2-3（S字・小オーバル）
+### Iteration 150-400: Level 2（標準楕円）
 - Episode Reward: 500 ~ 2000
 - Success Rate: 20% → 80%
 - 行動: カーブ → チェックポイント通過
+- Reward Phase: 0 → 1（フェーズ遷移の可能性）
 
-### Iteration 400-800: Level 4（標準楕円）
+### Iteration 400-800: Level 3-4（狭い楕円・S字）
 - Episode Reward: 2000 ~ 4000
 - Success Rate: 30% → 80%
-- Reward Phase: 0 → 1
+- Reward Phase: 1（探索フェーズ）
 
 ### Iteration 800-2000: Level 5（実コース）
 - Episode Reward: 3000 ~ 5000
 - Success Rate: 10% → 50%+
-- Reward Phase: 1 → 2
+- Reward Phase: 1 → 2（最適化フェーズへ）
+- **最終目標**: Success Rate 50%以上で実機転移可能
 
 ---
 
