@@ -8,7 +8,7 @@ from src.env.course import Course
 
 def get_test_course_path():
     """テスト用コースファイルのパスを取得"""
-    return "courses/easy/simple_oval.json"
+    return "courses/curriculum/level2_simple_oval.json"
 
 
 def test_course_loading():

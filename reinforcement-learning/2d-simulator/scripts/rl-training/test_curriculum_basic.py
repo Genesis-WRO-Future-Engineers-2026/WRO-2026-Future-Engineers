@@ -18,9 +18,9 @@ def test_curriculum_manager():
 
     # コースリスト
     courses = [
-        "courses/easy/simple_oval.json",
-        "courses/medium/narrow_oval.json",
-        "courses/hard/tight_oval.json",
+        "courses/curriculum/level2_simple_oval.json",
+        "courses/curriculum/level3_narrow_oval.json",
+        "courses/curriculum/level4_s_curve.json",
     ]
 
     # CurriculumManagerの作成
@@ -88,7 +88,7 @@ def test_course_loading():
 
     # 環境を作成
     env = MinicarEnv(
-        course_file="courses/easy/simple_oval.json",
+        course_file="courses/curriculum/level2_simple_oval.json",
         render_mode=None,
         max_steps=2000,
     )
@@ -100,7 +100,7 @@ def test_course_loading():
     print("\n" + "-" * 60)
     print("Loading medium course...")
     print("-" * 60)
-    env.load_course("courses/medium/narrow_oval.json")
+    env.load_course("courses/curriculum/level3_narrow_oval.json")
     print(f"New course: {env.course.course_file}")
     print(f"New course data: {env.course.data.get('name', 'N/A')}")
 
@@ -108,7 +108,7 @@ def test_course_loading():
     print("\n" + "-" * 60)
     print("Loading hard course...")
     print("-" * 60)
-    env.load_course("courses/hard/tight_oval.json")
+    env.load_course("courses/curriculum/level4_s_curve.json")
     print(f"New course: {env.course.course_file}")
     print(f"New course data: {env.course.data.get('name', 'N/A')}")
 
@@ -126,9 +126,9 @@ def test_curriculum_with_env():
 
     # コースリスト
     courses = [
-        "courses/easy/simple_oval.json",
-        "courses/medium/narrow_oval.json",
-        "courses/hard/tight_oval.json",
+        "courses/curriculum/level2_simple_oval.json",
+        "courses/curriculum/level3_narrow_oval.json",
+        "courses/curriculum/level4_s_curve.json",
     ]
 
     # CurriculumManagerの作成

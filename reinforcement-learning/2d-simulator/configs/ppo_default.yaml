@@ -2,7 +2,7 @@
 
 # 環境設定
 env:
-  course: "courses/easy/simple_oval.json"
+  course: "courses/curriculum/level2_simple_oval.json"
   max_steps: 2000
 
 # 学習設定

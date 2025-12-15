@@ -6,13 +6,35 @@ PPO（Proximal Policy Optimization）を使った強化学習のデモスクリ�
 
 ## 🚀 クイックスタート
 
-### 5分で試す
+### ⭐ 推奨: 適応的学習システム（新）
+
+```bash
+# 1. テストモードで動作確認（50イテレーション、約5-10分）
+./scripts/rl-training/run_adaptive_training.sh test
+
+# 2. TensorBoardで学習曲線を確認
+tensorboard --logdir=logs
+
+# 3. 本格的な学習（2000イテレーション、約4-6時間）
+./scripts/rl-training/run_adaptive_training.sh fast
+```
+
+**特徴**:
+- ✅ カリキュラム学習（Level 0→5へ自動進行）
+- ✅ 適応的報酬スケーリング（学習フェーズに応じて自動調整）
+- ✅ 学習安定性が大幅に向上
+
+詳細: [適応的学習システムのドキュメント](../../doc/rl-training/ADAPTIVE_TRAINING.md)
+
+---
+
+### 従来の学習方法（デバッグ用）
 
 ```bash
 # 1. テストを実行（動作確認）
 ./scripts/rl-training/run_tests.sh
 
-# 2. 短時間学習を実行（約1-2分）
+# 2. 単一コースで学習（約1-2分）
 ./scripts/rl-training/run_train.sh --total-iterations 5 --n-steps 256
 
 # 3. 学習結果を確認
@@ -25,24 +47,80 @@ PPO（Proximal Policy Optimization）を使った強化学習のデモスクリ�
 
 ```
 rl-training/
-├── README.md                    # このファイル
+├── README.md                         # このファイル
+├── README_DEPRECATED.md              # 非推奨スクリプトの説明
 │
-├── 🤖 学習スクリプト
-│   ├── train.py                 # PPO学習スクリプト
-│   └── run_train.sh             # 学習起動（実行可能）
+├── ⭐ 適応的学習スクリプト（推奨）
+│   ├── train_adaptive.py             # カリキュラム学習 + 適応的報酬
+│   └── run_adaptive_training.sh      # 適応的学習起動（実行可能）
+│
+├── 🤖 従来の学習スクリプト
+│   ├── train.py                      # 単一コースでの学習
+│   ├── run_train.sh                  # 学習起動（実行可能）
+│   └── train_curriculum.py.old       # 旧カリキュラムスクリプト（非推奨）
 │
 ├── 🧪 テストスクリプト
-│   ├── test_rl.py               # RLモジュールのテスト
-│   └── run_tests.sh             # テスト起動（実行可能）
+│   ├── test_rl.py                    # RLモジュールのテスト
+│   ├── test_curriculum_basic.py      # カリキュラムマネージャーのテスト
+│   └── run_tests.sh                  # テスト起動（実行可能）
 │
 └── 📊 評価スクリプト
-    ├── test_saved_model.py      # 保存モデルの評価
-    └── run_eval.sh              # 評価起動（実行可能）
+    ├── test_saved_model.py           # 保存モデルの評価
+    └── run_eval.sh                   # 評価起動（実行可能）
 ```
 
 ---
 
-## 🤖 学習（train.py）
+## ⭐ 適応的学習（train_adaptive.py）- 推奨
+
+カリキュラム学習と適応的報酬スケーリングを統合した、学習安定性を重視したスクリプトです。
+
+### 使い方
+
+```bash
+# テストモード（50イテレーション）
+./scripts/rl-training/run_adaptive_training.sh test
+
+# GUI付き学習（500イテレーション）
+./scripts/rl-training/run_adaptive_training.sh gui
+
+# 高速学習（2000イテレーション、GUIなし）
+./scripts/rl-training/run_adaptive_training.sh fast
+
+# チェックポイントから再開
+./scripts/rl-training/run_adaptive_training.sh resume models/checkpoints_adaptive/checkpoint_100.pth
+```
+
+### 主な特徴
+
+1. **カリキュラム学習（6段階）**
+   - Level 0: 直線コース（超簡単）
+   - Level 1: 単純カーブ
+   - Level 2: 標準楕円
+   - Level 3: 狭い楕円
+   - Level 4: S字カーブ
+   - Level 5: 実コース
+   - Success Rate 80%で自動レベルアップ
+
+2. **適応的報酬スケーリング（3フェーズ）**
+   - Phase 0（基礎）: 前進と壁回避を重視
+   - Phase 1（探索）: チェックポイント通過を重視
+   - Phase 2（最適化）: 速度最適化を重視
+   - 学習の進捗に応じて自動調整
+
+3. **学習監視**
+   - カリキュラムレベルの自動追跡
+   - 報酬フェーズの自動遷移
+   - TensorBoardでの可視化
+
+### 詳細ドキュメント
+
+- [適応的学習システムの詳細](../../doc/rl-training/ADAPTIVE_TRAINING.md)
+- [カリキュラムコースの説明](../../courses/curriculum/README.md)
+
+---
+
+## 🤖 単一コース学習（train.py）- デバッグ用
 
 PPOアルゴリズムでエージェントを学習させます。
 

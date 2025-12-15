@@ -162,7 +162,7 @@ def test_with_env():
     print("=" * 60)
 
     # 環境の作成
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
 
     # PPOの作成
     device = torch.device("cpu")

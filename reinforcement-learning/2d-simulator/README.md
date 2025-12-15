@@ -111,7 +111,7 @@ python scripts/rl-training/train.py --gui
 
 # カスタム設定で学習
 python scripts/rl-training/train.py \
-  --course courses/easy/simple_oval.json \
+  --course courses/curriculum/level2_simple_oval.json \
   --total-iterations 1000 \
   --n-steps 2048 \
   --lr 3e-4 \
@@ -126,7 +126,7 @@ tensorboard --logdir=logs
 ### 主要なオプション
 
 ```bash
---course              # コースファイル（デフォルト: courses/easy/simple_oval.json）
+--course              # コースファイル（デフォルト: courses/curriculum/level2_simple_oval.json）
 --total-iterations    # 総イテレーション数（デフォルト: 1000）
 --n-steps             # 1イテレーションあたりのステップ数（デフォルト: 2048）
 --n-epochs            # 1更新あたりのエポック数（デフォルト: 10）
@@ -198,25 +198,25 @@ python scripts/rl-training/test_saved_model.py \
 # 特定のコースで評価
 python scripts/rl-training/test_saved_model.py \
   --model models/checkpoints/final_model.pth \
-  --course courses/medium/complex_track.json \
+  --course courses/curriculum/level5_real_course.json \
   --gui
 
 # 複数エピソード実行
 python scripts/rl-training/test_saved_model.py \
   --model models/checkpoints/final_model.pth \
-  --course courses/easy/simple_oval.json \
+  --course courses/curriculum/level2_simple_oval.json \
   --n-episodes 5 \
   --gui
 
 # 便利なシェルスクリプトでも実行可能
-./scripts/rl-training/run_eval.sh --course courses/easy/simple_oval.json --gui
+./scripts/rl-training/run_eval.sh --course courses/curriculum/level2_simple_oval.json --gui
 ```
 
 ### 評価オプション
 
 ```bash
 --model          # モデルファイル（デフォルト: models/checkpoints/final_model.pth）
---course         # コースファイル（デフォルト: courses/easy/simple_oval.json）
+--course         # コースファイル（デフォルト: courses/curriculum/level2_simple_oval.json）
 --n-episodes     # テストエピソード数（デフォルト: 3）
 --gui / --render # GUI可視化を有効化
 ```

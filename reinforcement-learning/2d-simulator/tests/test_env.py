@@ -7,13 +7,13 @@ from src.env.minicar_env import MinicarEnv
 
 def test_env_creation():
     """環境が正しく作成されるか"""
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
     assert env is not None
 
 
 def test_env_reset():
     """環境リセットのテスト"""
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
     obs, info = env.reset()
 
     # 観測の形状確認（Sim2Real対応: 10次元）
@@ -25,7 +25,7 @@ def test_env_reset():
 
 def test_env_step():
     """ステップ実行のテスト"""
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
     env.reset()
 
     # まっすぐ前進
@@ -42,7 +42,7 @@ def test_env_step():
 
 def test_action_space():
     """行動空間のテスト"""
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
 
     # 行動空間の形状
     assert env.action_space.shape == (2,)
@@ -56,7 +56,7 @@ def test_action_space():
 
 def test_observation_space():
     """観測空間のテスト"""
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
 
     # 観測空間の形状（Sim2Real対応: 10次元）
     assert env.observation_space.shape == (10,)
@@ -64,7 +64,7 @@ def test_observation_space():
 
 def test_multiple_episodes():
     """複数エピソードの実行"""
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
 
     for episode in range(3):
         obs, info = env.reset()
@@ -83,7 +83,7 @@ def test_multiple_episodes():
 
 def test_checkpoint_passing():
     """チェックポイント通過のテスト"""
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
     env.reset()
 
     initial_checkpoint_index = 0
@@ -104,7 +104,7 @@ def test_checkpoint_passing():
 
 def test_collision_detection():
     """衝突検出のテスト（衝突フラグとペナルティを含む）"""
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
     env.reset()
 
     # 壁に向かって後退して確実に衝突させる
@@ -136,7 +136,7 @@ def test_collision_detection():
 
 def test_collision_flag_reset():
     """リセット時に衝突フラグがクリアされることを確認"""
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
     env.reset()
 
     # 衝突を発生させる
@@ -158,7 +158,7 @@ def test_collision_flag_reset():
 
 def test_observation_bounds():
     """観測値の範囲確認"""
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
     obs, info = env.reset()
 
     # LiDARの範囲（0〜max_range）
@@ -178,7 +178,7 @@ def test_observation_bounds():
 
 def test_box2d_collision_detection():
     """Box2D物理エンジンによる衝突検出テスト"""
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
     obs, info = env.reset()
 
     # 初期状態では衝突なし
@@ -204,7 +204,7 @@ def test_box2d_collision_detection():
 
 def test_box2d_side_collision():
     """側面衝突が検出されるかテスト（Box2Dによる全方向検出）"""
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
     obs, info = env.reset()
 
     # 横向きに移動させるために、ステアリングと前進を組み合わせる
@@ -226,7 +226,7 @@ def test_box2d_side_collision():
 
 def test_box2d_collision_reset():
     """衝突フラグがリセットで正しくクリアされるかテスト（Box2D）"""
-    env = MinicarEnv(course_file="courses/easy/simple_oval.json")
+    env = MinicarEnv(course_file="courses/curriculum/level2_simple_oval.json")
 
     # 1回目のエピソード：衝突させる
     obs, info = env.reset()

@@ -82,7 +82,7 @@ class PPOTrainer:
 
         # GUI制御
         self.gui_enabled = (env.render_mode == "human")
-        self.show_gui = self.gui_enabled  # 動的にON/OFF可能
+        self.show_gui = False  # 初期状態はOFF、gキーでONにする（パフォーマンス優先）
 
     def collect_rollouts(self) -> Dict[str, float]:
         """

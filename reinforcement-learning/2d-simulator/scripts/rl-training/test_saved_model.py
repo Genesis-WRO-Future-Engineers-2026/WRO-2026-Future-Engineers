@@ -13,7 +13,7 @@ from src.env.minicar_env import MinicarEnv
 from src.rl.ppo import PPO
 
 
-def test_saved_model(model_path: str, n_episodes: int = 3, render: bool = False, course_file: str = "courses/easy/simple_oval.json"):
+def test_saved_model(model_path: str, n_episodes: int = 3, render: bool = False, course_file: str = "courses/curriculum/level2_simple_oval.json"):
     """
     保存されたモデルをテスト
 
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--course",
         type=str,
-        default="courses/easy/simple_oval.json",
+        default="courses/curriculum/level2_simple_oval.json",
         help="Path to course file",
     )
     args = parser.parse_args()

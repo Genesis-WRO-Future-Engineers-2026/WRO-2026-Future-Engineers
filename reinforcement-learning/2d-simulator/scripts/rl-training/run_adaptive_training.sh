@@ -27,9 +27,10 @@ MODE=${1:-gui}
 
 case $MODE in
   gui)
-    echo -e "${BLUE}モード: GUI付き学習${NC}"
+    echo -e "${BLUE}モード: GUI付き学習（初期はGUI非表示、gキーで切り替え可能）${NC}"
     echo -e "${YELLOW}TensorBoardを別ターミナルで起動してください:${NC}"
     echo -e "${YELLOW}  tensorboard --logdir=logs${NC}"
+    echo -e "${YELLOW}※ gキーを押すとGUI表示をON/OFFできます${NC}"
     echo ""
     python scripts/rl-training/train_adaptive.py \
       --gui \
@@ -39,18 +40,21 @@ case $MODE in
     ;;
 
   fast)
-    echo -e "${BLUE}モード: 高速学習（GUI なし）${NC}"
+    echo -e "${BLUE}モード: 高速学習（初期はGUI非表示、gキーで切り替え可能）${NC}"
     echo -e "${YELLOW}TensorBoardを別ターミナルで起動してください:${NC}"
     echo -e "${YELLOW}  tensorboard --logdir=logs${NC}"
+    echo -e "${YELLOW}※ gキーを押すとGUI表示をON/OFFできます${NC}"
     echo ""
     python scripts/rl-training/train_adaptive.py \
+      --gui \
       --total-iterations 2000 \
       --eval-freq 25 \
       --save-freq 100
     ;;
 
   test)
-    echo -e "${BLUE}モード: テスト学習（短時間）${NC}"
+    echo -e "${BLUE}モード: テスト学習（短時間、gキーでGUI切り替え可能）${NC}"
+    echo -e "${YELLOW}※ gキーを押すとGUI表示をON/OFFできます${NC}"
     python scripts/rl-training/train_adaptive.py \
       --gui \
       --total-iterations 50 \
@@ -68,8 +72,10 @@ case $MODE in
     CHECKPOINT=$2
     echo -e "${BLUE}モード: チェックポイントから再開${NC}"
     echo -e "${BLUE}Checkpoint: ${CHECKPOINT}${NC}"
+    echo -e "${YELLOW}※ gキーを押すとGUI表示をON/OFFできます${NC}"
     echo ""
     python scripts/rl-training/train_adaptive.py \
+      --gui \
       --resume "$CHECKPOINT" \
       --total-iterations 2000 \
       --eval-freq 25 \
@@ -80,9 +86,11 @@ case $MODE in
     echo -e "${YELLOW}使い方: $0 [gui|fast|test|resume]${NC}"
     echo ""
     echo "  gui     - GUI付き学習（500イテレーション）"
-    echo "  fast    - 高速学習（2000イテレーション、GUIなし）"
+    echo "  fast    - 高速学習（2000イテレーション）"
     echo "  test    - テスト学習（50イテレーション、動作確認用）"
     echo "  resume  - チェックポイントから再開"
+    echo ""
+    echo -e "${YELLOW}※ 全モードでgキーを押すとGUI表示をON/OFFできます${NC}"
     echo ""
     exit 1
     ;;

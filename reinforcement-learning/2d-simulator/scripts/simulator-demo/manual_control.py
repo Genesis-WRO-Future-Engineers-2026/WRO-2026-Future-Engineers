@@ -56,8 +56,8 @@ def main():
     parser.add_argument(
         "--course",
         type=str,
-        default="courses/easy/simple_oval.json",
-        help="コースファイルのパス (デフォルト: courses/easy/simple_oval.json)"
+        default="courses/curriculum/level2_simple_oval.json",
+        help="コースファイルのパス (デフォルト: courses/curriculum/level2_simple_oval.json)"
     )
     parser.add_argument(
         "--list",
@@ -79,7 +79,7 @@ def main():
         print()
         print("=" * 60)
         print("使用例:")
-        print("  python scripts/simulator-demo/manual_control.py --course courses/medium/narrow_oval.json")
+        print("  python scripts/simulator-demo/manual_control.py --course courses/curriculum/level3_narrow_oval.json")
         print("=" * 60)
         return
 
