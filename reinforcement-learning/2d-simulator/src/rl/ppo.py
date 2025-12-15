@@ -17,7 +17,7 @@ class PPO:
 
     def __init__(
         self,
-        obs_dim: int = 77,
+        obs_dim: int = 10,
         action_dim: int = 2,
         device: torch.device = torch.device("cpu"),
         # ネットワーク設定

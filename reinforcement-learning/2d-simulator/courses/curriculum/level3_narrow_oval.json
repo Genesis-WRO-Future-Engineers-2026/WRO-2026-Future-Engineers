@@ -1,0 +1,53 @@
+{
+  "name": "Narrow Oval",
+  "description": "狭い楕円コース - 中級者向け（道幅1.5）",
+  "difficulty": "medium",
+  "start_position": [5.0, 1.0],
+  "start_angle": 0.0,
+  "goal_position": [5.0, 1.0],
+  "goal_radius": 1.5,
+  "walls": [
+    {
+      "type": "polygon",
+      "name": "outer_wall",
+      "vertices": [
+        [0, 0],
+        [10, 0],
+        [10, 10],
+        [0, 10]
+      ]
+    },
+    {
+      "type": "polygon",
+      "name": "inner_wall",
+      "vertices": [
+        [2.0, 2.0],
+        [8.0, 2.0],
+        [8.0, 8.0],
+        [2.0, 8.0]
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "position": [5.0, 1.5],
+      "radius": 1.5,
+      "index": 0
+    },
+    {
+      "position": [8.5, 5.0],
+      "radius": 1.5,
+      "index": 1
+    },
+    {
+      "position": [5.0, 8.5],
+      "radius": 1.5,
+      "index": 2
+    },
+    {
+      "position": [1.5, 5.0],
+      "radius": 1.5,
+      "index": 3
+    }
+  ]
+}

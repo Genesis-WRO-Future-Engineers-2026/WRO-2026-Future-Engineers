@@ -1,25 +1,56 @@
 """Box2D物理エンジンのラッパークラス"""
 
 from Box2D import b2World, b2Vec2, b2Body, b2PolygonShape
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 
 class PhysicsWorld:
     """Box2D物理世界の管理クラス"""
 
-    def __init__(self, gravity: Tuple[float, float] = (0, 0)):
+    def __init__(
+        self,
+        gravity: Tuple[float, float] = (0, 0),
+        collision_listener: Optional["CollisionListener"] = None
+    ):
         """
         Args:
             gravity: 重力ベクトル (x, y)。2Dレースなので通常は(0, 0)
+            collision_listener: 衝突検出リスナー（オプション）
         """
         self.world = b2World(gravity=b2Vec2(*gravity), doSleep=True)
         self.time_step = 1.0 / 60.0  # 60Hz
         self.vel_iters = 8  # 速度反復回数
         self.pos_iters = 3  # 位置反復回数
 
+        # ContactListenerを登録
+        self.collision_listener = collision_listener
+        if self.collision_listener is not None:
+            self.world.contactListener = self.collision_listener
+
     def step(self):
         """物理シミュレーションを1ステップ進める"""
         self.world.Step(self.time_step, self.vel_iters, self.pos_iters)
+
+    def has_collision(self) -> bool:
+        """
+        衝突が検出されたかを返す
+
+        Returns:
+            衝突が検出された場合True、リスナーが未設定の場合False
+        """
+        if self.collision_listener is not None:
+            return self.collision_listener.is_collision()
+        return False
+
+    def reset_collision(self):
+        """
+        衝突フラグをリセット
+
+        Note:
+            各エピソード開始時に呼び出す
+        """
+        if self.collision_listener is not None:
+            self.collision_listener.reset()
 
     def add_static_box(
         self, center: Tuple[float, float], width: float, height: float

@@ -25,6 +25,8 @@ logs/
 # Models
 models/checkpoints/*.pth
 models/checkpoints/*.pt
+models/checkpoints_curriculum/*.pth
+models/checkpoints_curriculum/*.pt
 !models/.gitkeep
 
 # Jupyter

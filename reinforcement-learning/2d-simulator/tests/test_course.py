@@ -8,7 +8,7 @@ from src.env.course import Course
 
 def get_test_course_path():
     """テスト用コースファイルのパスを取得"""
-    return "courses/easy/simple_oval.json"
+    return "courses/curriculum/level2_simple_oval.json"
 
 
 def test_course_loading():
@@ -29,7 +29,7 @@ def test_course_start_pose():
     assert len(position) == 2
     assert isinstance(angle, (int, float))
     # simple_ovalの開始位置
-    assert position == (2.0, 5.0)
+    assert position == (1, 1)
     assert angle == 0.0
 
 
@@ -40,7 +40,7 @@ def test_course_goal_info():
 
     assert len(position) == 2
     assert radius > 0
-    assert position == (2.0, 5.0)
+    assert position == (1, 1)
 
 
 def test_course_walls_creation():
@@ -61,10 +61,10 @@ def test_check_goal():
     course = Course(get_test_course_path())
 
     # ゴール地点にいる
-    assert course.check_goal((2.0, 5.0)) == True
+    assert course.check_goal((1, 1)) == True
 
-    # ゴール近く
-    assert course.check_goal((2.3, 5.2)) == True
+    # ゴール近く（goal_radius=0.5m以内）
+    assert course.check_goal((1.3, 1.2)) == True
 
     # ゴールから離れている
     assert course.check_goal((5.0, 5.0)) == False

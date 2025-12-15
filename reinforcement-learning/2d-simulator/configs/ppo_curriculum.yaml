@@ -1,0 +1,67 @@
+# カリキュラム学習用PPO設定
+# 注: この設定ファイルは非推奨です
+# 代わりに scripts/rl-training/train_adaptive.py を使用してください
+
+# 環境設定（カリキュラム使用時は無視される）
+env:
+  course: "courses/curriculum/level0_straight.json"  # 初期コース（カリキュラムで上書きされる）
+  max_steps: 2000
+
+# カリキュラム学習設定（6段階の適応的学習）
+# 注: train_adaptive.pyではこれらの設定は無視され、スクリプト内の設定が使用されます
+curriculum:
+  enabled: true
+  courses:
+    - "courses/curriculum/level0_straight.json"      # Level 0: 直線コース（超簡単）
+    - "courses/curriculum/level1_simple_curve.json"  # Level 1: 単純カーブ（簡単）
+    - "courses/curriculum/level2_simple_oval.json"   # Level 2: 標準楕円（easy）
+    - "courses/curriculum/level3_narrow_oval.json"   # Level 3: 狭い楕円（medium）
+    - "courses/curriculum/level4_s_curve.json"       # Level 4: S字カーブ（hard）
+    - "courses/curriculum/level5_real_course.json"   # Level 5: 実コース（最終目標）
+  success_threshold: 0.80          # レベルアップに必要な成功率
+  degradation_threshold: 0.30      # レベルダウンする成功率
+  evaluation_window: 100           # 成功率を計算する直近エピソード数
+  min_episodes_before_advance: 50  # レベルアップ判定の最小エピソード数
+  allow_degradation: true          # 難易度を下げることを許可
+
+# 学習設定
+training:
+  total_iterations: 2000   # カリキュラム学習では長めに設定
+  n_steps: 2048           # ステップ数/イテレーション
+  n_epochs: 10            # エポック数/更新
+  batch_size: 64
+
+# PPOパラメータ
+ppo:
+  learning_rate: 1.0e-4      # 学習率（3e-4→1e-4: 安定化のため低下）
+  gamma: 0.99                # 割引率
+  gae_lambda: 0.95           # GAEのλ
+  clip_range: 0.15           # クリッピング範囲（0.2→0.15: より強いクリッピング）
+  entropy_coef: 0.05         # エントロピー係数（0.03→0.05: 探索強化、退化防止）
+  value_coef: 0.5       # 価値関数係数
+  max_grad_norm: 0.5    # 勾配クリッピング
+
+# ネットワーク設定
+network:
+  hidden_dims: [256, 256]
+  use_shared_network: false
+
+# チェックポイント
+checkpoint:
+  save_freq: 20          # 保存頻度（100→20: こまめに保存）
+  checkpoint_dir: "models/checkpoints_curriculum"
+
+# 評価
+evaluation:
+  eval_freq: 20          # 評価頻度（50→20: こまめに評価）
+  n_eval_episodes: 5
+
+# ロギング
+logging:
+  log_dir: "logs"
+  use_tensorboard: true
+  use_csv: true
+
+# その他
+seed: 42
+device: "auto"  # cpu, cuda, mps, or auto

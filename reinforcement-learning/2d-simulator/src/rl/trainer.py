@@ -5,10 +5,12 @@ import numpy as np
 from typing import Optional, Dict
 import time
 from pathlib import Path
+import pygame
 
 from src.rl.ppo import PPO
 from src.rl.buffer import RolloutBuffer
 from src.env.minicar_env import MinicarEnv
+from src.curriculum.curriculum_manager import CurriculumManager
 
 
 class PPOTrainer:
@@ -23,12 +25,15 @@ class PPOTrainer:
         n_steps: int = 2048,
         n_epochs: int = 10,
         batch_size: int = 64,
+        reward_clip: float = 10.0,
         # チェックポイント
         save_freq: int = 10,
         checkpoint_dir: str = "models/checkpoints",
         # 評価
         eval_freq: int = 10,
         n_eval_episodes: int = 5,
+        # カリキュラム学習
+        curriculum: Optional[CurriculumManager] = None,
     ):
         """
         Args:
@@ -38,10 +43,12 @@ class PPOTrainer:
             n_steps: ステップ数（1回の更新あたり）
             n_epochs: エポック数
             batch_size: バッチサイズ
+            reward_clip: 報酬のクリッピング範囲（勾配爆発防止）
             save_freq: 保存頻度（イテレーション単位）
             checkpoint_dir: チェックポイントディレクトリ
             eval_freq: 評価頻度（イテレーション単位）
             n_eval_episodes: 評価エピソード数
+            curriculum: カリキュラム学習マネージャー（オプション）
         """
         self.env = env
         self.ppo = ppo
@@ -54,6 +61,7 @@ class PPOTrainer:
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
         self.eval_freq = eval_freq
         self.n_eval_episodes = n_eval_episodes
+        self.curriculum = curriculum
 
         # ロールアウトバッファ
         self.rollout_buffer = RolloutBuffer(
@@ -63,6 +71,7 @@ class PPOTrainer:
             device=ppo.device,
             gamma=ppo.gamma,
             gae_lambda=ppo.gae_lambda,
+            reward_clip=reward_clip,
         )
 
         # 統計
@@ -70,6 +79,10 @@ class PPOTrainer:
         self.total_timesteps = 0
         self.episode_rewards = []
         self.episode_lengths = []
+
+        # GUI制御
+        self.gui_enabled = (env.render_mode == "human")
+        self.show_gui = False  # 初期状態はOFF、gキーでONにする（パフォーマンス優先）
 
     def collect_rollouts(self) -> Dict[str, float]:
         """
@@ -88,6 +101,19 @@ class PPOTrainer:
         obs, _ = self.env.reset()
 
         for step in range(self.n_steps):
+            # GUIイベントチェック（'G'キーでトグル）
+            if self.gui_enabled:
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_g:
+                            self.show_gui = not self.show_gui
+                            status = "ON" if self.show_gui else "OFF"
+                            print(f"\n[GUI] Display toggled: {status}\n")
+                    elif event.type == pygame.QUIT:
+                        # ウィンドウを閉じた場合はGUIを無効化（学習は継続）
+                        self.show_gui = False
+                        print("\n[GUI] Window closed, GUI disabled (training continues)\n")
+
             # 行動を取得
             action, log_prob, value = self.ppo.get_action(obs)
 
@@ -97,8 +123,8 @@ class PPOTrainer:
             )
             done = terminated or truncated
 
-            # レンダリング（GUIモードの場合）
-            if self.env.render_mode == "human":
+            # レンダリング（GUIがONの場合のみ）
+            if self.gui_enabled and self.show_gui:
                 self.env.render()
 
             # バッファに追加
@@ -119,6 +145,17 @@ class PPOTrainer:
             if done:
                 episode_rewards.append(episode_reward)
                 episode_lengths.append(episode_length)
+
+                # カリキュラム学習: 成功/失敗を記録
+                if self.curriculum is not None:
+                    # 成功判定（全チェックポイント通過してゴール到達）
+                    total_checkpoints = info.get("total_checkpoints", 0)
+                    success = (
+                        terminated
+                        and info.get("next_checkpoint_index", 0) == total_checkpoints
+                        and info.get("min_distance", 0) > 0.1
+                    )
+                    self.curriculum.update(success)
 
                 # リセット
                 obs, _ = self.env.reset()
@@ -186,6 +223,49 @@ class PPOTrainer:
             stats["time/iterations"] = iteration + 1
             stats["time/total_timesteps"] = self.total_timesteps
 
+            # カリキュラム学習: レベル調整
+            if self.curriculum is not None:
+                level_change = self.curriculum.auto_adjust_level()
+                if level_change is not None:
+                    # コースを変更
+                    new_course = self.curriculum.get_current_course()
+                    self.env.load_course(new_course)
+
+                    # レベル変更をログ
+                    curriculum_stats = self.curriculum.get_stats()
+                    print(f"\n{'='*60}")
+                    print(f"CURRICULUM LEVEL CHANGED: {level_change.upper()}")
+                    print(f"New Level: {curriculum_stats['current_level']}")
+                    print(f"New Course: {curriculum_stats['current_course']}")
+                    print(f"Success Rate: {curriculum_stats['success_rate']:.2%}")
+                    print(f"{'='*60}\n")
+
+                # カリキュラム統計をログ
+                curriculum_stats = self.curriculum.get_stats()
+                stats["curriculum/level"] = curriculum_stats['current_level']
+                stats["curriculum/success_rate"] = curriculum_stats['success_rate']
+                stats["curriculum/level_episodes"] = curriculum_stats['level_episodes']
+
+            # 適応的報酬スケーリング: フェーズ調整と統計記録
+            if hasattr(self.env, 'adaptive_reward_scaler') and self.env.adaptive_reward_scaler is not None:
+                # 評価時の統計でフェーズ遷移判定
+                if (iteration + 1) % self.eval_freq == 0 and hasattr(self, '_last_eval_stats'):
+                    eval_stats = self._last_eval_stats
+                    success_rate = eval_stats.get('eval/success_rate', 0.0)
+                    # チェックポイント通過率を計算（簡易版）
+                    avg_cp_passed = success_rate  # 成功率で代用
+
+                    # 適応的報酬スケーラーを更新
+                    self.env.adaptive_reward_scaler.update_statistics(
+                        success_rate=success_rate,
+                        avg_checkpoints_passed=avg_cp_passed,
+                    )
+
+                # フェーズ情報をログ
+                phase_info = self.env.adaptive_reward_scaler.get_phase_info()
+                stats["reward/phase"] = phase_info['reward_phase']
+                stats["reward/episodes_in_phase"] = phase_info['episodes_in_phase']
+
             # ログ
             if self.logger is not None:
                 self.logger.log(stats, step=self.total_timesteps)
@@ -218,6 +298,7 @@ class PPOTrainer:
             # 評価
             if (iteration + 1) % self.eval_freq == 0:
                 eval_stats = self.evaluate()
+                self._last_eval_stats = eval_stats  # 適応的報酬スケーリング用に保存
                 if self.logger is not None:
                     self.logger.log(eval_stats, step=self.total_timesteps)
                 print(
@@ -250,6 +331,18 @@ class PPOTrainer:
             done = False
 
             while not done:
+                # GUIイベントチェック（'G'キーでトグル）
+                if self.gui_enabled:
+                    for event in pygame.event.get():
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_g:
+                                self.show_gui = not self.show_gui
+                                status = "ON" if self.show_gui else "OFF"
+                                print(f"\n[GUI] Display toggled: {status}\n")
+                        elif event.type == pygame.QUIT:
+                            self.show_gui = False
+                            print("\n[GUI] Window closed, GUI disabled (evaluation continues)\n")
+
                 # 決定的に行動を選択
                 action, _, _ = self.ppo.get_action(obs, deterministic=True)
                 obs, reward, terminated, truncated, info = self.env.step(
@@ -257,8 +350,8 @@ class PPOTrainer:
                 )
                 done = terminated or truncated
 
-                # レンダリング（GUIモードの場合）
-                if self.env.render_mode == "human":
+                # レンダリング（GUIがONの場合のみ）
+                if self.gui_enabled and self.show_gui:
                     self.env.render()
 
                 episode_reward += reward
@@ -267,10 +360,11 @@ class PPOTrainer:
             episode_rewards.append(episode_reward)
             episode_lengths.append(episode_length)
 
-            # 成功判定（ゴール到達）
+            # 成功判定（全チェックポイント通過してゴール到達）
+            total_checkpoints = info.get("total_checkpoints", 0)
             success = (
                 terminated
-                and info.get("checkpoints_passed", 0) > 0
+                and info.get("next_checkpoint_index", 0) == total_checkpoints
                 and info.get("min_distance", 0) > 0.1
             )
             successes.append(success)

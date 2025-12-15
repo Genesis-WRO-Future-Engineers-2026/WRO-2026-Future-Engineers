@@ -1,0 +1,32 @@
+{
+  "name": "Level 1: Simple Curve",
+  "description": "シンプルなカーブ - 操舵の基礎を学ぶ",
+  "difficulty": "tutorial",
+  "start_position": [2.0, 2.0],
+  "start_angle": 0.0,
+  "goal_position": [10.0, 10.0],
+  "goal_radius": 3.6,
+  "walls": [
+    {
+      "type": "polygon",
+      "name": "L_shaped_wall",
+      "vertices": [
+        [0, 0],
+        [8, 0],
+        [8, 4],
+        [12, 4],
+        [12, 12],
+        [4, 12],
+        [4, 4],
+        [0, 4]
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "position": [4.0, 2.0],
+      "radius": 3.6,
+      "index": 0
+    }
+  ]
+}

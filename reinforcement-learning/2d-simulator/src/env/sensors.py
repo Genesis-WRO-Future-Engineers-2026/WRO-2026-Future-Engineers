@@ -5,6 +5,10 @@ import numpy as np
 from typing import Tuple, Optional
 
 
+# LiDARセンサーの設定
+LIDAR_MAX_RANGE = 3.0  # LiDARの最大測定距離（m）
+
+
 class RayCastClosestCallback(b2RayCastCallback):
     """最も近い衝突点を見つけるレイキャストコールバック"""
 
@@ -42,7 +46,7 @@ class LiDARSensor:
         self,
         world: b2World,
         num_rays: int = 72,
-        max_range: float = 10.0,
+        max_range: float = LIDAR_MAX_RANGE,
         angle_min: float = 0.0,
         angle_max: float = 2 * np.pi,
     ):
@@ -61,7 +65,7 @@ class LiDARSensor:
         self.angle_max = angle_max
 
         # 各レイの角度
-        self.angles = np.linspace(angle_min, angle_max, num_rays, endpoint=False)
+        self.angles = np.linspace(angle_min, angle_max, num_rays, endpoint=True)
 
     def scan(
         self, position: Tuple[float, float], orientation: float

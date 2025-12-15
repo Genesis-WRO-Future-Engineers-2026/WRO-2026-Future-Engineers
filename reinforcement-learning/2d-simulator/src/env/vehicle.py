@@ -1,210 +1,134 @@
-"""車両モデル"""
+"""車両モデル（リファクタリング版）"""
 
-from Box2D import b2World, b2Vec2, b2Body, b2PolygonShape
+from Box2D import b2World, b2Vec2, b2Body
 import numpy as np
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Optional
+
+# リファクタリング後のモジュール
+from src.env.vehicle.config import VehicleConfig
+from src.env.vehicle.physics_params import PhysicsParameters
+from src.env.vehicle.bicycle_model import BicycleModelController
 
 
 class Vehicle:
-    """ミニカーの物理モデル"""
+    """ミニカーの物理モデル（リファクタリング版）
+
+    責務を以下のコンポーネントに委譲:
+    - VehicleConfig: 車両寸法・制御パラメータ
+    - PhysicsParameters: Domain Randomization用パラメータ
+    - BicycleModelController: Bicycle Model物理計算
+    """
 
     def __init__(
         self,
         world: b2World,
         start_pos: Tuple[float, float],
         start_angle: float = 0.0,
+        # 後方互換性のためのパラメータ（非推奨）
+        mass: float = 1.4,
+        friction: float = 0.7,
+        linear_damping: float = 0.5,
+        angular_damping: float = 0.8,
+        max_motor_force: float = 20.0,
+        max_lateral_impulse: float = 2.5,
+        # リファクタリング後の依存性注入
+        config: Optional[VehicleConfig] = None,
+        physics_params: Optional[PhysicsParameters] = None,
+        bicycle_controller: Optional[BicycleModelController] = None,
     ):
         """
         Args:
             world: Box2Dの物理世界
             start_pos: 初期位置 (x, y)
             start_angle: 初期角度 (rad)
+            mass: 質量（後方互換性用、非推奨）
+            friction: 摩擦係数（後方互換性用、非推奨）
+            linear_damping: 線形減衰（後方互換性用、非推奨）
+            angular_damping: 角減衰（後方互換性用、非推奨）
+            max_motor_force: 最大モーター力（後方互換性用、非推奨）
+            max_lateral_impulse: 最大横滑りインパルス（後方互換性用、非推奨）
+            config: 車両設定（Noneの場合はデフォルト作成）
+            physics_params: 物理パラメータ（Noneの場合はデフォルト作成）
+            bicycle_controller: Bicycle Modelコントローラー（Noneの場合は作成）
         """
         self.world = world
 
-        # 車両パラメータ
-        self.width = 0.2  # m
-        self.length = 0.4  # m
-        self.mass = 1.0  # kg
-        self.wheelbase = 0.28  # m (前輪と後輪の距離)
+        # 設定の注入または作成
+        self.config = config if config is not None else VehicleConfig.create_default()
 
-        self.max_steering_angle = 0.5  # rad (約28度)
-        self.max_motor_force = 20.0  # N
-        self.max_lateral_impulse = 2.5  # 横滑り抑制の最大インパルス（安定性のため）
+        # 物理パラメータの注入または作成（後方互換性のため、引数を優先）
+        if physics_params is not None:
+            self.physics_params = physics_params
+        else:
+            self.physics_params = PhysicsParameters(
+                mass=mass,
+                friction=friction,
+                linear_damping=linear_damping,
+                angular_damping=angular_damping,
+                max_motor_force=max_motor_force,
+                max_lateral_impulse=max_lateral_impulse,
+            )
+
+        # Bicycle Modelコントローラーの注入または作成
+        if bicycle_controller is not None:
+            self.controller = bicycle_controller
+        else:
+            self.controller = BicycleModelController(
+                config=self.config,
+                max_motor_force=self.physics_params.max_motor_force,
+                max_lateral_impulse=self.physics_params.max_lateral_impulse,
+            )
 
         # Box2Dボディ作成
-        self.body = self.world.CreateDynamicBody(
+        self.body = self._create_body(start_pos, start_angle)
+
+        # 後方互換性のため、古いプロパティを保持
+        self.width = self.config.width
+        self.length = self.config.length
+        self.mass = self.physics_params.mass
+        self.wheelbase = self.config.wheelbase
+        self.max_steering_angle = self.config.max_steering_angle
+        self.max_motor_force = self.physics_params.max_motor_force
+        self.max_lateral_impulse = self.physics_params.max_lateral_impulse
+
+    def _create_body(self, start_pos: Tuple[float, float], start_angle: float) -> b2Body:
+        """Box2Dボディを作成"""
+        body = self.world.CreateDynamicBody(
             position=b2Vec2(*start_pos),
             angle=start_angle,
-            linearDamping=0.5,  # 空気抵抗
-            angularDamping=0.8,  # 回転抵抗
+            linearDamping=self.physics_params.linear_damping,
+            angularDamping=self.physics_params.angular_damping,
         )
+
+        # 車両の識別子を設定（衝突検出用）
+        body.userData = "vehicle"
 
         # 車両の形状（矩形）
-        self.body.CreatePolygonFixture(
-            box=(self.length / 2, self.width / 2),
-            density=self.mass / (self.length * self.width),
-            friction=0.7,
+        body.CreatePolygonFixture(
+            box=(self.config.length / 2, self.config.width / 2),
+            density=self.physics_params.mass / (self.config.length * self.config.width),
+            friction=self.physics_params.friction,
         )
 
+        return body
+
     def apply_control(self, steering: float, throttle: float, debug: bool = False):
-        """
-        制御入力を適用（Bicycle Modelベース）
+        """制御入力を適用（BicycleModelControllerに委譲）
 
         Args:
             steering: ステアリング角度 (-1.0 ~ 1.0)
             throttle: スロットル (-1.0 ~ 1.0) 負の値で後退
             debug: デバッグ情報を出力するか
         """
-        # パラメータのクリッピング
+        # 制御入力の正規化
         steering = np.clip(steering, -1.0, 1.0)
         throttle = np.clip(throttle, -1.0, 1.0)
-        steer_angle = -steering * self.max_steering_angle
 
-        # 後退時のステアリング反転は行わない（強化学習用途のため）
-        # Bicycle Modelの物理的な挙動に従う：
-        # - 前進時: 左入力 → 左回転
-        # - 後退時: 左入力 → 右回転（物理的に正しい挙動）
-
-        # 前輪と後輪の位置（ローカル座標系）
-        front_wheel_local = b2Vec2(self.wheelbase / 2, 0)  # 車体前方
-        rear_wheel_local = b2Vec2(-self.wheelbase / 2, 0)  # 車体後方
-
-        # ワールド座標系に変換
-        front_wheel_world = self.body.GetWorldPoint(front_wheel_local)
-        rear_wheel_world = self.body.GetWorldPoint(rear_wheel_local)
-
-        # 各ホイールの向き（ワールド座標系）
-        front_wheel_angle = self.body.angle + steer_angle  # 前輪：ステアリング角度分回転
-        rear_wheel_angle = self.body.angle  # 後輪：車体と同じ向き
-
-        # デバッグ情報
-        if debug:
-            print(f"[DEBUG] Steering: {steering:.4f}, Throttle: {throttle:.4f}")
-            print(f"[DEBUG] Body angle: {self.body.angle:.4f}, Angular velocity: {self.body.angularVelocity:.4f}")
-            front_vel = self.body.GetLinearVelocityFromWorldPoint(front_wheel_world)
-            rear_vel = self.body.GetLinearVelocityFromWorldPoint(rear_wheel_world)
-            print(f"[DEBUG] Front wheel velocity: ({front_vel.x:.4f}, {front_vel.y:.4f})")
-            print(f"[DEBUG] Rear wheel velocity: ({rear_vel.x:.4f}, {rear_vel.y:.4f})")
-
-        # 各ホイール位置で横滑りを抑制
-        # ステアリングが非常に小さい時は、重心での横滑りのみを抑制してトルクを防ぐ
-        if abs(steer_angle) < 0.001:
-            # 完全に真っ直ぐ進む時は、重心で横滑りを抑制（トルクなし）
-            self._kill_lateral_velocity_at_center(self.body.angle, debug=debug)
-        else:
-            # ステアリングがある時は通常通り
-            self._kill_lateral_velocity(front_wheel_world, front_wheel_angle, debug=debug)
-            self._kill_lateral_velocity(rear_wheel_world, rear_wheel_angle, debug=debug)
-
-        # 駆動力を適用
-        # ステアリングが小さい時は重心に適用してトルクを防ぐ
-        if abs(steer_angle) < 0.001:
-            # 真っ直ぐ進む時は車体の向きで重心に適用
-            drive_direction = b2Vec2(np.cos(self.body.angle), np.sin(self.body.angle))
-            force = throttle * self.max_motor_force * drive_direction
-            self.body.ApplyForce(force, self.body.worldCenter, True)
-        else:
-            # ステアリングがある時は前輪位置に適用（通常のBicycle Model）
-            front_direction = b2Vec2(
-                np.cos(front_wheel_angle), np.sin(front_wheel_angle)
-            )
-            force = throttle * self.max_motor_force * front_direction
-            self.body.ApplyForce(force, front_wheel_world, True)
-
-        # 角速度の減衰（回転の安定性のため）
-        # ステアリング入力が小さい時は、角速度をより強く減衰させる
-        if abs(steering) < 0.05:  # ステアリング入力が小さい時（-0.05 ~ +0.05）
-            # 強い減衰を適用して回転を素早く止める
-            angular_damping = 0.8
-        else:
-            # 通常の減衰
-            angular_damping = 0.1
-        angular_impulse = -angular_damping * self.body.inertia * self.body.angularVelocity
-        self.body.ApplyAngularImpulse(angular_impulse, True)
-
-    def _kill_lateral_velocity_at_center(self, vehicle_angle: float, debug: bool = False):
-        """
-        車体重心での横滑りを抑制（トルクを発生させない）
-
-        Args:
-            vehicle_angle: 車体の向き（ワールド座標系での角度）
-            debug: デバッグ情報を出力するか
-        """
-        # 重心での速度を取得
-        center_velocity = self.body.linearVelocity
-
-        # 車体の向き（前後方向）
-        vehicle_forward = b2Vec2(np.cos(vehicle_angle), np.sin(vehicle_angle))
-
-        # 車体の横方向（左右方向）
-        vehicle_lateral = b2Vec2(-vehicle_forward.y, vehicle_forward.x)
-
-        # 横方向の速度成分
-        lateral_velocity_magnitude = center_velocity.dot(vehicle_lateral)
-
-        # 横方向の速度ベクトル
-        lateral_velocity = lateral_velocity_magnitude * vehicle_lateral
-
-        # 横方向の速度を打ち消すインパルスを計算
-        impulse = -self.body.mass * lateral_velocity
-
-        # インパルスの大きさをクリップ
-        impulse_length = np.linalg.norm([impulse.x, impulse.y])
-        if impulse_length > self.max_lateral_impulse:
-            impulse *= self.max_lateral_impulse / impulse_length
-
-        if debug and impulse_length > 0.001:
-            print(f"[DEBUG] Center lateral impulse: ({impulse.x:.4f}, {impulse.y:.4f}), magnitude: {impulse_length:.4f}")
-
-        # インパルスを重心に適用（トルクなし）
-        self.body.ApplyLinearImpulse(impulse, self.body.worldCenter, True)
-
-    def _kill_lateral_velocity(self, world_point: b2Vec2, wheel_angle: float, debug: bool = False):
-        """
-        ホイール位置での横滑りを抑制（タイヤは横方向に滑らない）
-
-        Args:
-            world_point: ホイールのワールド座標位置
-            wheel_angle: ホイールの向き（ワールド座標系での角度）
-            debug: デバッグ情報を出力するか
-        """
-        # ホイール位置での速度を取得
-        point_velocity = self.body.GetLinearVelocityFromWorldPoint(world_point)
-
-        # ホイールの向き（前後方向）
-        wheel_forward = b2Vec2(np.cos(wheel_angle), np.sin(wheel_angle))
-
-        # ホイールの横方向（左右方向）
-        wheel_lateral = b2Vec2(-wheel_forward.y, wheel_forward.x)
-
-        # 横方向の速度成分
-        lateral_velocity_magnitude = point_velocity.dot(wheel_lateral)
-
-        # 横方向の速度ベクトル
-        lateral_velocity = lateral_velocity_magnitude * wheel_lateral
-
-        # 横方向の速度を打ち消すインパルスを計算
-        impulse = -self.body.mass * lateral_velocity
-
-        # インパルスの大きさをクリップ（安定性のため重要）
-        impulse_length = np.linalg.norm([impulse.x, impulse.y])
-        if impulse_length > self.max_lateral_impulse:
-            impulse *= self.max_lateral_impulse / impulse_length
-
-        if debug and impulse_length > 0.001:
-            print(f"[DEBUG]   Lateral impulse: ({impulse.x:.4f}, {impulse.y:.4f}), magnitude: {impulse_length:.4f}")
-
-        # インパルスを適用
-        self.body.ApplyLinearImpulse(impulse, world_point, True)
+        # Bicycle Modelコントローラーに委譲
+        self.controller.apply_control(self.body, steering, throttle, debug=debug)
 
     def get_state(self) -> Dict:
-        """
-        現在の状態を取得
-
-        Returns:
-            状態の辞書
-        """
+        """現在の状態を取得"""
         return {
             "position": (self.body.position.x, self.body.position.y),
             "angle": self.body.angle,
@@ -215,15 +139,93 @@ class Vehicle:
             ),
         }
 
-    def reset(self, position: Tuple[float, float], angle: float = 0.0):
-        """
-        車両を初期状態にリセット
+    def reset(
+        self,
+        position: Tuple[float, float],
+        angle: float = 0.0,
+        # 後方互換性のためのパラメータ（非推奨）
+        mass: Optional[float] = None,
+        friction: Optional[float] = None,
+        linear_damping: Optional[float] = None,
+        angular_damping: Optional[float] = None,
+        max_motor_force: Optional[float] = None,
+        max_lateral_impulse: Optional[float] = None,
+        # リファクタリング後のパラメータ
+        physics_params: Optional[PhysicsParameters] = None,
+    ):
+        """車両を初期状態にリセット
 
         Args:
             position: リセット位置 (x, y)
             angle: リセット角度 (rad)
+            mass: 質量（後方互換性用、非推奨）
+            friction: 摩擦係数（後方互換性用、非推奨）
+            linear_damping: 線形減衰（後方互換性用、非推奨）
+            angular_damping: 角減衰（後方互換性用、非推奨）
+            max_motor_force: 最大モーター力（後方互換性用、非推奨）
+            max_lateral_impulse: 最大横滑りインパルス（後方互換性用、非推奨）
+            physics_params: 物理パラメータ（推奨）
         """
+        # 後方互換性のため、個別パラメータからPhysicsParametersを作成
+        if physics_params is None and any([
+            mass is not None,
+            friction is not None,
+            linear_damping is not None,
+            angular_damping is not None,
+            max_motor_force is not None,
+            max_lateral_impulse is not None,
+        ]):
+            physics_params = PhysicsParameters(
+                mass=mass,
+                friction=friction,
+                linear_damping=linear_damping,
+                angular_damping=angular_damping,
+                max_motor_force=max_motor_force,
+                max_lateral_impulse=max_lateral_impulse,
+            )
+
+        # 物理パラメータを更新（指定された場合のみ）
+        if physics_params is not None and physics_params.has_updates():
+            self._update_physics_params(physics_params)
+
+        # 位置と速度をリセット
         self.body.position = b2Vec2(*position)
         self.body.angle = angle
         self.body.linearVelocity = b2Vec2(0, 0)
         self.body.angularVelocity = 0
+
+    def _update_physics_params(self, params: PhysicsParameters):
+        """物理パラメータを更新"""
+        # 質量の更新
+        if params.mass is not None:
+            self.physics_params.mass = params.mass
+            self.mass = params.mass  # 後方互換性
+            for fixture in self.body.fixtures:
+                fixture.density = self.physics_params.mass / (self.config.length * self.config.width)
+            self.body.ResetMassData()
+
+        # ボディパラメータの更新
+        if params.linear_damping is not None:
+            self.physics_params.linear_damping = params.linear_damping
+            self.body.linearDamping = params.linear_damping
+
+        if params.angular_damping is not None:
+            self.physics_params.angular_damping = params.angular_damping
+            self.body.angularDamping = params.angular_damping
+
+        # フィクスチャの摩擦係数を更新
+        if params.friction is not None:
+            self.physics_params.friction = params.friction
+            for fixture in self.body.fixtures:
+                fixture.friction = params.friction
+
+        # コントローラーのパラメータを更新
+        if params.max_motor_force is not None:
+            self.physics_params.max_motor_force = params.max_motor_force
+            self.max_motor_force = params.max_motor_force  # 後方互換性
+            self.controller.max_motor_force = params.max_motor_force
+
+        if params.max_lateral_impulse is not None:
+            self.physics_params.max_lateral_impulse = params.max_lateral_impulse
+            self.max_lateral_impulse = params.max_lateral_impulse  # 後方互換性
+            self.controller.max_lateral_impulse = params.max_lateral_impulse
