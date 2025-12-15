@@ -4,33 +4,27 @@
   "difficulty": "tutorial",
   "start_position": [2.0, 2.0],
   "start_angle": 0.0,
-  "goal_position": [8.0, 8.0],
-  "goal_radius": 1.2,
+  "goal_position": [10.0, 10.0],
+  "goal_radius": 1.0,
   "walls": [
     {
       "type": "polygon",
-      "name": "outer_wall",
+      "name": "L_shaped_wall",
       "vertices": [
         [0, 0],
-        [12, 0],
+        [8, 0],
+        [8, 4],
+        [12, 4],
         [12, 12],
-        [0, 12]
-      ]
-    },
-    {
-      "type": "polygon",
-      "name": "inner_corner",
-      "vertices": [
-        [5, 5],
-        [12, 5],
-        [12, 12],
-        [5, 12]
+        [4, 12],
+        [4, 4],
+        [0, 4]
       ]
     }
   ],
   "checkpoints": [
     {
-      "position": [6.0, 2.0],
+      "position": [4.0, 2.0],
       "radius": 1.2,
       "index": 0
     }

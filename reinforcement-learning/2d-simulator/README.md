@@ -99,28 +99,37 @@ python scripts/rl-training/train.py --total-iterations 100 --gui
 
 ## トレーニング
 
-### 基本的な使い方
+### 適応的学習システム（推奨）
 
 ```bash
 # 環境をアクティベート
 source venv/bin/activate
 export PYTHONPATH="$(pwd):$PYTHONPATH"
 
-# デフォルト設定で学習を開始（GUI付き）
-python scripts/rl-training/train.py --gui
+# 適応的学習を開始（カリキュラム学習 + 自動報酬調整）
+python scripts/rl-training/train_adaptive.py --total-iterations 2000
 
-# カスタム設定で学習
-python scripts/rl-training/train.py \
-  --course courses/curriculum/level2_simple_oval.json \
-  --total-iterations 1000 \
-  --n-steps 2048 \
-  --lr 3e-4 \
-  --gui
+# GUIで可視化しながら学習
+python scripts/rl-training/train_adaptive.py --gui --total-iterations 500
+
+# 便利なシェルスクリプト
+./scripts/rl-training/run_adaptive_training.sh fast  # 本番学習
+./scripts/rl-training/run_adaptive_training.sh test  # テスト学習
 
 # TensorBoardで進捗を確認（別ターミナルで）
 source venv/bin/activate
 tensorboard --logdir=logs
 # ブラウザで http://localhost:6006 を開く
+```
+
+### 個別コースでの学習
+
+```bash
+# 特定のコースで学習（カリキュラムなし）
+python scripts/rl-training/train.py \
+  --course courses/curriculum/level2_simple_oval.json \
+  --total-iterations 1000 \
+  --gui
 ```
 
 ### 主要なオプション
@@ -143,16 +152,15 @@ tensorboard --logdir=logs
 ### チェックポイントから再開
 
 ```bash
+# 適応的学習を再開
+python scripts/rl-training/train_adaptive.py \
+  --resume models/checkpoints_adaptive/checkpoint_500.pth \
+  --total-iterations 2000
+
+# 個別コース学習を再開
 python scripts/rl-training/train.py \
   --resume models/checkpoints/checkpoint_500.pth \
   --total-iterations 2000
-```
-
-### カリキュラム学習
-
-```bash
-# 複数の難易度のコースを段階的に学習
-python scripts/rl-training/train_curriculum.py
 ```
 
 ---
@@ -287,49 +295,37 @@ tensorboard --logdir=logs --port=6006
 
 ---
 
-## 実装計画
+## ドキュメント
 
-詳細な実装計画は `doc/plan/init/` に保存されています：
+### 主要ドキュメント
 
-1. **00_overview.md** - プロジェクト概要
-2. **01_project_structure.md** - ディレクトリ構造設計
-3. **02_tech_stack.md** - 技術スタック
-4. **03_implementation_phases.md** - 実装フェーズ
-5. **04_component_design.md** - コンポーネント詳細設計
-6. **05_config_and_testing.md** - 設定とテスト戦略
-7. **06_sim_to_real.md** - 実機転移戦略
-8. **07_getting_started.md** - 実装開始ガイド
+- **[適応的学習システム](doc/ADAPTIVE_TRAINING.md)** - カリキュラム学習と自動報酬調整の詳細
+- **[報酬設計](doc/REWARD_DESIGN.md)** - 報酬関数の設計思想と履歴
+- **[カリキュラムコース](courses/curriculum/README.md)** - Level 0-5のコース詳細
+- **[車両仕様](doc/vehicle-specifications.md)** - TT-02実機スペック
+
+### アーカイブ
+
+過去の計画文書は `doc/archive/` に保存されています
 
 ---
 
 ## 更新履歴
 
+### 2025-12-15: ドキュメント統合・整理
+- ドキュメント構造を整理（`doc/`直下に主要ドキュメントを集約）
+- 古い計画文書を`doc/archive/`に移動
+- `courses/CURRICULUM_OVERVIEW.md`を`courses/curriculum/README.md`に統合
+- README.mdに適応的学習システムの説明を追加
+
+### 2025-12-13: 適応的学習システム実装
+- カリキュラム学習（Level 0-5）を実装
+- 適応的報酬スケーリング（3フェーズ）を実装
+- すべてのカリキュラムコースを`courses/curriculum/`に統一
+
 ### 2025-12-12: 実コース（real-course）のチェックポイント配置最適化
-
-**問題**: Iteration 80以降、エージェントがショートカットを選択し、CP2を通過できない
-
-**診断結果**:
-- CP2 `[4.0, 7.0]` が外周壁に近すぎ、走行ルートから外れていた
-- CP3→CP5のショートカットが40%効率的（CP4スキップ可能）
-- CP1→CP3のショートカットが26%効率的（CP2スキップ可能）
-
-**修正内容**:
-```json
-修正前 → 修正後
-CP2: [4.0, 7.0] → [5.0, 6.5]  (コース内の自然な走行ルート上に移動)
-CP3: [7.0, 5.0] → [8.5, 5.0]  (ショートカット防止のため調整)
-CP4: [9.5, 4.5] → [10.5, 3.8] (より戦略的な配置)
-CP5: [8.3, 2.2] → [10.0, 2.3] (ゴールへの自然な流れ)
-```
-
-**効果**:
-- ショートカット削減: CP3→CP5が40% → 21.1%に改善
-- CP2通過率の向上が期待される
-- より自然な走行ルートの学習が可能に
-
-**診断ツール追加**:
-- `scripts/analysis/visualize_course.py`: コース可視化
-- `scripts/analysis/analyze_checkpoints.py`: チェックポイント配置診断
+- CP2-CP5の位置を調整し、ショートカット削減（40% → 21.1%に改善）
+- コース可視化・診断ツールを追加
 
 ---
 

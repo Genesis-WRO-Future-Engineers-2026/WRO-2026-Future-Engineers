@@ -5,7 +5,7 @@
   "start_position": [5.0, 1.25],
   "start_angle": 0.0,
   "goal_position": [5.0, 1.25],
-  "goal_radius": 0.4,
+  "goal_radius": 1.5,
   "walls": [
     {
       "type": "polygon",

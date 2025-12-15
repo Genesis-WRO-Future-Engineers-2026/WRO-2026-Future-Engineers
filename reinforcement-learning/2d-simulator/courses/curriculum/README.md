@@ -1,40 +1,35 @@
 # カリキュラム学習用コース
 
-このディレクトリには、カリキュラム学習で使用する**すべてのレベル（Level 0-5）**のコースが含まれています。
+このディレクトリには、適応的学習システムで使用する**すべてのレベル（Level 0-5）**のコースが含まれています。
 
-## 設計思想
+## ディレクトリ構成
 
-### なぜすべてcurriculum/ディレクトリに？
-
-**一貫性と管理のしやすさ**を重視した設計です。
-
-#### メリット
-1. ✅ **1箇所で完結**: すべてのカリキュラムコースが1ディレクトリに
-2. ✅ **明確な分離**: カリキュラム学習用 vs その他のコース
-3. ✅ **メンテナンス性**: 変更が1ディレクトリで完結
-4. ✅ **わかりやすさ**: level0〜level5の連番で直感的
-
-#### 以前の構成（複雑）
 ```
-courses/curriculum/level0_straight.json
-courses/curriculum/level1_simple_curve.json
-courses/easy/simple_oval.json          # Level 2
-courses/medium/narrow_oval.json        # Level 3
-courses/hard/s_curve.json              # Level 4
-courses/real/real-course_course.json   # Level 5
+courses/
+├── curriculum/              # カリキュラム学習用コース（Level 0-5）
+│   ├── level0_straight.json
+│   ├── level1_simple_curve.json
+│   ├── level2_simple_oval.json
+│   ├── level3_narrow_oval.json
+│   ├── level4_s_curve.json
+│   ├── level5_real_course.json
+│   └── README.md (このファイル)
+│
+├── real/                    # 実コースのオリジナルと派生（参考用）
+│   ├── real-course_course.json
+│   └── variations/          # 実コースのバリエーション
 ```
-→ 複数ディレクトリに分散、管理が煩雑
 
-#### 現在の構成（シンプル）
-```
-courses/curriculum/level0_straight.json
-courses/curriculum/level1_simple_curve.json
-courses/curriculum/level2_simple_oval.json
-courses/curriculum/level3_narrow_oval.json
-courses/curriculum/level4_s_curve.json
-courses/curriculum/level5_real_course.json
-```
-→ 1ディレクトリで完結、管理が簡単
+### 設計思想
+
+**すべてのカリキュラムコースを1ディレクトリに統一**することで、一貫性と管理のしやすさを実現:
+
+- ✅ **1箇所で完結**: すべてのカリキュラムコースが1ディレクトリに
+- ✅ **明確な分離**: カリキュラム学習用 vs その他のコース
+- ✅ **メンテナンス性**: 変更が1ディレクトリで完結
+- ✅ **わかりやすさ**: level0〜level5の連番で直感的
+
+**注**: easy/medium/hard/ディレクトリは削除されました（curriculum/に統合済み）
 
 ## コース一覧
 
@@ -152,27 +147,18 @@ N: レベル番号（0-5）
    - このREADME.md
    - `doc/rl-training/ADAPTIVE_TRAINING.md`
 
-## 既存コースとの関係
+## Level 2-5について
 
-### Level 2-5は既存コースのコピー
-
-以下のコースは既存ディレクトリからコピーされたものです：
+以下のコースは既存ディレクトリからコピーされたものです（元のeasy/medium/hard/は削除済み）：
 
 | カリキュラム | 元ファイル | 備考 |
 |-------------|-----------|------|
-| level2_simple_oval.json | easy/simple_oval.json | easy難易度 |
-| level3_narrow_oval.json | medium/narrow_oval.json | medium難易度 |
-| level4_s_curve.json | hard/s_curve.json | hard難易度 |
-| level5_real_course.json | real/real-course_course.json | 実コース |
+| level2_simple_oval.json | easy/simple_oval.json（削除済み） | easy難易度 |
+| level3_narrow_oval.json | medium/narrow_oval.json（削除済み） | medium難易度 |
+| level4_s_curve.json | hard/s_curve.json（削除済み） | hard難易度 |
+| level5_real_course.json | real/real-course_course.json | 実コース（参考用に保持） |
 
-### コースの更新
-
-元ファイルが更新された場合、curriculum/内のファイルも更新する必要があります：
-
-```bash
-# 例: 実コースが更新された場合
-cp ../real/real-course_course.json level5_real_course.json
-```
+**実コースの更新**: courses/real/が更新された場合は、`cp ../real/real-course_course.json level5_real_course.json`でコピー
 
 ## トラブルシューティング
 
@@ -196,14 +182,29 @@ python scripts/rl-training/train_adaptive.py \
 ls -lh courses/curriculum/level*.json
 ```
 
+## 学習の期待時間
+
+- **Level 0**: 5-10分（50イテレーション）
+- **Level 1**: 10-20分（100イテレーション）
+- **Level 2**: 30-60分（250イテレーション）
+- **Level 3**: 30-60分（200イテレーション）
+- **Level 4**: 30-60分（200イテレーション）
+- **Level 5**: 2-4時間（1200イテレーション）
+
+**合計**: 約4-6時間で全レベル完了（M4チップ、GUIなし）
+
 ## 関連ドキュメント
 
-- [適応的学習システム全体](../../doc/rl-training/ADAPTIVE_TRAINING.md)
-- [カリキュラム全体の概要](../CURRICULUM_OVERVIEW.md)
+- [適応的学習システム（メインドキュメント）](../../doc/ADAPTIVE_TRAINING.md)
+- [報酬設計](../../doc/REWARD_DESIGN.md)
 - [カリキュラムマネージャー実装](../../src/curriculum/curriculum_manager.py)
+- [適応的報酬スケーラー実装](../../src/rl/adaptive_reward.py)
 
 ## 更新履歴
 
+- **2025-12-15**: ドキュメント統合・整理
+  - courses/CURRICULUM_OVERVIEW.mdの内容を統合
+  - 関連ドキュメントのパスを更新
 - **2025-12-13**: すべてのレベルをcurriculum/ディレクトリに統一
   - Level 0-5まですべて1ディレクトリで管理
   - 既存コースからLevel 2-5をコピー
