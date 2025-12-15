@@ -4,7 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-2Dシミュレーター環境でミニカーの自動運転をPPO強化学習で実現するプロジェクト。Box2D物理エンジン、72方向LiDARセンサー、Gymnasium互換環境を使用。
+2Dシミュレーター環境でミニカーの自動運転をPPO強化学習で実現し、実機（TT-02シャーシ）への転移（Sim2Real）を目指すプロジェクト。
+
+### 最終目標
+**6分間の連続周回レースで、壁にぶつからず、なるべく早く、チェックポイントを順番に通過してゴールに到達すること。**
+
+### 技術スタック
+- Box2D物理エンジン
+- LiDARセンサー（5方向スキャン: 前方120度）
+- Gymnasium互換環境
+- PPO強化学習
+- 観測空間: 10次元（LiDAR 5 + 速度 2 + 角速度 1 + 前回行動 2）
 
 ## Environment Setup
 
@@ -147,13 +157,14 @@ Box2Dの物理エンジンによる衝突検出を使用（`src/physics/collisio
 
 ### カリキュラム学習
 
-`src/curriculum/curriculum_manager.py`で実装。成功率ベースで難易度を自動調整:
+`src/curriculum/curriculum_manager.py`で実装。Level 0（直線）→ Level 5（実コース）へ段階的に難易度を上げる:
 
 - success_threshold: 0.8 (レベルアップ閾値)
 - degradation_threshold: 0.3 (レベルダウン閾値)
 - evaluation_window: 100エピソード
+- 全6レベル: `courses/curriculum/level0-5.json`
 
-新しいコースは`courses/`ディレクトリにJSON形式で追加。
+詳細は`doc/ADAPTIVE_TRAINING.md`を参照。
 
 ## コース定義
 
