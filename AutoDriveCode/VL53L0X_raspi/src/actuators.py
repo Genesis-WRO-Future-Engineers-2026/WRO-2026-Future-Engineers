@@ -19,22 +19,29 @@ class Actuator:
     Arduino generates PWM pulses to control servo and ESC.
     """
 
-    def __init__(self, serial_port: str = '/dev/serial0'):
+    def __init__(self, serial_port: str = '/dev/serial0', debug: bool = True):
         """
         Initialize actuator
 
         Parameters:
             serial_port: Serial port connected to Arduino
+            debug: Enable debug output
         """
+        self.debug = debug
         self._initialize_gpio()
 
         # Initialize serial communication with Arduino
-        self.arduino = ArduinoSerial(port=serial_port)
+        print("Initializing Arduino communication...")
+        self.arduino = ArduinoSerial(port=serial_port, debug=debug)
 
         # Set initial state (neutral steering, stopped motor)
+        print("Setting initial actuator state...")
         self.set_steering_angle(NEUTRAL_ANGLE)
+        time.sleep(0.1)
         self.set_speed(STOP_PULSE)
-        time.sleep(1)
+        time.sleep(0.5)
+        
+        print("Actuator initialization complete")
 
     def _initialize_gpio(self):
         """Initialize GPIO pins for sensors"""
@@ -68,6 +75,9 @@ class Actuator:
         # 2. Convert milliseconds to microseconds
         pulse_width_us = int(pulse_width_ms * 1000)
 
+        if self.debug:
+            print(f"[Actuator] Steering angle: {angle:+.1f}° -> {pulse_width_us} us")
+
         # 3. Send servo pulse width to Arduino
         self.arduino.send_servo_pulse(pulse_width_us)
 
@@ -85,6 +95,9 @@ class Actuator:
         # 1. Convert milliseconds to microseconds
         pulse_width_us = int(pulse_width_ms * 1000)
 
+        if self.debug:
+            print(f"[Actuator] ESC speed: {pulse_width_ms} ms -> {pulse_width_us} us")
+
         # 2. Send ESC pulse width to Arduino
         self.arduino.send_esc_pulse(pulse_width_us)
 
@@ -94,6 +107,7 @@ class Actuator:
 
         Set steering to neutral and ESC to stop pulse
         """
+        print("[Actuator] Stopping...")
         self.set_steering_angle(NEUTRAL_ANGLE)
         self.set_speed(STOP_PULSE)
 
@@ -107,3 +121,4 @@ class Actuator:
         time.sleep(0.5)
         self.arduino.close()
         print("Actuators cleaned up")
+        
