@@ -72,7 +72,7 @@ ONE_SIDE_OPEN_STEER_RATIO = 0.5  # 片側のみ開けている場合のステア
 # ============================================================================
 
 # Serial port configuration
-SERIAL_PORT = '/dev/serial0'  # Serial port for Arduino (GPIO14/15)
+SERIAL_PORT = '/dev/ttyACM0'  # Serial port for Arduino (USB connection)
 SERIAL_BAUDRATE = 115200      # Baud rate (communication speed)
 SERIAL_TIMEOUT = 0.1          # Timeout in seconds
 
