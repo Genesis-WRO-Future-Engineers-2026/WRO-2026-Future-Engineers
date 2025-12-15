@@ -5,7 +5,7 @@
   "start_position": [1.2, 1.2],
   "start_angle": 0.0,
   "goal_position": [1.2, 1.2],
-  "goal_radius": 0.8,
+  "goal_radius": 1.8,
   "walls": [
     {
       "type": "polygon",
@@ -31,22 +31,22 @@
   "checkpoints": [
     {
       "position": [5.0, 1.5],
-      "radius": 1.0,
+      "radius": 1.8,
       "index": 0
     },
     {
       "position": [9.0, 5.0],
-      "radius": 1.0,
+      "radius": 1.8,
       "index": 1
     },
     {
       "position": [5.0, 8.5],
-      "radius": 1.0,
+      "radius": 1.8,
       "index": 2
     },
     {
       "position": [1.0, 5.0],
-      "radius": 1.0,
+      "radius": 1.8,
       "index": 3
     }
   ]
