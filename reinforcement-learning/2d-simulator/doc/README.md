@@ -53,11 +53,13 @@ doc/
 
 プロジェクト全体のドキュメント:
 - **[トップレベルREADME](../README.md)** - プロジェクト全体の概要とクイックスタート
-- **[カリキュラムコース](../courses/curriculum/README.md)** - Level 0-5のコース詳細
+- **[コース定義](../courses/curriculum/)** - Level 0-5のコース定義（JSON）
 
 ## 更新履歴
 
 - **2025-12-15**: ドキュメント整理
+  - すべての説明文書を`doc/`に統合
+  - `courses/curriculum/README.md`を`ADAPTIVE_TRAINING.md`に統合
   - `doc/rl-training/`を`doc/`直下に移動
   - 古い計画文書を`archive/`に移動
   - このREADME.mdを作成

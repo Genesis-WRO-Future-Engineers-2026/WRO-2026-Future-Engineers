@@ -299,9 +299,8 @@ tensorboard --logdir=logs --port=6006
 
 ### 主要ドキュメント
 
-- **[適応的学習システム](doc/ADAPTIVE_TRAINING.md)** - カリキュラム学習と自動報酬調整の詳細
+- **[適応的学習システム](doc/ADAPTIVE_TRAINING.md)** - カリキュラム学習（Level 0-5）と自動報酬調整の詳細
 - **[報酬設計](doc/REWARD_DESIGN.md)** - 報酬関数の設計思想と履歴
-- **[カリキュラムコース](courses/curriculum/README.md)** - Level 0-5のコース詳細
 - **[車両仕様](doc/vehicle-specifications.md)** - TT-02実機スペック
 
 ### アーカイブ
@@ -313,9 +312,10 @@ tensorboard --logdir=logs --port=6006
 ## 更新履歴
 
 ### 2025-12-15: ドキュメント統合・整理
-- ドキュメント構造を整理（`doc/`直下に主要ドキュメントを集約）
+- すべての説明文書を`doc/`に統合
+- `courses/curriculum/README.md`を`doc/ADAPTIVE_TRAINING.md`に統合（重複削除）
+- `courses/CURRICULUM_OVERVIEW.md`を削除
 - 古い計画文書を`doc/archive/`に移動
-- `courses/CURRICULUM_OVERVIEW.md`を`courses/curriculum/README.md`に統合
 - README.mdに適応的学習システムの説明を追加
 
 ### 2025-12-13: 適応的学習システム実装

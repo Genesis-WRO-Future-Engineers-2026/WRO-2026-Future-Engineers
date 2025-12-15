@@ -280,6 +280,62 @@ python scripts/rl-training/train_adaptive.py \
 
 ---
 
+## カリキュラムのカスタマイズ
+
+### 新しいレベルの追加
+
+中間レベルを追加したい場合：
+
+1. **コースファイルを作成**
+   ```bash
+   cd courses/curriculum/
+   # 例: Level 1.5を追加
+   cp level1_simple_curve.json level1_5_wide_curve.json
+   # 内容を編集
+   ```
+
+2. **train_adaptive.pyを更新**
+   ```python
+   curriculum_courses = [
+       "courses/curriculum/level0_straight.json",
+       "courses/curriculum/level1_simple_curve.json",
+       "courses/curriculum/level1_5_wide_curve.json",  # 追加
+       "courses/curriculum/level2_simple_oval.json",
+       # ...
+   ]
+   ```
+
+3. **ドキュメントを更新**
+   - このドキュメント（ADAPTIVE_TRAINING.md）
+
+### ファイル命名規則
+
+```
+level{N}_{コース名}.json
+
+N: レベル番号（0-5）
+コース名: 内容を表す簡潔な名前
+```
+
+例：
+- `level0_straight.json` - Level 0、直線コース
+- `level5_real_course.json` - Level 5、実コース
+
+### Level 2-5について
+
+以下のコースは既存ディレクトリからコピーされたものです（元のeasy/medium/hard/は削除済み）：
+
+| カリキュラム | 元ファイル | 備考 |
+|-------------|-----------|------|
+| level2_simple_oval.json | easy/simple_oval.json（削除済み） | easy難易度 |
+| level3_narrow_oval.json | medium/narrow_oval.json（削除済み） | medium難易度 |
+| level4_s_curve.json | hard/s_curve.json（削除済み） | hard難易度 |
+| level5_real_course.json | real/real-course_course.json | 実コース（参考用に保持） |
+
+**実コースの更新**: courses/real/が更新された場合は、`cp courses/real/real-course_course.json courses/curriculum/level5_real_course.json`でコピー
+
+---
+
 ## 次のステップ
 
 ### 短期目標
@@ -301,6 +357,7 @@ python scripts/rl-training/train_adaptive.py \
 
 ## 参考
 
-- 元の報酬設計: `src/env/REWARD_DESIGN.md`
-- カリキュラムマネージャー: `src/curriculum/curriculum_manager.py`
-- 適応的報酬スケーラー: `src/rl/adaptive_reward.py`
+- 報酬設計の詳細: [REWARD_DESIGN.md](REWARD_DESIGN.md)
+- カリキュラムマネージャー実装: `src/curriculum/curriculum_manager.py`
+- 適応的報酬スケーラー実装: `src/rl/adaptive_reward.py`
+- コース定義: `courses/curriculum/level*.json`

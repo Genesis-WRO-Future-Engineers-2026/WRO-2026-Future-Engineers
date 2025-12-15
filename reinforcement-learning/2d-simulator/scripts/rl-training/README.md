@@ -24,7 +24,7 @@ tensorboard --logdir=logs
 - ✅ 適応的報酬スケーリング（学習フェーズに応じて自動調整）
 - ✅ 学習安定性が大幅に向上
 
-詳細: [適応的学習システムのドキュメント](../../doc/rl-training/ADAPTIVE_TRAINING.md)
+詳細: [適応的学習システムのドキュメント](../../doc/ADAPTIVE_TRAINING.md)
 
 ---
 
@@ -140,9 +140,9 @@ Iteration 800-2000: Level 5（実コース）  Success Rate 10% → 50%+, Phase 
 
 ### 詳細ドキュメント
 
-- [適応的学習システムの詳細](../../doc/rl-training/ADAPTIVE_TRAINING.md)
-- [カリキュラムコースの説明](../../courses/curriculum/README.md)
-- [カリキュラム全体の概要](../../courses/CURRICULUM_OVERVIEW.md)
+- [適応的学習システムの詳細](../../doc/ADAPTIVE_TRAINING.md)
+- [カリキュラムコースの説明](../../doc/ADAPTIVE_TRAINING.md)
+- [カリキュラム全体の概要](../../doc/ADAPTIVE_TRAINING.md)
 
 ---
 
@@ -368,9 +368,9 @@ logs/<experiment_name>/
 
 ## 📚 関連ドキュメント
 
-- [適応的学習システムの詳細](../../doc/rl-training/ADAPTIVE_TRAINING.md)
-- [カリキュラムコースの説明](../../courses/curriculum/README.md)
-- [カリキュラム全体の概要](../../courses/CURRICULUM_OVERVIEW.md)
+- [適応的学習システムの詳細](../../doc/ADAPTIVE_TRAINING.md)
+- [カリキュラムコースの説明](../../doc/ADAPTIVE_TRAINING.md)
+- [カリキュラム全体の概要](../../doc/ADAPTIVE_TRAINING.md)
 - [プロジェクトREADME](../../README.md)
 - [手動制御デモ](../simulator-demo/README.md)
 

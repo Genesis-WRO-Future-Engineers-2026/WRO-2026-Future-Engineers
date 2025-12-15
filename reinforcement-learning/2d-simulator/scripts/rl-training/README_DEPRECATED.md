@@ -173,9 +173,9 @@ python scripts/rl-training/test_saved_model.py --gui
 
 ## 関連ドキュメント
 
-- [適応的学習システムの詳細](../../doc/rl-training/ADAPTIVE_TRAINING.md)
+- [適応的学習システムの詳細](../../doc/ADAPTIVE_TRAINING.md)
 - [現在のREADME](./README.md)
-- [カリキュラムコースの説明](../../courses/curriculum/README.md)
+- [カリキュラムコースの説明](../../doc/ADAPTIVE_TRAINING.md)
 
 ---
 
