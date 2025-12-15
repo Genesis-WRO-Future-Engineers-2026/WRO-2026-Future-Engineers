@@ -7,7 +7,7 @@ import RPi.GPIO as GPIO
 from typing import Dict
 
 # VL53L0Xモジュールのパスを追加
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'python'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'example'))
 import VL53L0X
 
 from config import (
