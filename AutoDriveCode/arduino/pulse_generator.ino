@@ -11,7 +11,7 @@
  *
  * Operation:
  * - Continues outputting the same pulse width until new value arrives from Raspberry Pi
- * - Enters safe stop state if communication timeout occurs
+ * - Stops operation if no command received for 200ms
  *
  * Connections:
  * - Servo signal: Arduino pin 9
@@ -47,7 +47,7 @@ const int ESC_STOP_PULSE = 1500;       // ESC stop pulse
 // ============================================================================
 // Communication Timeout Settings
 // ============================================================================
-const unsigned long COMM_TIMEOUT_MS = 1000;  // Timeout after 1 second of no communication
+const unsigned long COMM_TIMEOUT_MS = 200;  // Timeout after 200ms of no communication
 
 // ============================================================================
 // Global Variables

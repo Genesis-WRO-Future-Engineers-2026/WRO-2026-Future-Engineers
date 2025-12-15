@@ -39,8 +39,10 @@ def test_servo(arduino: ArduinoSerial):
 
     for angle, pulse_us in test_angles:
         print(f"\nステアリング角度: {angle:+4d}° → パルス幅: {pulse_us} μs")
-        arduino.send_servo_pulse(pulse_us)
-        time.sleep(2)  # 2秒待機
+        # 2秒間、100ms間隔で継続的にパルスを送信（Arduinoのタイムアウト対策）
+        for _ in range(20):
+            arduino.send_servo_pulse(pulse_us)
+            time.sleep(0.1)
 
     print("\nサーボテスト完了")
 
@@ -56,21 +58,25 @@ def test_esc(arduino: ArduinoSerial):
     print("=" * 60)
 
     # 速度とパルス幅の対応
+    # 前進: 1500 → 1400（最大速）、後退: 1500 → 1600（バック）
     test_speeds = [
         ("停止", 1500),
-        ("低速前進", 1550),
-        ("中速前進", 1600),
-        ("高速前進", 1700),
+        ("低速前進", 1450),
+        ("中速前進", 1425),
+        ("高速前進（最大速）", 1400),
         ("停止", 1500),
-        ("低速後退", 1450),
-        ("中速後退", 1400),
+        ("低速後退", 1550),
+        ("中速後退", 1575),
+        ("後退（バック）", 1600),
         ("停止", 1500)  # 最後は停止
     ]
 
     for speed_name, pulse_us in test_speeds:
         print(f"\nモーター速度: {speed_name} → パルス幅: {pulse_us} μs")
-        arduino.send_esc_pulse(pulse_us)
-        time.sleep(2)  # 2秒待機
+        # 2秒間、100ms間隔で継続的にパルスを送信（Arduinoのタイムアウト対策）
+        for _ in range(20):
+            arduino.send_esc_pulse(pulse_us)
+            time.sleep(0.1)
 
     print("\nESCテスト完了")
 
@@ -87,9 +93,9 @@ def test_combined(arduino: ArduinoSerial):
 
     # (ステアリング角度, サーボパルス, 速度名, ESCパルス)
     test_commands = [
-        ("左旋回 + 前進", -45, 975, 1600),
-        ("直進 + 前進", 0, 1500, 1600),
-        ("右旋回 + 前進", 45, 2025, 1600),
+        ("左旋回 + 前進", -45, 975, 1425),
+        ("直進 + 前進", 0, 1500, 1425),
+        ("右旋回 + 前進", 45, 2025, 1425),
         ("直進 + 停止", 0, 1500, 1500)
     ]
 
@@ -98,9 +104,11 @@ def test_combined(arduino: ArduinoSerial):
         print(f"  ステアリング: {angle:+4d}° ({servo_pulse} μs)")
         print(f"  モーター: {esc_pulse} μs")
 
-        arduino.send_servo_pulse(servo_pulse)
-        arduino.send_esc_pulse(esc_pulse)
-        time.sleep(3)  # 3秒待機
+        # 2秒間、100ms間隔で継続的にパルスを送信（Arduinoのタイムアウト対策）
+        for _ in range(20):
+            arduino.send_servo_pulse(servo_pulse)
+            arduino.send_esc_pulse(esc_pulse)
+            time.sleep(0.1)
 
     print("\n同時制御テスト完了")
 
