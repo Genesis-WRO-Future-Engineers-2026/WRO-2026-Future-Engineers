@@ -1,12 +1,12 @@
-# 強化学習デモ - 学習・テスト・評価
+# 強化学習スクリプト
 
-PPO（Proximal Policy Optimization）を使った強化学習のデモスクリプト集です。
+PPO（Proximal Policy Optimization）を使った強化学習のスクリプト集です。
 
 ---
 
 ## 🚀 クイックスタート
 
-### ⭐ 推奨: 適応的学習システム（新）
+### 適応的学習システム（推奨）
 
 ```bash
 # 1. テストモードで動作確認（50イテレーション、約5-10分）
@@ -28,246 +28,121 @@ tensorboard --logdir=logs
 
 ---
 
-### 従来の学習方法（デバッグ用）
-
-```bash
-# 1. テストを実行（動作確認）
-./scripts/rl-training/run_tests.sh
-
-# 2. 単一コースで学習（約1-2分）
-./scripts/rl-training/run_train.sh --total-iterations 5 --n-steps 256
-
-# 3. 学習結果を確認
-./scripts/rl-training/run_eval.sh
-```
-
----
-
 ## 📂 ファイル構成
 
 ```
 rl-training/
-├── README.md                         # このファイル
-├── README_DEPRECATED.md              # 非推奨スクリプトの説明
+├── README.md                      # このファイル
+├── README_DEPRECATED.md           # 削除したスクリプトの記録
 │
-├── ⭐ 適応的学習スクリプト（推奨）
-│   ├── train_adaptive.py             # カリキュラム学習 + 適応的報酬
-│   └── run_adaptive_training.sh      # 適応的学習起動（実行可能）
+├── ⭐ メインスクリプト
+│   ├── train_adaptive.py          # 適応的学習（カリキュラム + 報酬スケーリング）
+│   └── run_adaptive_training.sh   # 起動スクリプト（実行可能）
 │
-├── 🤖 従来の学習スクリプト
-│   ├── train.py                      # 単一コースでの学習
-│   ├── run_train.sh                  # 学習起動（実行可能）
-│   └── train_curriculum.py.old       # 旧カリキュラムスクリプト（非推奨）
-│
-├── 🧪 テストスクリプト
-│   ├── test_rl.py                    # RLモジュールのテスト
-│   ├── test_curriculum_basic.py      # カリキュラムマネージャーのテスト
-│   └── run_tests.sh                  # テスト起動（実行可能）
-│
-└── 📊 評価スクリプト
-    ├── test_saved_model.py           # 保存モデルの評価
-    └── run_eval.sh                   # 評価起動（実行可能）
+└── 📊 評価・テスト
+    ├── test_saved_model.py        # 学習済みモデルの評価
+    ├── test_curriculum_basic.py   # カリキュラムマネージャーのテスト
+    └── test_rl.py                 # RLモジュールの動作確認
 ```
 
 ---
 
-## ⭐ 適応的学習（train_adaptive.py）- 推奨
+## ⭐ 適応的学習（train_adaptive.py）
 
 カリキュラム学習と適応的報酬スケーリングを統合した、学習安定性を重視したスクリプトです。
 
 ### 使い方
 
 ```bash
-# テストモード（50イテレーション）
+# テストモード（50イテレーション、約5-10分）
 ./scripts/rl-training/run_adaptive_training.sh test
 
-# GUI付き学習（500イテレーション）
+# GUI付き学習（500イテレーション、約1時間）
 ./scripts/rl-training/run_adaptive_training.sh gui
 
-# 高速学習（2000イテレーション、GUIなし）
+# 高速学習（2000イテレーション、約4-6時間）
 ./scripts/rl-training/run_adaptive_training.sh fast
 
 # チェックポイントから再開
 ./scripts/rl-training/run_adaptive_training.sh resume models/checkpoints_adaptive/checkpoint_100.pth
 ```
 
-### 主な特徴
-
-1. **カリキュラム学習（6段階）**
-   - Level 0: 直線コース（超簡単）
-   - Level 1: 単純カーブ
-   - Level 2: 標準楕円
-   - Level 3: 狭い楕円
-   - Level 4: S字カーブ
-   - Level 5: 実コース
-   - Success Rate 80%で自動レベルアップ
-
-2. **適応的報酬スケーリング（3フェーズ）**
-   - Phase 0（基礎）: 前進と壁回避を重視
-   - Phase 1（探索）: チェックポイント通過を重視
-   - Phase 2（最適化）: 速度最適化を重視
-   - 学習の進捗に応じて自動調整
-
-3. **学習監視**
-   - カリキュラムレベルの自動追跡
-   - 報酬フェーズの自動遷移
-   - TensorBoardでの可視化
-
-### 詳細ドキュメント
-
-- [適応的学習システムの詳細](../../doc/rl-training/ADAPTIVE_TRAINING.md)
-- [カリキュラムコースの説明](../../courses/curriculum/README.md)
-
----
-
-## 🤖 単一コース学習（train.py）- デバッグ用
-
-PPOアルゴリズムでエージェントを学習させます。
-
-### 基本的な使い方
+または直接Pythonスクリプトを実行：
 
 ```bash
-# デフォルト設定で学習開始
-./scripts/rl-training/run_train.sh
+source venv/bin/activate
+export PYTHONPATH="$(pwd):$PYTHONPATH"
 
-# カスタム設定で学習
-./scripts/rl-training/run_train.sh \
-  --total-iterations 1000 \
-  --n-steps 2048 \
-  --lr 3e-4 \
-  --experiment-name my_experiment
+python scripts/rl-training/train_adaptive.py \
+  --total-iterations 2000 \
+  --save-freq 50 \
+  --eval-freq 25
 ```
+
+### 主な特徴
+
+#### 1. カリキュラム学習（6段階）
+
+| Level | コース | 難易度 | 目的 |
+|-------|--------|--------|------|
+| Level 0 | 直線コース | ★☆☆☆☆☆ | 壁回避と前進の基礎 |
+| Level 1 | 単純カーブ | ★★☆☆☆☆ | 基本的な操舵 |
+| Level 2 | 標準楕円 | ★★★☆☆☆ | 周回走行の基礎 |
+| Level 3 | 狭い楕円 | ★★★★☆☆ | より正確な操舵 |
+| Level 4 | S字カーブ | ★★★★★☆ | 複雑な経路 |
+| Level 5 | 実コース | ★★★★★★ | 実機転移 |
+
+- Success Rate 80%で自動レベルアップ
+- Success Rate < 30%でレベルダウン（オプション）
+
+#### 2. 適応的報酬スケーリング（3フェーズ）
+
+| Phase | 目的 | 報酬係数の特徴 |
+|-------|------|---------------|
+| Phase 0（基礎） | 壁回避と前進 | 時間ペナルティ弱め、方向報酬強め |
+| Phase 1（探索） | チェックポイント通過 | チェックポイント報酬を強化 |
+| Phase 2（最適化） | 速度最適化 | 時間ペナルティ強め、時間ボーナス強化 |
+
+- 学習の進捗に応じて自動遷移
+- 手動での報酬係数調整が不要
+
+#### 3. 学習監視
+
+- カリキュラムレベルの自動追跡
+- 報酬フェーズの自動遷移
+- TensorBoardでの詳細な可視化
+  - `curriculum/level` - 現在のレベル
+  - `curriculum/success_rate` - レベルごとの成功率
+  - `reward/phase` - 報酬スケーリングのフェーズ
 
 ### 主要なオプション
 
 | オプション | 説明 | デフォルト |
 |-----------|------|----------|
-| `--course` | コースファイル | `courses/easy/simple_oval.json` |
-| `--total-iterations` | 総イテレーション数 | 1000 |
-| `--n-steps` | 1イテレーションのステップ数 | 2048 |
-| `--n-epochs` | 1更新のエポック数 | 10 |
-| `--batch-size` | バッチサイズ | 64 |
-| `--lr` | 学習率 | 3e-4 |
-| `--gamma` | 割引率 | 0.99 |
+| `--total-iterations` | 総イテレーション数 | 2000 |
+| `--curriculum-success-threshold` | レベルアップ閾値 | 0.8 (80%) |
+| `--curriculum-min-episodes` | レベルアップ前の最低エピソード数 | 50 |
+| `--disable-adaptive-reward` | 適応的報酬を無効化 | False |
 | `--save-freq` | 保存頻度（イテレーション） | 50 |
-| `--eval-freq` | 評価頻度（イテレーション） | 50 |
-| `--device` | デバイス（cpu/cuda/mps/auto） | auto |
-| `--experiment-name` | 実験名 | 自動生成 |
-| `--gui` | GUIで可視化しながら学習 | なし（指定で有効化） |
+| `--eval-freq` | 評価頻度（イテレーション） | 25 |
+| `--gui` | GUIで可視化しながら学習 | False |
+| `--resume` | チェックポイントから再開 | None |
 
-### 使用例
+### 期待される学習曲線
 
-```bash
-# 短時間のテスト実行（約5分）
-./scripts/rl-training/run_train.sh \
-  --total-iterations 10 \
-  --n-steps 512 \
-  --experiment-name quick_test
-
-# GUIで可視化しながら学習（動作確認用）
-./scripts/rl-training/run_train.sh \
-  --total-iterations 5 \
-  --n-steps 256 \
-  --gui
-
-# 本格的な学習（約2-3時間）
-./scripts/rl-training/run_train.sh \
-  --total-iterations 1000 \
-  --save-freq 100 \
-  --experiment-name full_training
-
-# チェックポイントから再開
-./scripts/rl-training/run_train.sh \
-  --resume models/checkpoints/checkpoint_500.pth \
-  --total-iterations 2000
+```
+Iteration 1-50:    Level 0（直線）       Success Rate 0% → 80%
+Iteration 50-150:  Level 1（カーブ）     Success Rate 0% → 80%
+Iteration 150-400: Level 2（標準楕円）   Success Rate 20% → 80%, Phase 0→1
+Iteration 400-800: Level 3-4（狭い楕円・S字） Success Rate 30% → 80%
+Iteration 800-2000: Level 5（実コース）  Success Rate 10% → 50%+, Phase 1→2
 ```
 
-### 学習ログの見方
+### 詳細ドキュメント
 
-学習中に表示されるログの読み方を説明します。
-
-**ログ例:**
-```
-Iteration 40/200
-  Timesteps: 81920
-  Episode Reward (mean): 1641.45
-  Episode Length (mean): 448.0
-  Policy Loss: -0.0162
-  Value Loss: 6.0220
-  FPS: 282
-  Elapsed Time: 274.5s
-```
-
-**各項目の意味:**
-
-| 項目 | 説明 | 良い値の目安 |
-|------|------|-------------|
-| **Iteration** | 現在のイテレーション数 / 総イテレーション数 | - |
-| **Timesteps** | 学習開始からの累積ステップ数（= Iteration × n_steps） | - |
-| **Episode Reward (mean)** | このイテレーション中に完了したエピソードの平均報酬<br>- **マイナス**: ゴールに到達できていない、衝突が多い<br>- **小さい正の値（0-500）**: 長時間走行したがゴールできなかった<br>- **大きい正の値（1000以上）**: ゴール到達成功！ | **1000以上**でゴール成功の可能性が高い |
-| **Episode Length (mean)** | エピソード終了までの平均ステップ数<br>- **非常に短い（<100）**: 早期に衝突している<br>- **中程度（300-600）**: ゴール到達の可能性あり<br>- **2001（max_steps）**: タイムアウト（ゴール失敗） | **300-800**がゴール成功の目安 |
-| **Policy Loss** | 行動選択ネットワークの損失（PPOのクリッピング損失）<br>- 負の値は正常（PPOの目的関数は最大化）<br>- **0に近い**: 学習が停滞している可能性 | **-0.01 ~ -0.02**程度が健全 |
-| **Value Loss** | 状態価値予測の誤差<br>- 小さいほど良い<br>- **10以上**: 価値予測が不安定 | **1.0-5.0**程度 |
-| **FPS** | 1秒あたりのシミュレーションステップ数<br>- GUIなし: 200-300<br>- GUIあり: 30-60 | - |
-| **Elapsed Time** | 学習開始からの経過時間（秒） | - |
-
-**報酬とエピソード長の関係:**
-- 高報酬（1500+） × 短いエピソード（300-600）= **ゴール成功**
-- 低報酬（<500） × 長いエピソード（2001）= **タイムアウト（ゴール失敗）**
-- 負の報酬 × 短いエピソード（<200）= **早期衝突**
-
-**学習の健全性チェック:**
-- ✅ Episode Rewardが徐々に増加している → 順調
-- ✅ Episode Lengthがばらついている → 探索が機能している
-- ❌ Policy Lossが0.0に張り付いている → 学習停滞
-- ❌ Value Lossが10以上で変動が激しい → 学習が不安定
-
-### 学習の進捗確認
-
-**GUIでリアルタイム可視化:**
-```bash
-# 学習中のエージェントの動作を可視化
-./scripts/rl-training/run_train.sh --gui --total-iterations 10
-
-# 注意: GUIモードは学習速度が低下するため、動作確認用途での使用を推奨
-```
-
-**TensorBoardで可視化:**
-```bash
-# 別ターミナルで実行
-tensorboard --logdir=logs
-
-# ブラウザで http://localhost:6006 を開く
-```
-
-**CSVログの確認:**
-```bash
-cat logs/<experiment_name>/training.csv | column -t -s,
-```
-
----
-
-## 🧪 テスト（test_rl.py）
-
-強化学習モジュールの動作確認を行います。
-
-```bash
-./scripts/rl-training/run_tests.sh
-```
-
-**テスト内容:**
-- ✓ ポリシーネットワークのテスト
-- ✓ 価値関数ネットワークのテスト
-- ✓ ロールアウトバッファのテスト
-- ✓ PPOアルゴリズムのテスト
-- ✓ 環境との統合テスト
-
-**実行時間:** 約10-20秒
-
-**用途:**
-- 新規実装の動作確認
-- 環境セットアップ後の検証
-- バグ修正後のサニティチェック
+- [適応的学習システムの詳細](../../doc/rl-training/ADAPTIVE_TRAINING.md)
+- [カリキュラムコースの説明](../../courses/curriculum/README.md)
+- [カリキュラム全体の概要](../../courses/CURRICULUM_OVERVIEW.md)
 
 ---
 
@@ -278,22 +153,26 @@ cat logs/<experiment_name>/training.csv | column -t -s,
 ### 基本的な使い方
 
 ```bash
+source venv/bin/activate
+export PYTHONPATH="$(pwd):$PYTHONPATH"
+
 # デフォルト（final_model.pth）を3エピソード評価
-./scripts/rl-training/run_eval.sh
+python scripts/rl-training/test_saved_model.py
 
 # GUIで可視化しながら評価
-./scripts/rl-training/run_eval.sh --gui
+python scripts/rl-training/test_saved_model.py --gui
 
-# 特定のチェックポイントをGUIで評価
-./scripts/rl-training/run_eval.sh \
-  --model models/checkpoints/checkpoint_500.pth \
-  --n-episodes 5 \
+# 特定のチェックポイントを評価
+python scripts/rl-training/test_saved_model.py \
+  --model models/checkpoints_adaptive/checkpoint_500.pth \
+  --n-episodes 10 \
   --gui
 
-# ベストモデルを評価
-./scripts/rl-training/run_eval.sh \
-  --model models/best/policy.pth \
-  --n-episodes 10
+# 特定のコースで評価
+python scripts/rl-training/test_saved_model.py \
+  --model models/checkpoints_adaptive/final_model.pth \
+  --course courses/curriculum/level5_real_course.json \
+  --gui
 ```
 
 ### オプション
@@ -301,113 +180,139 @@ cat logs/<experiment_name>/training.csv | column -t -s,
 | オプション | 説明 | デフォルト |
 |-----------|------|----------|
 | `--model` | モデルファイルのパス | `models/checkpoints/final_model.pth` |
+| `--course` | コースファイルのパス | `courses/curriculum/level2_simple_oval.json` |
 | `--n-episodes` | 評価エピソード数 | 3 |
-| `--gui`, `--render` | GUIで可視化しながら評価 | なし（指定で有効化） |
+| `--gui`, `--render` | GUIで可視化しながら評価 | False |
 
 ### 出力例
 
 ```
 Episode 1:
-  Reward: 245.32
-  Length: 856
-  Checkpoints: 4
-  Final position: (2.15, 5.03)
-  Final speed: 1.25 m/s
+  Reward: 2451.32
+  Length: 456
+  Checkpoints: 4/4
+  Goal reached: True
+  Final position: (1.05, 1.12)
+  Final speed: 0.85 m/s
 
 Summary:
-Average Reward: 238.45 ± 12.34
-Average Length: 872.3 ± 45.6
+Average Reward: 2384.45 ± 112.34
+Average Length: 472.3 ± 45.6
 Average Checkpoints: 3.7 ± 0.5
+Success Rate: 66.7%
 ```
+
+---
+
+## 🧪 テスト
+
+### カリキュラムマネージャーのテスト
+
+```bash
+source venv/bin/activate
+export PYTHONPATH="$(pwd):$PYTHONPATH"
+
+python scripts/rl-training/test_curriculum_basic.py
+```
+
+**テスト内容**:
+- カリキュラムマネージャーの基本動作
+- レベルアップ/ダウンの判定
+- 動的なコース切り替え
+
+### RLモジュールのテスト
+
+```bash
+source venv/bin/activate
+export PYTHONPATH="$(pwd):$PYTHONPATH"
+
+python scripts/rl-training/test_rl.py
+```
+
+**テスト内容**:
+- ポリシーネットワークのテスト
+- 価値関数ネットワークのテスト
+- ロールアウトバッファのテスト
+- PPOアルゴリズムのテスト
+- 環境との統合テスト
 
 ---
 
 ## 📊 学習ワークフロー例
 
-### 1. 初めての学習
+### 初めての学習
 
 ```bash
-# Step 1: テスト実行（動作確認）
-./scripts/rl-training/run_tests.sh
+# Step 1: 動作確認（約5-10分）
+./scripts/rl-training/run_adaptive_training.sh test
 
-# Step 2: 短時間学習（動作確認）
-./scripts/rl-training/run_train.sh \
-  --total-iterations 5 \
-  --n-steps 256 \
-  --experiment-name initial_test
-
-# Step 3: 結果を確認
-./scripts/rl-training/run_eval.sh
-
-# Step 4: TensorBoardで可視化
+# Step 2: TensorBoardで可視化
 tensorboard --logdir=logs
+# ブラウザで http://localhost:6006 を開く
 
-# Step 5: 問題なければ本格的な学習を開始
-./scripts/rl-training/run_train.sh \
-  --total-iterations 1000 \
-  --experiment-name main_training
+# Step 3: 問題なければ本格的な学習を開始（約4-6時間）
+./scripts/rl-training/run_adaptive_training.sh fast
 ```
 
-### 2. 学習の継続
+### 学習の継続
 
 ```bash
 # チェックポイントから再開
-./scripts/rl-training/run_train.sh \
-  --resume models/checkpoints/checkpoint_500.pth \
-  --total-iterations 1500 \
-  --experiment-name continued_training
+./scripts/rl-training/run_adaptive_training.sh resume \
+  models/checkpoints_adaptive/checkpoint_500.pth
 ```
 
-### 3. ハイパーパラメータ調整
+### 学習結果の評価
 
 ```bash
-# 学習率を変更
-./scripts/rl-training/run_train.sh \
-  --lr 1e-4 \
-  --experiment-name lr_1e4
-
-# クリッピング範囲を変更
-./scripts/rl-training/run_train.sh \
-  --clip-range 0.1 \
-  --experiment-name clip_01
+# 最終モデルをGUIで評価
+python scripts/rl-training/test_saved_model.py \
+  --model models/checkpoints_adaptive/final_model.pth \
+  --n-episodes 10 \
+  --gui
 ```
 
 ---
 
 ## 🔍 トラブルシューティング
 
-### 学習が進まない場合
+### Level 0で進まない場合
 
-1. **報酬関数を確認:**
-   ```bash
-   ./scripts/simulator-demo/run_manual_control.sh
-   ```
+```bash
+# 学習率とエントロピー係数を上げる
+python scripts/rl-training/train_adaptive.py \
+  --lr 5e-4 \
+  --entropy-coef 0.05 \
+  --total-iterations 100
+```
 
-2. **学習率を調整:**
-   ```bash
-   ./scripts/rl-training/run_train.sh --lr 1e-4
-   ```
+### 特定レベルで詰まる場合
 
-3. **ステップ数を増やす:**
-   ```bash
-   ./scripts/rl-training/run_train.sh --n-steps 4096
-   ```
+```bash
+# Success Rate閾値を下げる
+python scripts/rl-training/train_adaptive.py \
+  --curriculum-success-threshold 0.7 \
+  --total-iterations 500
+```
+
+### 学習が不安定な場合
+
+```bash
+# バッチサイズを増やし、勾配クリッピングを強化
+python scripts/rl-training/train_adaptive.py \
+  --batch-size 128 \
+  --max-grad-norm 0.3 \
+  --total-iterations 500
+```
 
 ### メモリ不足の場合
 
 ```bash
-# バッチサイズを減らす
-./scripts/rl-training/run_train.sh --batch-size 32
-
-# ステップ数を減らす
-./scripts/rl-training/run_train.sh --n-steps 1024
-```
-
-### GPU/MPSが使えない場合
-
-```bash
-# CPUを強制
-./scripts/rl-training/run_train.sh --device cpu
+# バッチサイズとステップ数を減らす
+python scripts/rl-training/train_adaptive.py \
+  --batch-size 32 \
+  --n-steps 1024 \
+  --total-iterations 500
 ```
 
 ---
@@ -415,29 +320,29 @@ tensorboard --logdir=logs
 ## ⚡ よく使うコマンド
 
 ```bash
-# テスト
-./scripts/rl-training/run_tests.sh
+# テスト実行（動作確認）
+./scripts/rl-training/run_adaptive_training.sh test
 
-# 短時間学習（5イテレーション、約1分）
-./scripts/rl-training/run_train.sh --total-iterations 5 --n-steps 256
+# GUI付き学習（動作確認）
+./scripts/rl-training/run_adaptive_training.sh gui
 
-# GUIで可視化しながら学習
-./scripts/rl-training/run_train.sh --total-iterations 5 --n-steps 256 --gui
+# 本格学習（2000イテレーション）
+./scripts/rl-training/run_adaptive_training.sh fast
 
-# 中程度学習（100イテレーション、約30分）
-./scripts/rl-training/run_train.sh --total-iterations 100
+# チェックポイントから再開
+./scripts/rl-training/run_adaptive_training.sh resume models/checkpoints_adaptive/checkpoint_100.pth
 
-# 本格学習（1000イテレーション、約2-3時間）
-./scripts/rl-training/run_train.sh --total-iterations 1000
+# モデル評価（GUIで可視化）
+python scripts/rl-training/test_saved_model.py --gui
 
-# モデル評価
-./scripts/rl-training/run_eval.sh
-
-# GUIで可視化しながら評価
-./scripts/rl-training/run_eval.sh --gui
-
-# TensorBoard
+# TensorBoard起動
 tensorboard --logdir=logs
+
+# カリキュラムテスト
+python scripts/rl-training/test_curriculum_basic.py
+
+# RLモジュールテスト
+python scripts/rl-training/test_rl.py
 ```
 
 ---
@@ -447,9 +352,10 @@ tensorboard --logdir=logs
 ### 学習中に生成されるファイル
 
 ```
-models/checkpoints/
+models/checkpoints_adaptive/
 ├── checkpoint_50.pth         # 50イテレーション時点
 ├── checkpoint_100.pth        # 100イテレーション時点
+├── checkpoint_150.pth        # ...
 └── final_model.pth           # 最終モデル
 
 logs/<experiment_name>/
@@ -462,13 +368,20 @@ logs/<experiment_name>/
 
 ## 📚 関連ドキュメント
 
+- [適応的学習システムの詳細](../../doc/rl-training/ADAPTIVE_TRAINING.md)
+- [カリキュラムコースの説明](../../courses/curriculum/README.md)
+- [カリキュラム全体の概要](../../courses/CURRICULUM_OVERVIEW.md)
 - [プロジェクトREADME](../../README.md)
 - [手動制御デモ](../simulator-demo/README.md)
-- [スクリプト全体のREADME](../README.md)
-- [クイックスタート](../QUICKSTART.md)
-- [設定ファイル](../../configs/ppo_default.yaml)
 
 ---
 
-**作成日**: 2025-12-10
+## 📝 削除したスクリプト
+
+従来の学習スクリプト（`train.py`, `run_train.sh`など）は削除されました。
+詳細は [README_DEPRECATED.md](./README_DEPRECATED.md) を参照してください。
+
+---
+
+**更新日**: 2025-12-15
 **場所**: `scripts/rl-training/`
