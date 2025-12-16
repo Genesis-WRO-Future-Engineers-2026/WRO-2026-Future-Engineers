@@ -27,7 +27,7 @@ void SensorManager::resetAllSensors() {
   for (int i = 0; i < NUM_SENSORS; i++) {
     digitalWrite(SHUTDOWN_PINS[i], LOW);
   }
-  delay(10);
+  delay(1000);
 }
 
 /*
@@ -36,7 +36,7 @@ void SensorManager::resetAllSensors() {
 void SensorManager::activateSensor(uint8_t sensorId) {
   if (sensorId < NUM_SENSORS) {
     digitalWrite(SHUTDOWN_PINS[sensorId], HIGH);
-    delay(10);
+    delay(1000);
   }
 }
 
@@ -46,7 +46,7 @@ void SensorManager::activateSensor(uint8_t sensorId) {
 void SensorManager::deactivateSensor(uint8_t sensorId) {
   if (sensorId < NUM_SENSORS) {
     digitalWrite(SHUTDOWN_PINS[sensorId], LOW);
-    delay(10);
+    delay(1000);
   }
 }
 
