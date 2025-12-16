@@ -37,11 +37,11 @@ inline const uint8_t* getSensorAddresses() {
 // センサーの電源管理とI2Cアドレス設定に使用
 inline const uint8_t* getShutdownPins() {
   static const uint8_t pins[NUM_SENSORS] = {
-    2,  // Sensor 1
-    3,  // Sensor 2
-    4,  // Sensor 3
-    5,  // Sensor 4
-    6   // Sensor 5
+    9,  // Sensor 1
+    8,  // Sensor 2
+    7,  // Sensor 3
+    6,  // Sensor 4
+    5   // Sensor 5
   };
   return pins;
 }
