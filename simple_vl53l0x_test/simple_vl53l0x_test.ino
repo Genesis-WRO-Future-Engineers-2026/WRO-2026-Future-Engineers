@@ -1,11 +1,10 @@
 /*
-  シンプルなVL53L0Xセンサー読み取りテスト
-  TCA9548Aマルチプレクサ経由で2つのセンサーからデータを取得
+  シンプルなVL53L0Xセンサー読み取りテスト（ループ版）
+  TCA9548Aマルチプレクサ経由で複数のセンサーからデータを取得
 
   接続:
   - TCA9548A I2Cマルチプレクサ (アドレス: 0x70)
-  - VL53L0Xセンサー1 → マルチプレクサのチャンネル0に接続
-  - VL53L0Xセンサー2 → マルチプレクサのチャンネル1に接続
+  - VL53L0Xセンサー → マルチプレクサのチャンネル0, 1に接続
 */
 
 #include <Wire.h>
@@ -14,17 +13,17 @@
 // TCA9548Aマルチプレクサのアドレス
 #define TCA9548A_ADDR 0x70
 
-// センサーを接続するチャンネル
-#define SENSOR1_CHANNEL 0
-#define SENSOR2_CHANNEL 1
+// センサーの数（ここを変更するだけで増減可能）
+#define NUM_SENSORS 2
 
-// VL53L0Xセンサーオブジェクト
-Adafruit_VL53L0X lox1 = Adafruit_VL53L0X();
-Adafruit_VL53L0X lox2 = Adafruit_VL53L0X();
+// 各センサーが接続されているチャンネル
+const uint8_t sensorChannels[NUM_SENSORS] = {0, 1};
 
-// 測定データ
-VL53L0X_RangingMeasurementData_t measure1;
-VL53L0X_RangingMeasurementData_t measure2;
+// VL53L0Xセンサーオブジェクトの配列
+Adafruit_VL53L0X sensors[NUM_SENSORS];
+
+// 測定データの配列
+VL53L0X_RangingMeasurementData_t measurements[NUM_SENSORS];
 
 /**
  * TCA9548Aマルチプレクサのチャンネルを選択
@@ -41,78 +40,63 @@ void setup() {
   Serial.begin(9600);
   Wire.begin();
 
-  Serial.println("VL53L0X Dual Sensor Test with Multiplexer");
+  Serial.print("VL53L0X Test with ");
+  Serial.print(NUM_SENSORS);
+  Serial.println(" Sensors");
   Serial.println("==========================================");
 
-  // センサー1の初期化
-  tcaSelect(SENSOR1_CHANNEL);
-  delay(10);
+  // 全センサーを初期化
+  for (int i = 0; i < NUM_SENSORS; i++) {
+    tcaSelect(sensorChannels[i]);
+    delay(10);
 
-  Serial.print("Initializing sensor 1 on channel ");
-  Serial.print(SENSOR1_CHANNEL);
-  Serial.print("...");
+    Serial.print("Initializing sensor ");
+    Serial.print(i);
+    Serial.print(" on channel ");
+    Serial.print(sensorChannels[i]);
+    Serial.print("...");
 
-  if (!lox1.begin()) {
-    Serial.println("FAILED!");
-    Serial.println("Check sensor 1 connections!");
-    while (1);
+    if (!sensors[i].begin()) {
+      Serial.println("FAILED!");
+      Serial.print("Check sensor ");
+      Serial.print(i);
+      Serial.println(" connections!");
+      while (1);
+    }
+
+    Serial.println("OK!");
   }
 
-  Serial.println("OK!");
-
-  // センサー2の初期化
-  tcaSelect(SENSOR2_CHANNEL);
-  delay(10);
-
-  Serial.print("Initializing sensor 2 on channel ");
-  Serial.print(SENSOR2_CHANNEL);
-  Serial.print("...");
-
-  if (!lox2.begin()) {
-    Serial.println("FAILED!");
-    Serial.println("Check sensor 2 connections!");
-    while (1);
-  }
-
-  Serial.println("OK!");
   Serial.println();
 }
 
 void loop() {
-  // センサー1の測定
-  tcaSelect(SENSOR1_CHANNEL);
-  lox1.rangingTest(&measure1, false);
-
-  // センサー2の測定
-  tcaSelect(SENSOR2_CHANNEL);
-  lox2.rangingTest(&measure2, false);
-
-  // 結果表示
-  Serial.print("Ch");
-  Serial.print(SENSOR1_CHANNEL);
-  Serial.print(": ");
-
-  if (measure1.RangeStatus != 4) {
-    Serial.print(measure1.RangeMilliMeter);
-    Serial.print(" mm");
-  } else {
-    Serial.print("Out of range");
+  // 全センサーから測定
+  for (int i = 0; i < NUM_SENSORS; i++) {
+    tcaSelect(sensorChannels[i]);
+    sensors[i].rangingTest(&measurements[i], false);
   }
 
-  Serial.print("  |  ");
+  // 結果表示
+  for (int i = 0; i < NUM_SENSORS; i++) {
+    Serial.print("Ch");
+    Serial.print(sensorChannels[i]);
+    Serial.print(": ");
 
-  Serial.print("Ch");
-  Serial.print(SENSOR2_CHANNEL);
-  Serial.print(": ");
+    if (measurements[i].RangeStatus != 4) {
+      Serial.print(measurements[i].RangeMilliMeter);
+      Serial.print(" mm");
+    } else {
+      Serial.print("Out of range");
+    }
 
-  if (measure2.RangeStatus != 4) {
-    Serial.print(measure2.RangeMilliMeter);
-    Serial.print(" mm");
-  } else {
-    Serial.print("Out of range");
+    // 最後のセンサー以外は区切り文字を表示
+    if (i < NUM_SENSORS - 1) {
+      Serial.print("  |  ");
+    }
   }
 
   Serial.println();
 
-  delay(500);
+  delay(100);
 }
