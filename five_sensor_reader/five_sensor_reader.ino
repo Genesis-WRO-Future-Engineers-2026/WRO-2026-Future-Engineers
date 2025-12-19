@@ -1,86 +1,101 @@
 /*
  * five_sensor_reader.ino
  *
- * 5つのVL53L0Xセンサーから距離データを読み取るメインプログラム
+ * 5つのVL53L0Xセンサーから距離データを読み取り、
+ * 将来的にステアリングサーボとモーターへパルス出力を行うメインプログラム
+ *
+ * 接続:
+ * - TCA9548A I2Cマルチプレクサ (アドレス: 0x70)
+ * - VL53L0Xセンサー → マルチプレクサのチャンネル0, 1, 2, 3, 4に接続
  *
  * 使用方法:
  * 1. Arduino IDEでこのファイルを開く
  * 2. 必要なライブラリをインストール:
  *    - Adafruit_VL53L0X
  * 3. Arduino Nano R4に書き込み
- * 4. シリアルモニタ（115200bps）で確認
- *
- * 出力形式の切り替え:
- * - COMPACT: 1行表示（デフォルト）
- * - DETAILED: 詳細表示
- * - CSV: データ解析用
- * - JSON: シリアル通信用
+ * 4. シリアルモニタ（9600bps）で確認
  */
 
-#include "SensorManager.h"
+#include <Wire.h>
+#include "Adafruit_VL53L0X.h"
 
 // ============================================================================
-// グローバル変数
+// TCA9548Aマルチプレクサ設定
 // ============================================================================
-SensorManager sensorManager;
+#define TCA9548A_ADDR 0x70
 
 // ============================================================================
-// 出力モード設定
+// センサー設定
 // ============================================================================
-enum OutputMode {
-  COMPACT,   // コンパクト表示（1行）
-  DETAILED,  // 詳細表示（複数行）
-  CSV,       // CSV形式
-  JSON       // JSON形式
-};
+#define NUM_SENSORS 5
 
-// 使用する出力モードを選択（デフォルト: COMPACT）
-const OutputMode OUTPUT_MODE = COMPACT;
+// 各センサーが接続されているチャンネル
+const uint8_t sensorChannels[NUM_SENSORS] = {0, 1, 2, 3, 4};
 
-// 測定間隔（ミリ秒）
+// VL53L0Xセンサーオブジェクトの配列
+Adafruit_VL53L0X sensors[NUM_SENSORS];
+
+// 測定データの配列
+VL53L0X_RangingMeasurementData_t measurements[NUM_SENSORS];
+
+// ============================================================================
+// 測定間隔設定
+// ============================================================================
 const unsigned long MEASUREMENT_INTERVAL = 100;  // 100ms = 10Hz
+
+// ============================================================================
+// ヘルパー関数
+// ============================================================================
+
+/**
+ * TCA9548Aマルチプレクサのチャンネルを選択
+ */
+void tcaSelect(uint8_t channel) {
+  if (channel > 7) return;
+
+  Wire.beginTransmission(TCA9548A_ADDR);
+  Wire.write(1 << channel);
+  Wire.endTransmission();
+}
 
 // ============================================================================
 // Setup関数
 // ============================================================================
 void setup() {
   // シリアル通信開始
-  Serial.begin(115200);
+  Serial.begin(9600);
+  Wire.begin();
 
-  // シリアルポートが開くまで待機（ネイティブUSBデバイス用）
-  while (!Serial) {
-    delay(1);
-  }
+  Serial.print("VL53L0X Test with ");
+  Serial.print(NUM_SENSORS);
+  Serial.println(" Sensors");
+  Serial.println("==========================================");
 
-  // 起動メッセージ
-  printStartupMessage();
+  // 全センサーを初期化
+  for (int i = 0; i < NUM_SENSORS; ++i) {
+    tcaSelect(sensorChannels[i]);
+    delay(1000);
 
-  // センサーマネージャーの初期化
-  if (!sensorManager.begin()) {
-    Serial.println(F("\n❌ ERROR: Sensor initialization failed!"));
-    Serial.println(F("Please check:"));
-    Serial.println(F("  1. I2C connections (SDA/SCL)"));
-    Serial.println(F("  2. Power supply (3.3V/5V)"));
-    Serial.println(F("  3. Shutdown pin connections"));
-    Serial.println(F("  4. Sensor hardware"));
+    Serial.print("Initializing sensor ");
+    Serial.print(i);
+    Serial.print(" on channel ");
+    Serial.print(sensorChannels[i]);
+    Serial.print("...");
 
-    // エラー時は無限ループで停止
-    while (1) {
-      delay(1000);
+    if (!sensors[i].begin()) {
+      Serial.println("FAILED!");
+      Serial.print("Check sensor ");
+      Serial.print(i);
+      Serial.println(" connections!");
+      while (1);
     }
+
+    Serial.println("OK!");
   }
 
   Serial.println();
-  Serial.println(F("✓ Initialization complete!"));
-  Serial.println(F("Starting continuous measurement...\n"));
-
-  // CSV形式の場合はヘッダーを出力
-  if (OUTPUT_MODE == CSV) {
-    Serial.println(F("S1,S2,S3,S4,S5"));
-  }
-
-  // 初回測定前に少し待機
-  delay(500);
+  Serial.println("Initialization complete!");
+  Serial.println("Starting continuous measurement...\n");
 }
 
 // ============================================================================
@@ -94,142 +109,37 @@ void loop() {
   if (currentTime - lastMeasurement >= MEASUREMENT_INTERVAL) {
     lastMeasurement = currentTime;
 
-    // 全センサーから距離を読み取る
-    sensorManager.readAllSensors();
-
-    // 選択した形式で出力
-    switch (OUTPUT_MODE) {
-      case COMPACT:
-        sensorManager.printCompact();
-        break;
-
-      case DETAILED:
-        sensorManager.printDetailed();
-        Serial.println();  // 読みやすさのため空行を追加
-        break;
-
-      case CSV:
-        sensorManager.printCSV();
-        break;
-
-      case JSON:
-        sensorManager.printJSON();
-        break;
+    // 全センサーから測定
+    for (int i = 0; i < NUM_SENSORS; ++i) {
+      tcaSelect(sensorChannels[i]);
+      sensors[i].rangingTest(&measurements[i], false);
     }
-  }
 
-  // シリアルコマンド受信処理（オプション）
-  handleSerialCommands();
-}
+    // 結果表示
+    for (int i = 0; i < NUM_SENSORS; ++i) {
+      Serial.print("Ch");
+      Serial.print(sensorChannels[i]);
+      Serial.print(": ");
 
-// ============================================================================
-// ヘルパー関数
-// ============================================================================
+      if (measurements[i].RangeStatus != 4) {
+        Serial.print(measurements[i].RangeMilliMeter);
+        Serial.print(" mm");
+      } else {
+        Serial.print("Out of range");
+      }
 
-/*
- * 起動メッセージを表示
- */
-void printStartupMessage() {
-  Serial.println(F("\n\n"));
-  Serial.println(F("╔═══════════════════════════════════════════════╗"));
-  Serial.println(F("║  5-Sensor VL53L0X Reader (OOP Design)         ║"));
-  Serial.println(F("║  Version 1.0                                  ║"));
-  Serial.println(F("╚═══════════════════════════════════════════════╝"));
-  Serial.println();
-
-  Serial.print(F("Output Mode: "));
-  switch (OUTPUT_MODE) {
-    case COMPACT:  Serial.println(F("COMPACT")); break;
-    case DETAILED: Serial.println(F("DETAILED")); break;
-    case CSV:      Serial.println(F("CSV")); break;
-    case JSON:     Serial.println(F("JSON")); break;
-  }
-
-  Serial.print(F("Measurement Rate: "));
-  Serial.print(1000 / MEASUREMENT_INTERVAL);
-  Serial.println(F(" Hz"));
-  Serial.println();
-}
-
-/*
- * シリアルコマンド処理（デバッグ用）
- *
- * コマンド:
- * 'c' - COMPACT表示に切り替え
- * 'd' - DETAILED表示に切り替え
- * 'v' - CSV表示に切り替え
- * 'j' - JSON表示に切り替え
- * 'i' - 初期化状態を表示
- * '1'-'5' - 特定のセンサー情報を表示
- */
-void handleSerialCommands() {
-  if (Serial.available() > 0) {
-    char command = Serial.read();
-
-    switch (command) {
-      case 'c':
-      case 'C':
-        Serial.println(F("\n[Switched to COMPACT mode]"));
-        // 実際の切り替えは定数なので、再コンパイルが必要
-        break;
-
-      case 'd':
-      case 'D':
-        Serial.println(F("\n[DETAILED mode]"));
-        sensorManager.printDetailed();
-        break;
-
-      case 'v':
-      case 'V':
-        Serial.println(F("\n[CSV mode]"));
-        Serial.println(F("S1,S2,S3,S4,S5"));
-        break;
-
-      case 'j':
-      case 'J':
-        Serial.println(F("\n[JSON mode]"));
-        sensorManager.printJSON();
-        break;
-
-      case 'i':
-      case 'I':
-        Serial.println();
-        sensorManager.printInitializationStatus();
-        break;
-
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-        Serial.println();
-        sensorManager.printSensorInfo(command - '1');
-        break;
-
-      case 'h':
-      case 'H':
-      case '?':
-        printHelp();
-        break;
-
-      default:
-        // 未知のコマンドは無視
-        break;
+      // 最後のセンサー以外は区切り文字を表示
+      if (i < NUM_SENSORS - 1) {
+        Serial.print("  |  ");
+      }
     }
-  }
-}
 
-/*
- * ヘルプメッセージを表示
- */
-void printHelp() {
-  Serial.println(F("\n=== Available Commands ==="));
-  Serial.println(F("c - Switch to COMPACT mode (requires recompile)"));
-  Serial.println(F("d - Show DETAILED output"));
-  Serial.println(F("v - Show CSV output"));
-  Serial.println(F("j - Show JSON output"));
-  Serial.println(F("i - Show initialization status"));
-  Serial.println(F("1-5 - Show specific sensor info"));
-  Serial.println(F("h/? - Show this help"));
-  Serial.println(F("=========================\n"));
+    Serial.println();
+
+    // TODO: ここに将来パルス出力処理を追加
+    // - センサーデータから壁までの距離を判断
+    // - ステアリング角度を計算
+    // - サーボへのPWM信号出力
+    // - モーターへのPWM信号出力
+  }
 }
