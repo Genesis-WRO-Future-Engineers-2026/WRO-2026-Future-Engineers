@@ -88,7 +88,7 @@ const int SERVO_MIN = 500;                  // 最小パルス幅（μs）
 const int SERVO_MAX = 2400;                 // 最大パルス幅（μs）
 
 // ESC: 1000-2000μs範囲（実際の最大前進は1400μs）
-const float BASE_SPEED_PULSE = 1.45;        // 基本速度（ms）
+const float BASE_SPEED_PULSE = 1.5;        // 基本速度（ms）
 const float MAX_SPEED_PULSE = 1.4;          // 最大速度（ms）
 const float STOP_SPEED_PULSE = 1.5;         // 停止（ms）
 

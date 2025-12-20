@@ -11,7 +11,7 @@
 // ============================================================================
 SensorManager::SensorManager() {
   // センサーデータの初期化
-  for (int i = 0; i < NUM_SENSORS; i++) {
+  for (int i = 0; i < NUM_SENSORS; ++i) {
     sensorData[i] = SensorData(i, SENSOR_ANGLES[i]);
   }
 }
@@ -24,7 +24,7 @@ SensorManager::SensorManager() {
  * 全センサーのシャットダウンピンをLOWにしてリセット
  */
 void SensorManager::resetAllSensors() {
-  for (int i = 0; i < NUM_SENSORS; i++) {
+  for (int i = 0; i < NUM_SENSORS; ++i) {
     digitalWrite(SHUTDOWN_PINS[i], LOW);
   }
   delay(1000);
@@ -64,7 +64,7 @@ bool SensorManager::begin() {
   Serial.println(F("=== Sensor Manager Initialization ==="));
 
   // シャットダウンピンの設定
-  for (int i = 0; i < NUM_SENSORS; i++) {
+  for (int i = 0; i < NUM_SENSORS; ++i) {
     pinMode(SHUTDOWN_PINS[i], OUTPUT);
   }
   Serial.println(F("✓ Shutdown pins configured"));
@@ -74,7 +74,7 @@ bool SensorManager::begin() {
   Serial.println(F("✓ All sensors reset"));
 
   // 各センサーを順番に初期化
-  for (int i = 0; i < NUM_SENSORS; i++) {
+  for (int i = 0; i < NUM_SENSORS; ++i) {
     Serial.print(F("Initializing Sensor "));
     Serial.print(i + 1);
     Serial.print(F(" ["));
@@ -114,7 +114,7 @@ bool SensorManager::begin() {
  * 全センサーから距離を読み取る
  */
 void SensorManager::readAllSensors() {
-  for (int i = 0; i < NUM_SENSORS; i++) {
+  for (int i = 0; i < NUM_SENSORS; ++i) {
     // 測定実行
     sensors[i].rangingTest(&measurements[i], false);
 
@@ -158,7 +158,7 @@ const SensorData* SensorManager::getAllSensorData() const {
  * 全センサーのデータをシリアル出力（1行形式）
  */
 void SensorManager::printCompact() const {
-  for (int i = 0; i < NUM_SENSORS; i++) {
+  for (int i = 0; i < NUM_SENSORS; ++i) {
     Serial.print(F("S"));
     Serial.print(i + 1);
     Serial.print(F(":"));
@@ -195,7 +195,7 @@ void SensorManager::printDetailed() const {
   Serial.println(F("║         Sensor Readings               ║"));
   Serial.println(F("╠═══════════════════════════════════════╣"));
 
-  for (int i = 0; i < NUM_SENSORS; i++) {
+  for (int i = 0; i < NUM_SENSORS; ++i) {
     Serial.print(F("║ Sensor "));
     Serial.print(i + 1);
     Serial.print(F(" ["));
@@ -245,7 +245,7 @@ void SensorManager::printDetailed() const {
  * CSV形式で出力（データ解析用）
  */
 void SensorManager::printCSV() const {
-  for (int i = 0; i < NUM_SENSORS; i++) {
+  for (int i = 0; i < NUM_SENSORS; ++i) {
     Serial.print(sensorData[i].distance);
     if (i < NUM_SENSORS - 1) {
       Serial.print(F(","));
@@ -259,7 +259,7 @@ void SensorManager::printCSV() const {
  */
 void SensorManager::printJSON() const {
   Serial.print(F("{\"sensors\":["));
-  for (int i = 0; i < NUM_SENSORS; i++) {
+  for (int i = 0; i < NUM_SENSORS; ++i) {
     Serial.print(F("{\"id\":"));
     Serial.print(sensorData[i].id);
     Serial.print(F(",\"angle\":"));
@@ -287,7 +287,7 @@ void SensorManager::printJSON() const {
  */
 void SensorManager::printInitializationStatus() const {
   Serial.println(F("=== Sensor Configuration ==="));
-  for (int i = 0; i < NUM_SENSORS; i++) {
+  for (int i = 0; i < NUM_SENSORS; ++i) {
     Serial.print(F("Sensor "));
     Serial.print(i + 1);
     Serial.print(F(": Pin="));
