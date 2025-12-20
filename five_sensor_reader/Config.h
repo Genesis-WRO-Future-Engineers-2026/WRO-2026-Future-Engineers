@@ -11,7 +11,7 @@
 // ============================================================================
 // デバッグモード設定
 // ============================================================================
-#define DEBUG_MODE false  // true: デバッグ（PWMなし、シリアルあり）
+#define DEBUG_MODE true  // true: デバッグ（PWMなし、シリアルあり）
                           // false: 実機（PWMあり、シリアルなし）
 
 // ============================================================================
@@ -55,7 +55,7 @@ const uint16_t SERVO_MAX = 2400;               // 最大パルス幅（μs）
 
 // ESC（速度制御）
 const float STOP_SPEED_PULSE = 1.5;            // 停止（ms）
-const float BASE_SPEED_PULSE = 1.5;            // 基本速度（ms）
+const float BASE_SPEED_PULSE = 1.45;            // 基本速度（ms）
 const float MAX_SPEED_PULSE = 1.4;             // 最大速度（ms）
 const uint16_t ESC_MIN_US = 1000;              // ESC最小パルス（μs）
 const uint16_t ESC_MAX_US = 2000;              // ESC最大パルス（μs）
