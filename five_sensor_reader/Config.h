@@ -34,7 +34,7 @@ const uint8_t ESC_PIN = 10;    // ESC（モーター制御）
 // ============================================================================
 const uint16_t MIN_VALID_DISTANCE = 50;        // 最小有効測定距離（mm）
 const uint16_t RELIABLE_RANGE = 1200;          // 信頼できる測定範囲（mm）
-const uint16_t MAX_SENSOR_DIFF = 350;          // センサーペア間の最大許容差（mm）
+const uint16_t MAX_SENSOR_DIFF = 600;          // センサーペア間の最大許容差（mm）
 const uint16_t SENSOR_ERROR_VALUE = 65535;     // センサーエラー時の値
 
 // ============================================================================
@@ -47,7 +47,7 @@ const float EPSILON_VERTICAL = 0.001;          // 垂直壁判定の閾値
 const float CENTERING_GAIN = 0.05;             // 中央走行のゲイン（距離差→角度変換）
 
 // 左側センサーの最小距離制約（衝突回避）
-const uint16_t MIN_LEFT_DISTANCE = 500;        // 左側最小距離（mm）= 35cm
+const uint16_t MIN_LEFT_DISTANCE = 500;        // 左側最小距離（mm）= 50cm
 const float LEFT_AVOID_GAIN = 0.05;            // 回避補正ゲイン
 
 // 緊急停止パラメータ
@@ -63,7 +63,7 @@ const uint16_t SERVO_MAX = 2400;               // 最大パルス幅（μs）
 
 // ESC（速度制御）
 const float STOP_SPEED_PULSE = 1.5;            // 停止（ms）
-const float BASE_SPEED_PULSE = 1.46;            // 基本速度（ms）
+const float BASE_SPEED_PULSE = 1.45;            // 基本速度（ms）
 const float MAX_SPEED_PULSE = 1.4;             // 最大速度（ms）
 const uint16_t ESC_MIN_US = 1000;              // ESC最小パルス（μs）
 const uint16_t ESC_MAX_US = 2000;              // ESC最大パルス（μs）
