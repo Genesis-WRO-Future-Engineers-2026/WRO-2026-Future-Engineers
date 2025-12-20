@@ -93,8 +93,8 @@ void loop() {
     // フェーズ2: 壁検出
     WallDetection walls = wallDetector.detect(sensorData);
 
-    // フェーズ3: ステアリング角度計算
-    float steering_angle = steeringController.calculate(walls);
+    // フェーズ3: ステアリング角度計算（制約付き）
+    float steering_angle = steeringController.calculate(walls, sensorData);
 
     // デバッグ: 壁検出とステアリング表示
     Logger::printWallStatus(walls.left_valid, walls.right_valid);

@@ -43,6 +43,10 @@ const uint16_t SENSOR_ERROR_VALUE = 65535;     // センサーエラー時の値
 const float MAX_STEERING_ANGLE = 30.0;         // 最大操舵角（度）
 const float EPSILON_VERTICAL = 0.001;          // 垂直壁判定の閾値
 
+// 左側センサーの最小距離制約（衝突回避）
+const uint16_t MIN_LEFT_DISTANCE = 350;        // 左側最小距離（mm）= 35cm
+const float LEFT_AVOID_GAIN = 0.05;            // 回避補正ゲイン
+
 // ============================================================================
 // サーボ・ESC パルス幅設定
 // ============================================================================
@@ -53,7 +57,7 @@ const uint16_t SERVO_MAX = 2400;               // 最大パルス幅（μs）
 
 // ESC（速度制御）
 const float STOP_SPEED_PULSE = 1.5;            // 停止（ms）
-const float BASE_SPEED_PULSE = 1.45;            // 基本速度（ms）
+const float BASE_SPEED_PULSE = 1.46;            // 基本速度（ms）
 const float MAX_SPEED_PULSE = 1.4;             // 最大速度（ms）
 const uint16_t ESC_MIN_US = 1000;              // ESC最小パルス（μs）
 const uint16_t ESC_MAX_US = 2000;              // ESC最大パルス（μs）

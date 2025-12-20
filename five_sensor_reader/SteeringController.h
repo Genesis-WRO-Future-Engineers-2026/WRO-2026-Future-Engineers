@@ -13,12 +13,16 @@
 #include "WallDetector.h"
 
 class SteeringController {
+private:
+  // センサーデータへの参照（制約チェック用）
+  const SensorData* lastSensorData;
+
 public:
   // コンストラクタ
   SteeringController();
 
   // ステアリング角度を計算
-  float calculate(const WallDetection& walls);
+  float calculate(const WallDetection& walls, const SensorData* sensorData);
 };
 
 #endif // STEERING_CONTROLLER_H
