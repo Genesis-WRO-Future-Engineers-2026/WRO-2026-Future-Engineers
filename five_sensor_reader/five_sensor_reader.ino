@@ -29,6 +29,15 @@
 // true: PWM出力なし（デバッグ用）、false: PWM出力あり（実機制御）
 #define DEBUG_MODE false
 
+// デバッグモードに応じてシリアルプリントを制御するマクロ
+#if DEBUG_MODE
+  #define DEBUG_PRINT(x) Serial.print(x)
+  #define DEBUG_PRINTLN(x) Serial.println(x)
+#else
+  #define DEBUG_PRINT(x)
+  #define DEBUG_PRINTLN(x)
+#endif
+
 // ============================================================================
 // TCA9548Aマルチプレクサ設定
 // ============================================================================
@@ -247,11 +256,11 @@ void setSteeringAngle(float angle_degrees) {
   }
 
   // デバッグ出力
-  Serial.print("  [Servo: ");
-  Serial.print(pulse_us);
-  Serial.print("us");
-  if (DEBUG_MODE) Serial.print(" (sim)");
-  Serial.print("]");
+  DEBUG_PRINT("  [Servo: ");
+  DEBUG_PRINT(pulse_us);
+  DEBUG_PRINT("us");
+  if (DEBUG_MODE) DEBUG_PRINT(" (sim)");
+  DEBUG_PRINT("]");
 }
 
 /**
@@ -273,11 +282,11 @@ void setSpeed(float speed_pulse) {
   }
 
   // デバッグ出力
-  Serial.print("  [ESC: ");
-  Serial.print(speed_pulse, 2);
-  Serial.print("ms");
-  if (DEBUG_MODE) Serial.print(" (sim)");
-  Serial.print("]");
+  DEBUG_PRINT("  [ESC: ");
+  DEBUG_PRINT(speed_pulse);
+  DEBUG_PRINT("ms");
+  if (DEBUG_MODE) DEBUG_PRINT(" (sim)");
+  DEBUG_PRINT("]");
 }
 
 // ============================================================================
@@ -288,12 +297,12 @@ void setup() {
   Serial.begin(9600);
   Wire.begin();
 
-  Serial.println("==========================================");
-  Serial.println("  5-Sensor Wall Following System");
-  Serial.println("==========================================");
-  Serial.print("Debug Mode: ");
-  Serial.println(DEBUG_MODE ? "ON (No PWM)" : "OFF (PWM Active)");
-  Serial.println();
+  DEBUG_PRINTLN("==========================================");
+  DEBUG_PRINTLN("  5-Sensor Wall Following System");
+  DEBUG_PRINTLN("==========================================");
+  DEBUG_PRINT("Debug Mode: ");
+  DEBUG_PRINTLN(DEBUG_MODE ? "ON (No PWM)" : "OFF (PWM Active)");
+  DEBUG_PRINTLN();
 
   // PWM出力ピンを初期化
   if (!DEBUG_MODE) {
@@ -304,42 +313,42 @@ void setup() {
     steeringServo.writeMicroseconds(SERVO_CENTER);
     escController.writeMicroseconds((int)(STOP_SPEED_PULSE * 1000));
 
-    Serial.println("PWM outputs initialized:");
-    Serial.print("  Servo: Pin ");
-    Serial.println(SERVO_PIN);
-    Serial.print("  ESC: Pin ");
-    Serial.println(ESC_PIN);
-    Serial.println();
+    DEBUG_PRINTLN("PWM outputs initialized:");
+    DEBUG_PRINT("  Servo: Pin ");
+    DEBUG_PRINTLN(SERVO_PIN);
+    DEBUG_PRINT("  ESC: Pin ");
+    DEBUG_PRINTLN(ESC_PIN);
+    DEBUG_PRINTLN();
   }
 
   // 全センサーを初期化
-  Serial.println("Initializing sensors...");
+  DEBUG_PRINTLN("Initializing sensors...");
   for (int i = 0; i < NUM_SENSORS; ++i) {
     tcaSelect(sensorChannels[i]);
     delay(1000);
 
-    Serial.print("  Sensor ");
-    Serial.print(i);
-    Serial.print(" (Ch");
-    Serial.print(sensorChannels[i]);
-    Serial.print(", ");
-    Serial.print(SENSOR_ANGLES[i], 0);
-    Serial.print("deg)...");
+    DEBUG_PRINT("  Sensor ");
+    DEBUG_PRINT(i);
+    DEBUG_PRINT(" (Ch");
+    DEBUG_PRINT(sensorChannels[i]);
+    DEBUG_PRINT(", ");
+    DEBUG_PRINT(SENSOR_ANGLES[i]);
+    DEBUG_PRINT("deg)...");
 
     if (!sensors[i].begin()) {
-      Serial.println("FAILED!");
-      Serial.print("Check sensor ");
-      Serial.print(i);
-      Serial.println(" connections!");
+      DEBUG_PRINTLN("FAILED!");
+      DEBUG_PRINT("Check sensor ");
+      DEBUG_PRINT(i);
+      DEBUG_PRINTLN(" connections!");
       while (1);
     }
 
-    Serial.println("OK!");
+    DEBUG_PRINTLN("OK!");
   }
 
-  Serial.println();
-  Serial.println("Initialization complete!");
-  Serial.println("Starting wall-following control...\n");
+  DEBUG_PRINTLN();
+  DEBUG_PRINTLN("Initialization complete!");
+  DEBUG_PRINTLN("Starting wall-following control...\n");
 }
 
 // ============================================================================
@@ -361,19 +370,19 @@ void loop() {
 
     // センサーデータ表示
     for (int i = 0; i < NUM_SENSORS; ++i) {
-      Serial.print("Ch");
-      Serial.print(sensorChannels[i]);
-      Serial.print(": ");
+      DEBUG_PRINT("Ch");
+      DEBUG_PRINT(sensorChannels[i]);
+      DEBUG_PRINT(": ");
 
       if (measurements[i].RangeStatus != 4) {
-        Serial.print(measurements[i].RangeMilliMeter);
-        Serial.print(" mm");
+        DEBUG_PRINT(measurements[i].RangeMilliMeter);
+        DEBUG_PRINT(" mm");
       } else {
-        Serial.print("Out of range");
+        DEBUG_PRINT("Out of range");
       }
 
       if (i < NUM_SENSORS - 1) {
-        Serial.print("  |  ");
+        DEBUG_PRINT("  |  ");
       }
     }
 
@@ -384,18 +393,18 @@ void loop() {
     float steering_angle = calculateSteeringAngle(walls);
 
     // デバッグ情報表示
-    Serial.print("  | L:");
-    Serial.print(walls.left_valid ? "OK" : "NG");
-    Serial.print(" R:");
-    Serial.print(walls.right_valid ? "OK" : "NG");
-    Serial.print(" | Steer:");
-    Serial.print(steering_angle, 1);
-    Serial.print("deg");
+    DEBUG_PRINT("  | L:");
+    DEBUG_PRINT(walls.left_valid ? "OK" : "NG");
+    DEBUG_PRINT(" R:");
+    DEBUG_PRINT(walls.right_valid ? "OK" : "NG");
+    DEBUG_PRINT(" | Steer:");
+    DEBUG_PRINT(steering_angle);
+    DEBUG_PRINT("deg");
 
     // フェーズ4: アクチュエーター制御
     setSteeringAngle(steering_angle);
     setSpeed(BASE_SPEED_PULSE);
 
-    Serial.println();
+    DEBUG_PRINTLN();
   }
 }
