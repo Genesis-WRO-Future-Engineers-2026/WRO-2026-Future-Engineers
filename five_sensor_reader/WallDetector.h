@@ -16,8 +16,10 @@
 struct WallDetection {
   bool left_valid;
   bool right_valid;
-  float left_intersection;
-  float right_intersection;
+  float left_intersection;    // y軸との交点（mm）
+  float right_intersection;   // y軸との交点（mm）
+  float left_angle;           // 壁の角度（度）
+  float right_angle;          // 壁の角度（度）
 };
 
 class WallDetector {
@@ -25,11 +27,12 @@ private:
   // センサー値の有効性チェック
   bool isSensorValid(uint16_t distance) const;
 
-  // 2つのセンサーから壁の直線を検出し、y軸との交点を計算
+  // 2つのセンサーから壁の直線を検出し、y軸との交点と角度を計算
   bool calculateIntersection(
     uint16_t d1, uint8_t sensor_idx1,
     uint16_t d2, uint8_t sensor_idx2,
-    float* intersection
+    float* intersection,
+    float* wall_angle
   );
 
 public:

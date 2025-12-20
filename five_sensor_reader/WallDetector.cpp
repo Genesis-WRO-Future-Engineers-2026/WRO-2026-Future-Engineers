@@ -19,7 +19,8 @@ bool WallDetector::isSensorValid(uint16_t distance) const {
 bool WallDetector::calculateIntersection(
   uint16_t d1, uint8_t sensor_idx1,
   uint16_t d2, uint8_t sensor_idx2,
-  float* intersection
+  float* intersection,
+  float* wall_angle
 ) {
   // センサー値の有効性チェック
   if (!isSensorValid(d1) || !isSensorValid(d2)) {
@@ -50,6 +51,13 @@ bool WallDetector::calculateIntersection(
   // y軸（x=0）との交点を計算: y = -c / b
   *intersection = -c / b;
 
+  // 壁の角度を計算（幾何学的に正しい方法）
+  // 直線 ax + by + c = 0 の傾き m = -a/b
+  // 壁の角度（ラジアン）= atan2(a, -b)
+  // 度数法に変換: degrees = radians * 180 / PI
+  float angle_rad = atan2(a, -b);
+  *wall_angle = angle_rad * 180.0 / PI;
+
   return true;
 }
 
@@ -60,14 +68,16 @@ WallDetection WallDetector::detect(const SensorData* sensorData) {
   result.left_valid = calculateIntersection(
     sensorData[0].distance, 0,
     sensorData[1].distance, 1,
-    &result.left_intersection
+    &result.left_intersection,
+    &result.left_angle
   );
 
   // 右壁検出（センサー3: +20°、センサー4: +70°）
   result.right_valid = calculateIntersection(
     sensorData[3].distance, 3,
     sensorData[4].distance, 4,
-    &result.right_intersection
+    &result.right_intersection,
+    &result.right_angle
   );
 
   return result;
