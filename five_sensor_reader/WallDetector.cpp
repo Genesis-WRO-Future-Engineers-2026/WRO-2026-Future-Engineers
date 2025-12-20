@@ -20,7 +20,8 @@ bool WallDetector::calculateIntersection(
   uint16_t d1, uint8_t sensor_idx1,
   uint16_t d2, uint8_t sensor_idx2,
   float* intersection,
-  float* wall_angle
+  float* wall_angle,
+  float* wall_distance
 ) {
   // センサー値の有効性チェック
   if (!isSensorValid(d1) || !isSensorValid(d2)) {
@@ -58,6 +59,16 @@ bool WallDetector::calculateIntersection(
   float angle_rad = atan2(a, -b);
   *wall_angle = angle_rad * 180.0 / PI;
 
+  // 車体中心（原点）から壁までの最短距離を計算
+  // 点 (x0, y0) と直線 ax + by + c = 0 の距離: |ax0 + by0 + c| / sqrt(a² + b²)
+  // 車体中心が原点 (0, 0) なので: |c| / sqrt(a² + b²)
+  float denominator = sqrt(a * a + b * b);
+  if (denominator > 0.001) {  // ゼロ除算防止
+    *wall_distance = abs(c) / denominator;
+  } else {
+    *wall_distance = 9999.0;  // 無効な値
+  }
+
   return true;
 }
 
@@ -69,7 +80,8 @@ WallDetection WallDetector::detect(const SensorData* sensorData) {
     sensorData[0].distance, 0,
     sensorData[1].distance, 1,
     &result.left_intersection,
-    &result.left_angle
+    &result.left_angle,
+    &result.left_distance
   );
 
   // 右壁検出（センサー3: +20°、センサー4: +70°）
@@ -77,7 +89,8 @@ WallDetection WallDetector::detect(const SensorData* sensorData) {
     sensorData[3].distance, 3,
     sensorData[4].distance, 4,
     &result.right_intersection,
-    &result.right_angle
+    &result.right_angle,
+    &result.right_distance
   );
 
   return result;

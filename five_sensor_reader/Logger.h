@@ -72,6 +72,26 @@ public:
     #endif
   }
 
+  // 壁までの距離の表示
+  static void printWallDistances(bool left_valid, float left_dist, bool right_valid, float right_dist) {
+    #if DEBUG_MODE
+      Serial.print(" | Dist L:");
+      if (left_valid) {
+        Serial.print(left_dist, 0);
+        Serial.print("mm");
+      } else {
+        Serial.print("--");
+      }
+      Serial.print(" R:");
+      if (right_valid) {
+        Serial.print(right_dist, 0);
+        Serial.print("mm");
+      } else {
+        Serial.print("--");
+      }
+    #endif
+  }
+
   // ステアリング角度の表示
   static void printSteering(float angle) {
     #if DEBUG_MODE
