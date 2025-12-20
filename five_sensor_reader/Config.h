@@ -48,7 +48,7 @@ const float CENTERING_GAIN = 0.05;             // 中央走行のゲイン（距
 
 // 左側センサーの最小距離制約（衝突回避）
 const uint16_t MIN_LEFT_DISTANCE = 500;        // 左側最小距離（mm）= 50cm
-const float LEFT_AVOID_GAIN = 0.05;            // 回避補正ゲイン
+const float LEFT_AVOID_GAIN = 0.1;            // 回避補正ゲイン
 
 // 緊急停止パラメータ
 const uint16_t EMERGENCY_STOP_DISTANCE = 200;  // 前方障害物検出距離（mm）= 20cm
