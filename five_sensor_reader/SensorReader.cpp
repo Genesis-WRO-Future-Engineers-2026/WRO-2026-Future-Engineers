@@ -13,9 +13,6 @@ SensorReader::SensorReader() {
     for (uint8_t i = 0; i < NUM_SENSORS; ++i) {
         _sensorData[i].distance = 0;
         _sensorData[i].valid = false;
-        _sensorData[i].status = 255;
-        _sensorData[i].peak_signal_mcps = 0.0;
-        _sensorData[i].ambient_mcps = 0.0;
     }
 }
 
@@ -73,19 +70,9 @@ void SensorReader::readAll() {
         // VL53L1Xから読み取り（連続測定モード）
         _sensors[i].read();
 
-        // 詳細データを取得
+        // 距離データを取得
         _sensorData[i].distance = _sensors[i].ranging_data.range_mm;
-        _sensorData[i].status = _sensors[i].ranging_data.range_status;
-        _sensorData[i].peak_signal_mcps =
-            _sensors[i].ranging_data.peak_signal_count_rate_MCPS;
-        _sensorData[i].ambient_mcps =
-            _sensors[i].ranging_data.ambient_count_rate_MCPS;
 
-        // ステータス 0, 1, 2 を許容（距離測定可能なエラーコード）
-        // 0: range valid (正常)
-        // 1: sigma fail (精度低いが測定可能)
-        // 2: signal fail (信号弱いが測定可能)
-        // さらに距離範囲もチェック
         if(_sensorData[i].distance > 4000) {
             // VL53L1Xの仕様上、6m以上は不正確なので無効扱い
             _sensorData[i].distance = 4000;
@@ -100,7 +87,7 @@ SensorData SensorReader::getSensorData(uint8_t index) const {
     if (index < NUM_SENSORS) {
         return _sensorData[index];
     }
-    SensorData empty = {0, false, 255, 0.0, 0.0};
+    SensorData empty = {0, false};
     return empty;
 }
 

@@ -18,9 +18,6 @@
 struct SensorData {
     uint16_t distance;         // 測定距離（mm）
     bool valid;                // 測定値の有効性
-    uint8_t status;            // VL53L1Xステータスコード
-    float peak_signal_mcps;    // ピーク信号強度
-    float ambient_mcps;        // 環境光レベル
 };
 
 // センサーリーダークラス

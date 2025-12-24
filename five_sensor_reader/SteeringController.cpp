@@ -2,12 +2,13 @@
  * SteeringController.cpp
  *
  * ステアリング制御クラス（実装）
- * Follow the Gap + P制御
+ * Follow the Gap + PD制御
  *
  * 設計思想:
  * - GapFinderが検出したギャップ中心方向へステアリング
- * - シンプルなP制御（比例制御のみ）
- * - 調整パラメータは STEERING_KP の1つだけ
+ * - P項: 目標角度に比例したステアリング
+ * - D項: 角度変化率に比例した予測制御（高速時のオーバーシュート抑制）
+ * - 調整パラメータは STEERING_KP と STEERING_KD の2つ
  */
 
 #include "SteeringController.h"
@@ -17,16 +18,22 @@
 SteeringController::SteeringController() { _lastTargetAngle = 0.0; }
 
 void SteeringController::begin() {
-    // P制御なので特別な初期化は不要
     _lastTargetAngle = 0.0;
 }
 
 float SteeringController::calculate(const GapResult& gap) {
-    // 目標角度を保存（デバッグ用）
+    // P項: 目標角度に比例
+    float p_term = STEERING_KP * gap.target_angle;
+
+    // D項: 角度変化率に比例（予測制御）
+    float angle_change = gap.target_angle - _lastTargetAngle;
+    float d_term = STEERING_KD * angle_change;
+
+    // 目標角度を保存（次回のD項計算用）
     _lastTargetAngle = gap.target_angle;
 
-    // P制御: ステアリング角 = Kp × ギャップ中心角度
-    float steering = STEERING_KP * gap.target_angle;
+    // PD制御: ステアリング角 = P項 + D項
+    float steering = p_term + d_term;
 
     // 最大操舵角でクランプ
     steering = constrain(steering, -MAX_STEERING_ANGLE, MAX_STEERING_ANGLE);
