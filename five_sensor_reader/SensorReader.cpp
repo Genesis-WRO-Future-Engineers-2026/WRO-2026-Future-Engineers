@@ -5,80 +5,103 @@
  */
 
 #include "SensorReader.h"
+
 #include "Logger.h"
 
 SensorReader::SensorReader() {
-  // 初期化
-  for (uint8_t i = 0; i < NUM_SENSORS; ++i) {
-    sensorData[i].distance = 0;
-    sensorData[i].valid = false;
-    sensorData[i].status = 255;
-  }
+    // 初期化
+    for (uint8_t i = 0; i < NUM_SENSORS; ++i) {
+        _sensorData[i].distance = 0;
+        _sensorData[i].valid = false;
+        _sensorData[i].status = 255;
+        _sensorData[i].peak_signal_mcps = 0.0;
+        _sensorData[i].ambient_mcps = 0.0;
+    }
 }
 
-void SensorReader::selectChannel(uint8_t channel) {
-  if (channel > 7) return;
+void SensorReader::_selectChannel(uint8_t channel) {
+    if (channel > 7) return;
 
-  Wire.beginTransmission(TCA9548A_ADDR);
-  Wire.write(1 << channel);
-  Wire.endTransmission();
+    Wire.beginTransmission(TCA9548A_ADDR);
+    Wire.write(1 << channel);
+    Wire.endTransmission();
 }
 
 bool SensorReader::begin() {
-  Wire.begin();
+    Wire.begin();
+    Wire.setClock(400000);  // I2C高速モード（400kHz）
 
-  Logger::println("=== Sensor Initialization ===");
+    Logger::println("=== VL53L1X Sensor Initialization ===");
 
-  // 各センサーを初期化
-  for (uint8_t i = 0; i < NUM_SENSORS; ++i) {
-    selectChannel(SENSOR_CHANNELS[i]);
-    delay(10);  // チャンネル切替後の安定待ち
+    // 各センサーを初期化
+    for (uint8_t i = 0; i < NUM_SENSORS; ++i) {
+        _selectChannel(SENSOR_CHANNELS[i]);
+        delay(10);  // チャンネル切替後の安定待ち
 
-    Logger::print("Sensor ");
-    Logger::print(i);
-    Logger::print(" (Ch");
-    Logger::print(SENSOR_CHANNELS[i]);
-    Logger::print(", ");
-    Logger::print(SENSOR_ANGLES[i]);
-    Logger::print("deg)...");
+        Logger::print("Sensor ");
+        Logger::print(i);
+        Logger::print(" (Ch");
+        Logger::print(SENSOR_CHANNELS[i]);
+        Logger::print(", ");
+        Logger::print(SENSOR_ANGLES[i]);
+        Logger::print("deg)...");
 
-    if (!sensors[i].begin()) {
-      Logger::println(" FAILED!");
-      return false;
+        _sensors[i].setTimeout(500);
+        if (!_sensors[i].init()) {
+            Logger::println(" FAILED!");
+            return false;
+        }
+
+        // VL53L1X設定: 長距離モード、測定時間50ms
+        _sensors[i].setDistanceMode(VL53L1X::Long);
+        _sensors[i].setMeasurementTimingBudget(L1X_TIMING_BUDGET_US);
+
+        // 連続測定モード開始
+        _sensors[i].startContinuous(L1X_INTER_MEASUREMENT_MS);
+
+        Logger::println(" OK");
     }
 
-    Logger::println(" OK");
-  }
-
-  Logger::println("=== All sensors initialized ===");
-  return true;
+    Logger::println("=== All VL53L1X sensors initialized ===");
+    return true;
 }
 
 void SensorReader::readAll() {
-  for (uint8_t i = 0; i < NUM_SENSORS; ++i) {
-    selectChannel(SENSOR_CHANNELS[i]);
-    sensors[i].rangingTest(&measurements[i], false);
+    for (uint8_t i = 0; i < NUM_SENSORS; ++i) {
+        _selectChannel(SENSOR_CHANNELS[i]);
 
-    sensorData[i].status = measurements[i].RangeStatus;
+        // VL53L1Xから読み取り（連続測定モード）
+        _sensors[i].read();
 
-    if (measurements[i].RangeStatus != 4) {
-      sensorData[i].distance = measurements[i].RangeMilliMeter;
-      sensorData[i].valid = true;
-    } else {
-      sensorData[i].distance = 0;
-      sensorData[i].valid = false;
+        // 詳細データを取得
+        _sensorData[i].distance = _sensors[i].ranging_data.range_mm;
+        _sensorData[i].status = _sensors[i].ranging_data.range_status;
+        _sensorData[i].peak_signal_mcps =
+            _sensors[i].ranging_data.peak_signal_count_rate_MCPS;
+        _sensorData[i].ambient_mcps =
+            _sensors[i].ranging_data.ambient_count_rate_MCPS;
+
+        // ステータス 0, 1, 2 を許容（距離測定可能なエラーコード）
+        // 0: range valid (正常)
+        // 1: sigma fail (精度低いが測定可能)
+        // 2: signal fail (信号弱いが測定可能)
+        // さらに距離範囲もチェック
+        if(_sensorData[i].distance > 4000) {
+            // VL53L1Xの仕様上、6m以上は不正確なので無効扱い
+            _sensorData[i].distance = 4000;
+        }
+        _sensorData[i].valid =
+            (_sensorData[i].distance >= MIN_VALID_DISTANCE) &&
+            (_sensorData[i].distance <= RELIABLE_RANGE);
     }
-  }
 }
 
 SensorData SensorReader::getSensorData(uint8_t index) const {
-  if (index < NUM_SENSORS) {
-    return sensorData[index];
-  }
-  SensorData empty = {0, false, 255};
-  return empty;
+    if (index < NUM_SENSORS) {
+        return _sensorData[index];
+    }
+    SensorData empty = {0, false, 255, 0.0, 0.0};
+    return empty;
 }
 
-const SensorData* SensorReader::getAllData() const {
-  return sensorData;
-}
+const SensorData* SensorReader::getAllData() const { return _sensorData; }

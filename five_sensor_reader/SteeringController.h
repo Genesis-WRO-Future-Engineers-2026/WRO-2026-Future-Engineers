@@ -2,27 +2,35 @@
  * SteeringController.h
  *
  * ステアリング制御クラス（宣言）
- * 壁検出結果からステアリング角度を計算
+ * Follow the Gap + P制御によるステアリング
  */
 
 #ifndef STEERING_CONTROLLER_H
 #define STEERING_CONTROLLER_H
 
 #include <Arduino.h>
+
 #include "Config.h"
-#include "WallDetector.h"
+#include "GapFinder.h"
 
 class SteeringController {
-private:
-  // センサーデータへの参照（制約チェック用）
-  const SensorData* lastSensorData;
+   private:
+    float _lastTargetAngle;  // 最後の目標角度（デバッグ用）
 
-public:
-  // コンストラクタ
-  SteeringController();
+   public:
+    SteeringController();
 
-  // ステアリング角度を計算
-  float calculate(const WallDetection& walls, const SensorData* sensorData);
+    // 初期化
+    void begin();
+
+    // ステアリング角度を計算（P制御）
+    float calculate(const GapResult& gap);
+
+    // 最後の目標角度を取得（デバッグ用）
+    float getLastTargetAngle() const { return _lastTargetAngle; }
+
+    // リセット
+    void reset();
 };
 
-#endif // STEERING_CONTROLLER_H
+#endif  // STEERING_CONTROLLER_H
