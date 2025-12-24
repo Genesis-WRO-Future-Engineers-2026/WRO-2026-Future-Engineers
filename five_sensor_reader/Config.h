@@ -11,8 +11,9 @@
 // ============================================================================
 // デバッグモード設定
 // ============================================================================
-#define DEBUG_MODE false  // true: デバッグ（PWMなし、シリアルあり）
-                          // false: 実機（PWMあり、シリアルなし）
+#define DEBUG_MODE \
+    false  // true: デバッグ（PWMなし、シリアルあり）
+          // false: 実機（PWMあり、シリアルなし）
 
 // ============================================================================
 // ハードウェア設定
@@ -26,71 +27,63 @@ const uint8_t SENSOR_CHANNELS[NUM_SENSORS] = {0, 1, 2, 3, 4};
 const float SENSOR_ANGLES[NUM_SENSORS] = {-70.0, -20.0, 0.0, 20.0, 70.0};
 
 // PWM出力ピン
-const uint8_t SERVO_PIN = 9;   // ステアリングサーボ
-const uint8_t ESC_PIN = 10;    // ESC（モーター制御）
+const uint8_t SERVO_PIN = 9;  // ステアリングサーボ
+const uint8_t ESC_PIN = 10;   // ESC（モーター制御）
 
 // ============================================================================
 // センサーパラメータ
 // ============================================================================
-const uint16_t MIN_VALID_DISTANCE = 50;        // 最小有効測定距離（mm）
-const uint16_t RELIABLE_RANGE = 1200;          // 信頼できる測定範囲（mm）
-const uint16_t MAX_SENSOR_DIFF = 600;          // センサーペア間の最大許容差（mm）
-const uint16_t SENSOR_ERROR_VALUE = 65535;     // センサーエラー時の値
+const uint16_t MIN_VALID_DISTANCE = 50;  // 最小有効測定距離（mm）
+const uint16_t RELIABLE_RANGE = 4000;    // 信頼できる測定範囲（mm）L1Xは最大4m
+const uint16_t MAX_SENSOR_DIFF =
+    3000;  // センサーペア間の最大許容差（mm）L1X遠距離対応
+
+// VL53L1X タイミング設定
+const uint32_t L1X_TIMING_BUDGET_US = 50000;   // 測定時間（μs）50ms
+const uint32_t L1X_INTER_MEASUREMENT_MS = 50;  // 測定間隔（ms）
+
+// ============================================================================
+// タイミング設定
+// ============================================================================
+const unsigned long MEASUREMENT_INTERVAL = 60;  // 60ms（L1X測定間隔以上を推奨）
 
 // ============================================================================
 // ステアリングパラメータ
 // ============================================================================
-const float MAX_STEERING_ANGLE = 30.0;         // 最大操舵角（度）
-const float EPSILON_VERTICAL = 0.001;          // 垂直壁判定の閾値
+const float MAX_STEERING_ANGLE = 30.0;  // 最大操舵角（度）
 
-// 中央走行制御
-const float CENTERING_GAIN = 0.05;             // 中央走行のゲイン（距離差→角度変換）
+// ============================================================================
+// Follow the Gap パラメータ
+// ============================================================================
+const float OBSTACLE_THRESHOLD = 1200.0;         // 障害物判定閾値（mm）
+const float OBSTACLE_INFLATION_RADIUS = 150.0;  // 障害物膨張半径（mm）
+const float MIN_GAP_WIDTH_ANGLE = 30.0;         // 最小通過可能ギャップ幅（度）
+const float GAP_WEIGHT_DISTANCE = 0.3;          // ギャップ選択時の距離重み
+const float GAP_WEIGHT_WIDTH = 0.4;             // ギャップ選択時の幅重み
+const float GAP_WEIGHT_FORWARD = 0.3;           // ギャップ選択時の前方優先重み
 
-// 左側センサーの最小距離制約（衝突回避）
-const uint16_t MIN_LEFT_DISTANCE = 500;        // 左側最小距離（mm）= 50cm
-const float LEFT_AVOID_GAIN = 0.1;            // 回避補正ゲイン
+// ============================================================================
+// P制御パラメータ（PID → P制御に簡略化）
+// ============================================================================
+const float STEERING_KP = 0.7;  // 比例ゲイン（ギャップ角度→ステアリング角度）
 
-// 緊急停止パラメータ
-const uint16_t EMERGENCY_STOP_DISTANCE = 200;  // 前方障害物検出距離（mm）= 20cm
+// ============================================================================
+// 安全パラメータ
+// ============================================================================
+const uint16_t EMERGENCY_FRONT_THRESHOLD = 150;  // 前方緊急閾値（mm）
 
 // ============================================================================
 // サーボ・ESC パルス幅設定
 // ============================================================================
 // サーボ（ステアリング）
-const uint16_t SERVO_CENTER = 1500;            // 中央位置（μs）
-const uint16_t SERVO_MIN = 500;                // 最小パルス幅（μs）
-const uint16_t SERVO_MAX = 2400;               // 最大パルス幅（μs）
+const uint16_t SERVO_CENTER = 1510;  // 中央位置（μs）+10でちょい右に修正
+const uint16_t SERVO_MIN = 600;      // 最小パルス幅（μs）
+const uint16_t SERVO_MAX = 2400;     // 最大パルス幅（μs）
 
 // ESC（速度制御）
-const float STOP_SPEED_PULSE = 1.5;            // 停止（ms）
-const float BASE_SPEED_PULSE = 1.45;            // 基本速度（ms）
-const float MAX_SPEED_PULSE = 1.4;             // 最大速度（ms）
-const uint16_t ESC_MIN_US = 1000;              // ESC最小パルス（μs）
-const uint16_t ESC_MAX_US = 2000;              // ESC最大パルス（μs）
+const float STOP_SPEED_PULSE = 1.5;   // 停止（ms）
+const float BASE_SPEED_PULSE = 1.445;  // 基本速度（ms）
+const uint16_t ESC_MIN_US = 1000;     // ESC最小パルス（μs）
+const uint16_t ESC_MAX_US = 2000;     // ESC最大パルス（μs）
 
-// ============================================================================
-// タイミング設定
-// ============================================================================
-const unsigned long MEASUREMENT_INTERVAL = 100; // 測定間隔（ms）= 10Hz
-
-// ============================================================================
-// 三角関数の事前計算（LUT: Look-Up Table）
-// ============================================================================
-// 角度が固定なので、cos/sin値を定数化してパフォーマンス向上
-const float COS_ANGLES[NUM_SENSORS] = {
-  0.342020,   // cos(-70°)
-  0.939693,   // cos(-20°)
-  1.000000,   // cos(0°)
-  0.939693,   // cos(20°)
-  0.342020    // cos(70°)
-};
-
-const float SIN_ANGLES[NUM_SENSORS] = {
-  -0.939693,  // sin(-70°)
-  -0.342020,  // sin(-20°)
-   0.000000,  // sin(0°)
-   0.342020,  // sin(20°)
-   0.939693   // sin(70°)
-};
-
-#endif // CONFIG_H
+#endif  // CONFIG_H
