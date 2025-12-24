@@ -2,7 +2,7 @@
  * SteeringController.h
  *
  * ステアリング制御クラス（宣言）
- * Follow the Gap + P制御によるステアリング
+ * Follow the Gap + PD制御によるステアリング
  */
 
 #ifndef STEERING_CONTROLLER_H
@@ -15,7 +15,7 @@
 
 class SteeringController {
    private:
-    float _lastTargetAngle;  // 最後の目標角度（デバッグ用）
+    float _lastTargetAngle;  // 最後の目標角度（D項計算用）
 
    public:
     SteeringController();
@@ -23,7 +23,7 @@ class SteeringController {
     // 初期化
     void begin();
 
-    // ステアリング角度を計算（P制御）
+    // ステアリング角度を計算（PD制御）
     float calculate(const GapResult& gap);
 
     // 最後の目標角度を取得（デバッグ用）
