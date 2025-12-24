@@ -71,6 +71,9 @@ void setup() {
     // アクチュエーター初期化
     actuator.begin();
 
+    // HC-06シリアル初期化
+    Serial1.begin(9600);
+
     Logger::println();
     Logger::println("System ready!");
     Logger::println();
@@ -82,6 +85,15 @@ void setup() {
 void loop() {
     static unsigned long lastMeasurement = 0;
     unsigned long currentTime = millis();
+
+    // シリアル入力があれば停止
+    if (Serial1.available()) {
+        actuator.setSteering(0.0);
+        actuator.stop();
+        while (1) {
+            delay(1000);
+        }  // 終了
+    }
 
     // 指定した間隔で測定・制御（固定周期を維持）
     if (currentTime - lastMeasurement >= MEASUREMENT_INTERVAL) {
