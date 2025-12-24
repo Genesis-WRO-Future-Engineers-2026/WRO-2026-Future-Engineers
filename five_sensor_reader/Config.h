@@ -83,7 +83,7 @@ const uint16_t SERVO_MAX = 2400;     // 最大パルス幅（μs）
 
 // ESC（速度制御）
 const float STOP_SPEED_PULSE = 1.5;   // 停止（ms）
-const float BASE_SPEED_PULSE = 1.43;  // 基本速度（ms）
+const float BASE_SPEED_PULSE = 1.4;  // 基本速度（ms）
 const uint16_t ESC_MIN_US = 1000;     // ESC最小パルス（μs）
 const uint16_t ESC_MAX_US = 2000;     // ESC最大パルス（μs）
 
