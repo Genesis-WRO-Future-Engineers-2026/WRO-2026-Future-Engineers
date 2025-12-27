@@ -10,28 +10,32 @@
 
 #include <Arduino.h>
 #include <Servo.h>
+
 #include "Config.h"
 
 class Actuator {
-private:
-  Servo _steeringServo;
-  Servo _escController;
+   private:
+    Servo _steeringServo;
+    Servo _escController;
 
-public:
-  // コンストラクタ
-  Actuator();
+   public:
+    // コンストラクタ
+    Actuator();
 
-  // 初期化
-  void begin();
+    // 初期化
+    void begin();
 
-  // ステアリング角度を設定（度数法）
-  void setSteering(float angle_degrees);
+    // ステアリング角度を設定（度数法）
+    void setSteering(float angle_degrees);
 
-  // 速度を設定（msまたはパルス幅）
-  void setSpeed(float speed_pulse_ms);
+    // 速度を設定（msまたはパルス幅）
+    void setSpeed(float speed_pulse_ms);
 
-  // 停止
-  void stop();
+    // ステアリング角度から速度パルスを計算
+    float calculateSpeedFromSteering(float steering_angle);
+
+    // 停止
+    void stop();
 };
 
-#endif // ACTUATOR_H
+#endif  // ACTUATOR_H

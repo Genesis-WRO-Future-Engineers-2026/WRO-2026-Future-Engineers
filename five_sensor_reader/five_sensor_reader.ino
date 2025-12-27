@@ -154,9 +154,11 @@ void loop() {
             actuator.setSteering(0.0);
             actuator.stop();
         } else {
-            // 通常走行
+            // 通常走行：ステアリング角度に応じた可変速度
             actuator.setSteering(steering_angle);
-            actuator.setSpeed(BASE_SPEED_PULSE);
+            float variable_speed =
+                actuator.calculateSpeedFromSteering(steering_angle);
+            actuator.setSpeed(variable_speed);
         }
 
         Logger::println("");
