@@ -55,8 +55,8 @@ const float MAX_STEERING_ANGLE = 30.0;  // 最大操舵角（度）
 // ============================================================================
 // Follow the Gap パラメータ
 // ============================================================================
-const float OBSTACLE_THRESHOLD = 1500.0;        // 障害物判定閾値（mm）
-const float OBSTACLE_INFLATION_RADIUS = 150.0;  // 障害物膨張半径（mm）
+const float OBSTACLE_THRESHOLD = 1200.0;        // 障害物判定閾値（mm）
+const float OBSTACLE_INFLATION_RADIUS = 200.0;  // 障害物膨張半径（mm）
 const float MIN_GAP_WIDTH_ANGLE = 30.0;         // 最小通過可能ギャップ幅（度）
 const float GAP_WEIGHT_DISTANCE = 0.3;          // ギャップ選択時の距離重み
 const float GAP_WEIGHT_WIDTH = 0.4;             // ギャップ選択時の幅重み
@@ -91,6 +91,6 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 // ============================================================================
 const bool SPEED_STEERING_LINK_ENABLED = true;  // true: 有効, false: 固定速度
 const float TOP_SPEED_PULSE = 1.40;             // 直進時の最速パルス（ms）
-const float CORNER_SPEED_PULSE = 1.44;  // 最大ステアリング時の減速パルス（ms）
+const float CORNER_SPEED_PULSE = 1.42;  // 最大ステアリング時の減速パルス（ms）
 
 #endif  // CONFIG_H
