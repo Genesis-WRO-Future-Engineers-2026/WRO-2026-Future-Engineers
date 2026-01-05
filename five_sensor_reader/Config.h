@@ -12,7 +12,7 @@
 // デバッグモード設定
 // ============================================================================
 #define DEBUG_MODE \
-    true  // true: デバッグ（PWMなし、シリアルあり）
+    false  // true: デバッグ（PWMなし、シリアルあり）
            // false: 実機（PWMあり、シリアルなし）
 
 // ============================================================================
@@ -39,13 +39,13 @@ const uint16_t MAX_SENSOR_DIFF =
     3000;  // センサーペア間の最大許容差（mm）L1X遠距離対応
 
 // VL53L1X タイミング設定
-const uint32_t L1X_TIMING_BUDGET_US = 33000;   // 測定時間（μs）33ms 仕様限界
-const uint32_t L1X_INTER_MEASUREMENT_MS = 35;  // 測定間隔（ms）
+const uint32_t L1X_TIMING_BUDGET_US = 20000;   // 測定時間(μs)
+const uint32_t L1X_INTER_MEASUREMENT_MS = 25;  // 測定間隔（ms）
 
 // ============================================================================
 // タイミング設定
 // ============================================================================
-const unsigned long MEASUREMENT_INTERVAL = 63;  // 63msで全てのセンサーの安定処理.FtGアルゴリズムには影響微小
+const unsigned long MEASUREMENT_INTERVAL = 35;
 
 // ============================================================================
 // ステアリングパラメータ
@@ -55,12 +55,12 @@ const float MAX_STEERING_ANGLE = 30.0;  // 最大操舵角（度）
 // ============================================================================
 // Follow the Gap パラメータ
 // ============================================================================
-const float OBSTACLE_THRESHOLD = 1200.0;        // 障害物判定閾値（mm）
+const float OBSTACLE_THRESHOLD = 1500.0;        // 障害物判定閾値（mm）
 const float OBSTACLE_INFLATION_RADIUS = 200.0;  // 障害物膨張半径（mm）
 const float MIN_GAP_WIDTH_ANGLE = 30.0;         // 最小通過可能ギャップ幅（度）
 const float GAP_WEIGHT_DISTANCE = 0.3;          // ギャップ選択時の距離重み
 const float GAP_WEIGHT_WIDTH = 0.4;             // ギャップ選択時の幅重み
-const float GAP_WEIGHT_FORWARD = 0.3;           // ギャップ選択時の前方優先重み
+const float GAP_WEIGHT_FORWARD = 0.2;           // ギャップ選択時の前方優先重み
 
 // ============================================================================
 // PD制御パラメータ
@@ -71,7 +71,7 @@ const float STEERING_KD = 0.1;  // 微分ゲイン（予測制御用、控えめ
 // ============================================================================
 // 安全パラメータ
 // ============================================================================
-const uint16_t EMERGENCY_FRONT_THRESHOLD = 150;  // 前方緊急閾値（mm）
+const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 
 // ============================================================================
 // サーボ・ESC パルス幅設定
@@ -91,7 +91,7 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 // ============================================================================
 const bool SPEED_STEERING_LINK_ENABLED = true;  // true: 有効, false: 固定速度
 const float TOP_SPEED_PULSE = 1.40;             // 直進時の最速パルス（ms）
-const float CORNER_SPEED_PULSE = 1.42;  // 最大ステアリング時の減速パルス（ms）
+const float CORNER_SPEED_PULSE = 1.44;  // 最大ステアリング時の減速パルス（ms）
 const float STEERING_DEADZONE = 10.0;   // この角度まで減速しない（度）
 
 #endif  // CONFIG_H
