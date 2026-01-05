@@ -190,6 +190,37 @@ class Logger {
         Serial.print("]");
 #endif
     }
+
+    // ループタイミング情報の表示（μs単位）
+    static void printLoopTiming(unsigned long loop_us, unsigned long sensor_us) {
+#if DEBUG_MODE
+        Serial.print(" | T:");
+        Serial.print(loop_us);
+        Serial.print("us(S:");
+        Serial.print(sensor_us);
+        Serial.print("us)");
+#endif
+    }
+
+    // タイミング設定のサマリー表示
+    static void printTimingConfig() {
+#if DEBUG_MODE
+        Serial.println("--- Timing Configuration ---");
+        Serial.print("  L1X Timing Budget: ");
+        Serial.print(L1X_TIMING_BUDGET_US);
+        Serial.println(" us");
+        Serial.print("  L1X Inter-Measurement: ");
+        Serial.print(L1X_INTER_MEASUREMENT_MS);
+        Serial.println(" ms");
+        Serial.print("  Loop Interval: ");
+        Serial.print(MEASUREMENT_INTERVAL);
+        Serial.println(" ms");
+        Serial.print("  Expected Min Loop: ");
+        Serial.print(L1X_INTER_MEASUREMENT_MS * NUM_SENSORS);
+        Serial.println(" ms (sensor read time)");
+        Serial.println("----------------------------");
+#endif
+    }
 };
 
 #endif  // LOGGER_H
