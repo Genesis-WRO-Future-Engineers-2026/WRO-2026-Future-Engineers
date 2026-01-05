@@ -57,6 +57,10 @@ void setup() {
     Logger::println("mm");
     Logger::println();
 
+    // タイミング設定のサマリー表示
+    Logger::printTimingConfig();
+    Logger::println();
+
     // センサー初期化
     if (!sensorReader.begin()) {
         Logger::println("ERROR: Sensor initialization failed!");
@@ -99,10 +103,17 @@ void loop() {
     if (currentTime - lastMeasurement >= MEASUREMENT_INTERVAL) {
         lastMeasurement += MEASUREMENT_INTERVAL;
 
+        // タイミング計測開始
+        unsigned long loopStartUs = micros();
+
         // =========================================================================
         // Phase 1: センサーデータ取得
         // =========================================================================
+        unsigned long sensorStartUs = micros();
         sensorReader.readAll();
+        unsigned long sensorEndUs = micros();
+        unsigned long sensorElapsedUs = sensorEndUs - sensorStartUs;
+
         const SensorData* sensorData = sensorReader.getAllData();
 
         // デバッグ: センサーデータ表示
@@ -160,6 +171,11 @@ void loop() {
                 actuator.calculateSpeedFromSteering(steering_angle);
             actuator.setSpeed(variable_speed);
         }
+
+        // タイミング計測終了・表示
+        unsigned long loopEndUs = micros();
+        unsigned long loopElapsedUs = loopEndUs - loopStartUs;
+        Logger::printLoopTiming(loopElapsedUs, sensorElapsedUs);
 
         Logger::println("");
     }
