@@ -50,7 +50,7 @@ const unsigned long MEASUREMENT_INTERVAL = 35;
 // ============================================================================
 // ステアリングパラメータ
 // ============================================================================
-const float MAX_STEERING_ANGLE = 30.0;  // 最大操舵角（度）
+const float MAX_STEERING_ANGLE = 20.0;  // 最大操舵角（度）
 
 // ============================================================================
 // Follow the Gap パラメータ
@@ -90,8 +90,8 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 // ステアリング連動速度制御パラメータ
 // ============================================================================
 const bool SPEED_STEERING_LINK_ENABLED = true;  // true: 有効, false: 固定速度
-const float TOP_SPEED_PULSE = 1.40;             // 直進時の最速パルス（ms）
+const float TOP_SPEED_PULSE = 1.39;             // 直進時の最速パルス（ms）
 const float CORNER_SPEED_PULSE = 1.44;  // 最大ステアリング時の減速パルス（ms）
-const float STEERING_DEADZONE = 10.0;   // この角度まで減速しない（度）
+const float STEERING_DEADZONE = 5.0;   // この角度まで減速しない（度）
 
 #endif  // CONFIG_H
