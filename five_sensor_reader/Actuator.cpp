@@ -73,17 +73,28 @@ float Actuator::calculateSpeedFromSteering(float steering_angle) {
     // ステアリング角度の絶対値を取得（左右どちらでも同じ減速）
     float abs_angle = abs(steering_angle);
 
-    // 最大ステアリング角度でクランプ
-    if (abs_angle > MAX_STEERING_ANGLE) {
-        abs_angle = MAX_STEERING_ANGLE;
+    // デッドゾーン内では最速維持（小角度での無駄な減速を回避）
+    if (abs_angle <= STEERING_DEADZONE) {
+        return TOP_SPEED_PULSE;
     }
 
-    // 0度 → TOP_SPEED_PULSE (1.40ms)
-    // 30度 → CORNER_SPEED_PULSE (1.43ms)
-    // 線形補間: speed = TOP + (CORNER - TOP) * (angle / MAX_ANGLE)
+    // デッドゾーン以降の有効角度を計算
+    float effective_angle = abs_angle - STEERING_DEADZONE;
+    float effective_max = MAX_STEERING_ANGLE - STEERING_DEADZONE;
+
+    // 最大角度でクランプ
+    if (effective_angle > effective_max) {
+        effective_angle = effective_max;
+    }
+
+    // 二次関数で大角度ほど急激に減速
+    // 10度 → 1.40ms（最速）
+    // 20度 → 約1.405ms（わずかに減速）
+    // 30度 → 1.42ms（最大減速）
+    float ratio = effective_angle / effective_max;
     float speed_pulse =
-        TOP_SPEED_PULSE + (CORNER_SPEED_PULSE - TOP_SPEED_PULSE) *
-                              (abs_angle / MAX_STEERING_ANGLE);
+        TOP_SPEED_PULSE +
+        (CORNER_SPEED_PULSE - TOP_SPEED_PULSE) * ratio * ratio;
 
     return speed_pulse;
 }
