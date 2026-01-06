@@ -28,11 +28,11 @@ class Actuator {
     // ステアリング角度を設定（度数法）
     void setSteering(float angle_degrees);
 
-    // 速度を設定（msまたはパルス幅）
-    void setSpeed(float speed_pulse_ms);
+    // 速度を設定（μs単位のパルス幅）
+    void setSpeed(uint16_t speed_pulse_us);
 
-    // ステアリング角度から速度パルスを計算
-    float calculateSpeedFromSteering(float steering_angle);
+    // ステアリング角度から速度パルスを計算（μs単位で返す）
+    uint16_t calculateSpeedFromSteering(float steering_angle);
 
     // 停止
     void stop();

@@ -81,8 +81,8 @@ const uint16_t SERVO_CENTER = 1510;  // 中央位置（μs）+10でちょい右�
 const uint16_t SERVO_MIN = 600;      // 最小パルス幅（μs）
 const uint16_t SERVO_MAX = 2400;     // 最大パルス幅（μs）
 
-// ESC（速度制御）
-const float STOP_SPEED_PULSE = 1.5;  // 停止（ms）
+// ESC（速度制御）- 全てμs単位で統一
+const uint16_t ESC_STOP_US = 1500;   // 停止（μs）
 const uint16_t ESC_MIN_US = 1000;    // ESC最小パルス（μs）
 const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 
@@ -90,8 +90,8 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 // ステアリング連動速度制御パラメータ
 // ============================================================================
 const bool SPEED_STEERING_LINK_ENABLED = true;  // true: 有効, false: 固定速度
-const float TOP_SPEED_PULSE = 1.39;             // 直進時の最速パルス（ms）
-const float CORNER_SPEED_PULSE = 1.44;  // 最大ステアリング時の減速パルス（ms）
-const float STEERING_DEADZONE = 5.0;   // この角度まで減速しない（度）
+const uint16_t TOP_SPEED_US = 1390;             // 直進時の最速パルス（μs）
+const uint16_t CORNER_SPEED_US = 1440;          // 最大ステアリング時の減速パルス（μs）
+const float STEERING_DEADZONE = 5.0;            // この角度まで減速しない（度）
 
 #endif  // CONFIG_H
