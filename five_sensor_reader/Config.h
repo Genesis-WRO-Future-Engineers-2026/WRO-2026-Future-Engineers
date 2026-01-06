@@ -35,9 +35,6 @@ const uint8_t ESC_PIN = 10;   // ESC（モーター制御）
 // ============================================================================
 const uint16_t MIN_VALID_DISTANCE = 50;  // 最小有効測定距離（mm）
 const uint16_t RELIABLE_RANGE = 4000;    // 信頼できる測定範囲（mm）L1Xは最大4m
-const uint16_t MAX_SENSOR_DIFF =
-    3000;  // センサーペア間の最大許容差（mm）L1X遠距離対応
-
 // VL53L1X タイミング設定
 const uint32_t L1X_TIMING_BUDGET_US = 20000;   // 測定時間(μs)
 const uint32_t L1X_INTER_MEASUREMENT_MS = 25;  // 測定間隔（ms）
