@@ -85,8 +85,8 @@ uint16_t Actuator::calculateSpeedFromSteering(float steering_angle) {
     }
 
     // 二次関数で大角度ほど急激に減速
-    // 5度以下  → 1390μs（最速）
-    // 20度    → 1440μs（最大減速）
+    // 5度以下  → 1580μs（最速）
+    // 20度    → 1520μs（最大減速）
     float ratio = effective_angle / effective_max;
     uint16_t speed_us =
         TOP_SPEED_US +
