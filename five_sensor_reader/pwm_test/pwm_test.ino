@@ -36,6 +36,12 @@ int testStep = 0;
 unsigned long lastStepTime = 0;
 const unsigned long STEP_INTERVAL = 2000;  // 2秒ごとにステップ進行
 
+// センサー読み取り用
+unsigned long lastSensorRead = 0;
+const unsigned long SENSOR_READ_INTERVAL = 60;  // 60msごとに読み取り
+uint16_t sensorDistances[NUM_SENSORS] = {0};
+bool sensorsReady = false;
+
 // TCA9548Aチャンネル選択
 void selectChannel(uint8_t channel) {
     if (channel > 7) return;
@@ -91,8 +97,11 @@ void setup() {
 
     // === センサー初期化 ===
     Serial.println("[PHASE 1] Initializing Sensors...");
-    if (!initSensors()) {
+    if (initSensors()) {
+        sensorsReady = true;
+    } else {
         Serial.println("ERROR: Sensor init failed! Continuing without sensors.");
+        sensorsReady = false;
     }
     Serial.println();
 
@@ -124,8 +133,41 @@ void setup() {
     lastStepTime = millis();
 }
 
+// センサー読み取り
+void readSensors() {
+    for (uint8_t i = 0; i < NUM_SENSORS; ++i) {
+        selectChannel(SENSOR_CHANNELS[i]);
+        sensors[i].read();
+        sensorDistances[i] = sensors[i].ranging_data.range_mm;
+        if (sensorDistances[i] > 4000) {
+            sensorDistances[i] = 4000;
+        }
+    }
+}
+
+// シリアルプロッター用出力（ラベル:値 形式）
+void printForPlotter() {
+    Serial.print("S0:");
+    Serial.print(sensorDistances[0]);
+    Serial.print(",S1:");
+    Serial.print(sensorDistances[1]);
+    Serial.print(",S2:");
+    Serial.print(sensorDistances[2]);
+    Serial.print(",S3:");
+    Serial.print(sensorDistances[3]);
+    Serial.print(",S4:");
+    Serial.println(sensorDistances[4]);
+}
+
 void loop() {
     unsigned long now = millis();
+
+    // センサー読み取り（60msごと）
+    if (sensorsReady && (now - lastSensorRead >= SENSOR_READ_INTERVAL)) {
+        lastSensorRead = now;
+        readSensors();
+        printForPlotter();
+    }
 
     if (now - lastStepTime >= STEP_INTERVAL) {
         lastStepTime = now;
