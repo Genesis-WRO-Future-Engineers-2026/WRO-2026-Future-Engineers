@@ -36,13 +36,13 @@ const uint8_t ESC_PIN = 10;   // ESC（モーター制御）
 const uint16_t MIN_VALID_DISTANCE = 50;  // 最小有効測定距離（mm）
 const uint16_t RELIABLE_RANGE = 4000;    // 信頼できる測定範囲（mm）L1Xは最大4m
 // VL53L1X タイミング設定
-const uint32_t L1X_TIMING_BUDGET_US = 20000;   // 測定時間(μs)
-const uint32_t L1X_INTER_MEASUREMENT_MS = 25;  // 測定間隔（ms）
+const uint32_t L1X_TIMING_BUDGET_US = 50000;   // 測定時間（μs）50ms
+const uint32_t L1X_INTER_MEASUREMENT_MS = 50;  // 測定間隔（ms）
 
 // ============================================================================
 // タイミング設定
 // ============================================================================
-const unsigned long MEASUREMENT_INTERVAL = 35;
+const unsigned long MEASUREMENT_INTERVAL = 60;  // 60ms（L1X測定間隔以上を推奨）
 
 // ============================================================================
 // ステアリングパラメータ
@@ -74,9 +74,9 @@ const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 // サーボ・ESC パルス幅設定
 // ============================================================================
 // サーボ（ステアリング）- 新サーボ: 1200(右)〜1500(中央)〜1800(左)
-const uint16_t SERVO_CENTER = 1500;  // 中央位置（μs）
-const uint16_t SERVO_MIN = 1200;     // 最小パルス幅（μs）= 最も右
-const uint16_t SERVO_MAX = 1800;     // 最大パルス幅（μs）= 最も左
+const uint16_t SERVO_CENTER = 1585;  // 中央位置（μs）
+const uint16_t SERVO_MIN = 1000;     // 最小パルス幅（μs）= 最も右
+const uint16_t SERVO_MAX = 2000;     // 最大パルス幅（μs）= 最も左
 
 // ESC（速度制御）- 全てμs単位で統一
 const uint16_t ESC_STOP_US = 1500;   // 停止（μs）

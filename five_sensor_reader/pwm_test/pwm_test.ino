@@ -1,185 +1,218 @@
 /*
  * pwm_test.ino
  *
- * センサー初期化 + サーボ/ESC同時動作テスト
- * センサーとPWMの干渉を確認する
+ * サーボモーターのパルス幅と実際の駆動の対応関係をテストする
+ *
+ * 使い方:
+ *   1. シリアルモニターを開く（115200bps）
+ *   2. パルス幅（500-2500）を入力してEnterを押す
+ *   3. サーボが指定したパルス幅で動作する
+ *
+ * コマンド:
+ *   数値（500-2500）: 指定パルス幅に移動
+ *   s: スイープテスト（MIN→MAX→MIN）
+ *   c: センター位置（1500us）に移動
+ *   +: 現在値を+10us
+ *   -: 現在値を-10us
+ *   h: ヘルプ表示
  */
 
 #include <Servo.h>
-#include <Wire.h>
-#include <VL53L1X.h>
 
-// ピン設定（Config.hと同じ）
+// ピン設定
 const uint8_t SERVO_PIN = 9;
-const uint8_t ESC_PIN = 10;
 
-// パルス幅設定（Config.hと同じ）
-const uint16_t SERVO_CENTER = 1500;
-const uint16_t SERVO_MIN = 1200;
-const uint16_t SERVO_MAX = 1800;
-const uint16_t ESC_STOP = 1500;
-const uint16_t ESC_FORWARD = 1600;
+// パルス幅設定
+const uint16_t PULSE_MIN = 500;
+const uint16_t PULSE_MAX = 2500;
+const uint16_t PULSE_CENTER = 1500;
+const uint16_t PULSE_STEP = 10;
 
-// センサー設定（Config.hと同じ）
-const uint8_t TCA9548A_ADDR = 0x70;
-const uint8_t NUM_SENSORS = 5;
-const uint8_t SENSOR_CHANNELS[NUM_SENSORS] = {0, 1, 2, 3, 4};
-const float SENSOR_ANGLES[NUM_SENSORS] = {-70.0, -20.0, 0.0, 20.0, 70.0};
-const uint32_t L1X_TIMING_BUDGET_US = 50000;
-const uint32_t L1X_INTER_MEASUREMENT_MS = 50;
+// スイープテスト設定
+const uint16_t SWEEP_DELAY_MS = 20;  // スイープ時の各ステップ間の遅延
 
-Servo steeringServo;
-Servo escController;
-VL53L1X sensors[NUM_SENSORS];
-
-// センサー読み取り用
-unsigned long lastSensorRead = 0;
-const unsigned long SENSOR_READ_INTERVAL = 60;  // 60msごとに読み取り
-uint16_t sensorDistances[NUM_SENSORS] = {0};
-bool sensorsReady = false;
-
-// TCA9548Aチャンネル選択
-void selectChannel(uint8_t channel) {
-    if (channel > 7) return;
-    Wire.beginTransmission(TCA9548A_ADDR);
-    Wire.write(1 << channel);
-    Wire.endTransmission();
-}
-
-// センサー初期化
-bool initSensors() {
-    Wire.begin();
-    Wire.setClock(400000);  // I2C高速モード
-
-    Serial.println("=== VL53L1X Sensor Initialization ===");
-
-    for (uint8_t i = 0; i < NUM_SENSORS; ++i) {
-        selectChannel(SENSOR_CHANNELS[i]);
-        delay(10);
-
-        Serial.print("Sensor ");
-        Serial.print(i);
-        Serial.print(" (Ch");
-        Serial.print(SENSOR_CHANNELS[i]);
-        Serial.print(", ");
-        Serial.print(SENSOR_ANGLES[i]);
-        Serial.print("deg)...");
-
-        sensors[i].setTimeout(500);
-        if (!sensors[i].init()) {
-            Serial.println(" FAILED!");
-            return false;
-        }
-
-        sensors[i].setDistanceMode(VL53L1X::Long);
-        sensors[i].setMeasurementTimingBudget(L1X_TIMING_BUDGET_US);
-        sensors[i].startContinuous(L1X_INTER_MEASUREMENT_MS);
-
-        Serial.println(" OK");
-    }
-
-    Serial.println("=== All sensors initialized ===");
-    return true;
-}
+Servo servo;
+uint16_t currentPulse = PULSE_CENTER;
+String inputBuffer = "";
 
 void setup() {
     Serial.begin(115200);
     while (!Serial) { delay(10); }
 
-    Serial.println("========================================");
-    Serial.println("  PWM + Sensor Test");
-    Serial.println("========================================");
+    printHeader();
+
+    // サーボ初期化
+    servo.attach(SERVO_PIN, PULSE_MIN, PULSE_MAX);
+    servo.writeMicroseconds(PULSE_CENTER);
+    currentPulse = PULSE_CENTER;
+
+    Serial.println("[OK] サーボ初期化完了");
+    Serial.print("[OK] 初期位置: ");
+    Serial.print(PULSE_CENTER);
+    Serial.println(" us (センター)");
     Serial.println();
-
-    // === センサー初期化 ===
-    Serial.println("[PHASE 1] Initializing Sensors...");
-    if (initSensors()) {
-        sensorsReady = true;
-    } else {
-        Serial.println("ERROR: Sensor init failed! Continuing without sensors.");
-        sensorsReady = false;
-    }
-    Serial.println();
-
-    // === サーボ/ESC初期化 ===
-    Serial.println("[PHASE 2] Initializing Servo/ESC...");
-    Serial.print("Servo Pin: "); Serial.println(SERVO_PIN);
-    Serial.print("ESC Pin: "); Serial.println(ESC_PIN);
-
-    Serial.println("[INIT] Attaching Servo...");
-    steeringServo.attach(SERVO_PIN);
-    Serial.println("[INIT] Servo attached");
-
-    Serial.println("[INIT] Attaching ESC...");
-    escController.attach(ESC_PIN);
-    Serial.println("[INIT] ESC attached");
-
-    // 初期位置設定
-    Serial.println("[INIT] Setting initial positions...");
-    steeringServo.writeMicroseconds(SERVO_CENTER);
-    escController.writeMicroseconds(ESC_STOP);
-    Serial.print("[INIT] Servo: "); Serial.print(SERVO_CENTER); Serial.println(" us");
-    Serial.print("[INIT] ESC: "); Serial.print(ESC_STOP); Serial.println(" us");
-
-    Serial.println();
-    Serial.println("=== All Initialization Complete ===");
-    Serial.println("Waiting 3 seconds for ESC arming...");
-    delay(3000);  // ESCアーミング待ち
-    Serial.println("Starting sensor-reactive control...");
-    Serial.println();
+    printHelp();
+    printPrompt();
 }
 
-// センサー読み取り
-void readSensors() {
-    for (uint8_t i = 0; i < NUM_SENSORS; ++i) {
-        selectChannel(SENSOR_CHANNELS[i]);
-        sensors[i].read();
-        sensorDistances[i] = sensors[i].ranging_data.range_mm;
-        if (sensorDistances[i] > 4000) {
-            sensorDistances[i] = 4000;
+void loop() {
+    // シリアル入力処理
+    while (Serial.available() > 0) {
+        char c = Serial.read();
+
+        if (c == '\n' || c == '\r') {
+            if (inputBuffer.length() > 0) {
+                processCommand(inputBuffer);
+                inputBuffer = "";
+                printPrompt();
+            }
+        } else {
+            inputBuffer += c;
+            Serial.print(c);  // エコーバック
         }
     }
 }
 
-// シリアルプロッター用出力（ラベル:値 形式）
-void printForPlotter() {
-    Serial.print("S0:");
-    Serial.print(sensorDistances[0]);
-    Serial.print(",S1:");
-    Serial.print(sensorDistances[1]);
-    Serial.print(",S2:");
-    Serial.print(sensorDistances[2]);
-    Serial.print(",S3:");
-    Serial.print(sensorDistances[3]);
-    Serial.print(",S4:");
-    Serial.println(sensorDistances[4]);
+void processCommand(String cmd) {
+    Serial.println();  // 改行
+
+    cmd.trim();
+    if (cmd.length() == 0) return;
+
+    // 単一文字コマンド
+    if (cmd.length() == 1) {
+        char c = cmd.charAt(0);
+        switch (c) {
+            case 's':
+            case 'S':
+                runSweepTest();
+                return;
+            case 'c':
+            case 'C':
+                setAndShowPulse(PULSE_CENTER);
+                return;
+            case '+':
+                setAndShowPulse(currentPulse + PULSE_STEP);
+                return;
+            case '-':
+                setAndShowPulse(currentPulse - PULSE_STEP);
+                return;
+            case 'h':
+            case 'H':
+            case '?':
+                printHelp();
+                return;
+        }
+    }
+
+    // 数値入力
+    int pulse = cmd.toInt();
+    if (pulse > 0) {
+        setAndShowPulse(pulse);
+    } else {
+        Serial.println("[ERR] 不正なコマンド。'h'でヘルプ表示");
+    }
 }
 
-void loop() {
-    unsigned long now = millis();
-
-    // センサー読み取り（60msごと）
-    if (sensorsReady && (now - lastSensorRead >= SENSOR_READ_INTERVAL)) {
-        lastSensorRead = now;
-        readSensors();
-        printForPlotter();
+void setAndShowPulse(int pulse) {
+    // 範囲チェック
+    if (pulse < PULSE_MIN) {
+        Serial.print("[WARN] 下限に制限: ");
+        Serial.print(PULSE_MIN);
+        Serial.println(" us");
+        pulse = PULSE_MIN;
+    }
+    if (pulse > PULSE_MAX) {
+        Serial.print("[WARN] 上限に制限: ");
+        Serial.print(PULSE_MAX);
+        Serial.println(" us");
+        pulse = PULSE_MAX;
     }
 
-    // === センサー反応制御 ===
+    currentPulse = pulse;
+    servo.writeMicroseconds(currentPulse);
 
-    // モーター: S2（正面）が1000mm以上なら前進
-    if (sensorDistances[2] > 1000) {
-        escController.writeMicroseconds(ESC_FORWARD);
-    } else {
-        escController.writeMicroseconds(ESC_STOP);
+    // 結果表示
+    Serial.print("[SET] パルス幅: ");
+    Serial.print(currentPulse);
+    Serial.print(" us");
+
+    // 推定角度（線形補間）
+    // 一般的なサーボ: 500us = -90度, 1500us = 0度, 2500us = +90度
+    float angle = map(currentPulse, PULSE_MIN, PULSE_MAX, -90, 90);
+    Serial.print(" (推定角度: ");
+    Serial.print(angle, 1);
+    Serial.println(" deg)");
+}
+
+void runSweepTest() {
+    Serial.println("[TEST] スイープテスト開始...");
+    Serial.println("       MIN → MAX → MIN");
+
+    // MIN → MAX
+    Serial.print("       MIN(");
+    Serial.print(PULSE_MIN);
+    Serial.print(") → MAX(");
+    Serial.print(PULSE_MAX);
+    Serial.println(")");
+
+    for (int p = PULSE_MIN; p <= PULSE_MAX; p += PULSE_STEP) {
+        servo.writeMicroseconds(p);
+        delay(SWEEP_DELAY_MS);
     }
 
-    // サーボ: S1（左前）とS3（右前）の大小比較
-    if (sensorDistances[1] > sensorDistances[3] + 200) {
-        steeringServo.writeMicroseconds(SERVO_MAX);
-    } else if (sensorDistances[3] > sensorDistances[1] + 200) {
-        steeringServo.writeMicroseconds(SERVO_MIN);
-    } else {
-        steeringServo.writeMicroseconds(SERVO_CENTER);
+    delay(500);  // 端点で少し待つ
+
+    // MAX → MIN
+    Serial.print("       MAX(");
+    Serial.print(PULSE_MAX);
+    Serial.print(") → MIN(");
+    Serial.print(PULSE_MIN);
+    Serial.println(")");
+
+    for (int p = PULSE_MAX; p >= PULSE_MIN; p -= PULSE_STEP) {
+        servo.writeMicroseconds(p);
+        delay(SWEEP_DELAY_MS);
     }
+
+    // センターに戻す
+    servo.writeMicroseconds(PULSE_CENTER);
+    currentPulse = PULSE_CENTER;
+
+    Serial.println("[TEST] スイープテスト完了");
+    Serial.print("       センター(");
+    Serial.print(PULSE_CENTER);
+    Serial.println(" us)に復帰");
+}
+
+void printHeader() {
+    Serial.println();
+    Serial.println("========================================");
+    Serial.println("  サーボ パルス幅テスト");
+    Serial.println("========================================");
+    Serial.print("サーボピン: ");
+    Serial.println(SERVO_PIN);
+    Serial.print("パルス範囲: ");
+    Serial.print(PULSE_MIN);
+    Serial.print(" - ");
+    Serial.print(PULSE_MAX);
+    Serial.println(" us");
+    Serial.println();
+}
+
+void printHelp() {
+    Serial.println("--- コマンド ---");
+    Serial.println("  数値    : 指定パルス幅(us)に移動");
+    Serial.println("  s       : スイープテスト");
+    Serial.println("  c       : センター(1500us)に移動");
+    Serial.println("  +       : +10us");
+    Serial.println("  -       : -10us");
+    Serial.println("  h       : ヘルプ表示");
+    Serial.println();
+}
+
+void printPrompt() {
+    Serial.print("現在: ");
+    Serial.print(currentPulse);
+    Serial.print("us > ");
 }

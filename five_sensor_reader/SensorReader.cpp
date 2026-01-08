@@ -73,6 +73,17 @@ void SensorReader::readAll() {
         // 距離データを取得
         _sensorData[i].distance = _sensors[i].ranging_data.range_mm;
 
+        // デバッグ: 全センサーのステータスを表示
+        Serial.print("[");
+        Serial.print(i);
+        Serial.print(":");
+        Serial.print(_sensors[i].ranging_data.range_status);
+        Serial.print(",");
+        Serial.print(_sensors[i].ranging_data.peak_signal_count_rate_MCPS);
+        Serial.print(",");
+        Serial.print(_sensors[i].ranging_data.ambient_count_rate_MCPS);
+        Serial.print("]");
+
         if(_sensorData[i].distance > 4000) {
             // VL53L1Xの仕様上、6m以上は不正確なので無効扱い
             _sensorData[i].distance = 4000;
