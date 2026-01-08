@@ -14,9 +14,10 @@
  * 2. 必要なライブラリをインストール:
  *    - VL53L1X (Pololu)
  *    - Servo (Arduino標準ライブラリ)
- * 3. Config.hでDEBUG_MODEを設定
- *    - true: デバッグ（PWMなし、シリアル出力あり）
- *    - false: 実機（PWMあり、シリアル出力なし）
+ * 3. Config.hでRUN_MODEを設定
+ *    - MODE_DEBUG: デバッグ専用（PWMなし、シリアルあり）
+ *    - MODE_PRODUCTION: 本番走行（PWMあり、シリアルなし）
+ *    - MODE_DEBUG_RUN: デバッグ走行（PWMあり、シリアルあり）
  * 4. Arduino Nano R4に書き込み
  */
 
@@ -45,8 +46,14 @@ void setup() {
     Logger::println("==========================================");
     Logger::println("  VL53L1X Follow the Gap + P Control");
     Logger::println("==========================================");
-    Logger::print("Debug Mode: ");
-    Logger::println(DEBUG_MODE ? "ON (No PWM)" : "OFF (PWM Active)");
+    Logger::print("Run Mode: ");
+#if RUN_MODE == MODE_DEBUG
+    Logger::println("DEBUG (No PWM, Serial ON)");
+#elif RUN_MODE == MODE_PRODUCTION
+    Logger::println("PRODUCTION (PWM ON, Serial OFF)");
+#else
+    Logger::println("DEBUG_RUN (PWM ON, Serial ON)");
+#endif
     Logger::print("Measurement Interval: ");
     Logger::print(MEASUREMENT_INTERVAL);
     Logger::println("ms");

@@ -19,7 +19,7 @@ class Logger {
    public:
     // シリアル初期化
     static void begin(unsigned long baud = 9600) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.begin(baud);
         while (!Serial) {
             delay(10);
@@ -30,14 +30,14 @@ class Logger {
     // 汎用プリント（改行なし）
     template <typename T>
     static void print(const T& value) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.print(value);
 #endif
     }
 
     // float出力（小数点以下桁数指定）
     static void print(float value, int decimals) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.print(value, decimals);
 #endif
     }
@@ -45,14 +45,14 @@ class Logger {
     // 汎用プリント（改行あり）
     template <typename T>
     static void println(const T& value) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.println(value);
 #endif
     }
 
     // 改行のみ（引数なし版）
     static void println() {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.println();
 #endif
     }
@@ -60,7 +60,7 @@ class Logger {
     // センサーデータのコンパクト表示
     static void printSensorData(uint8_t channel, uint16_t distance,
                                 bool valid) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.print("S");
         Serial.print(channel);
         Serial.print(":");
@@ -74,7 +74,7 @@ class Logger {
 
     // 壁検出状態の表示
     static void printWallStatus(bool left_valid, bool right_valid) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.print(" | W:");
         Serial.print(left_valid ? "L" : "-");
         Serial.print(right_valid ? "R" : "-");
@@ -84,7 +84,7 @@ class Logger {
     // 壁までの距離の表示
     static void printWallDistances(bool left_valid, float left_dist,
                                    bool right_valid, float right_dist) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.print(" D:");
         if (left_valid) {
             Serial.print((int)left_dist);
@@ -103,7 +103,7 @@ class Logger {
     // 壁角度の表示
     static void printWallAngles(bool left_valid, float left_angle,
                                 bool right_valid, float right_angle) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.print(" A:");
         if (left_valid) {
             Serial.print(left_angle, 1);
@@ -122,7 +122,7 @@ class Logger {
     // ギャップ検出結果の表示（Follow the Gap用）
     static void printGapResult(int numGaps, float targetAngle,
                                bool hasValidGap) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.print(" | G:");
         Serial.print(numGaps);
         Serial.print(" T:");
@@ -138,7 +138,7 @@ class Logger {
     // ギャップ詳細の表示
     static void printGapDetail(float centerAngle, float widthAngle,
                                float minDistance) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.print(" [C:");
         Serial.print(centerAngle, 1);
         Serial.print(" W:");
@@ -151,7 +151,7 @@ class Logger {
 
     // PIDエラー値の表示
     static void printError(float error) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.print(" E:");
         Serial.print(error, 1);
 #endif
@@ -159,7 +159,7 @@ class Logger {
 
     // ステアリング角度の表示（視覚的インジケーター付き）
     static void printSteering(float angle) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.print(" St:");
         Serial.print(angle, 1);
         Serial.print(" ");
@@ -182,7 +182,7 @@ class Logger {
 
     // アクチュエーター情報の表示
     static void printActuator(const char* name, uint16_t pulse_us) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.print(" [");
         Serial.print(name);
         Serial.print(":");
@@ -193,7 +193,7 @@ class Logger {
 
     // ループタイミング情報の表示（μs単位）
     static void printLoopTiming(unsigned long loop_us, unsigned long sensor_us) {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.print(" | T:");
         Serial.print(loop_us);
         Serial.print("us(S:");
@@ -204,7 +204,7 @@ class Logger {
 
     // タイミング設定のサマリー表示
     static void printTimingConfig() {
-#if DEBUG_MODE
+#if ENABLE_SERIAL
         Serial.println("--- Timing Configuration ---");
         Serial.print("  L1X Timing Budget: ");
         Serial.print(L1X_TIMING_BUDGET_US);

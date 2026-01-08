@@ -9,11 +9,21 @@
 #define CONFIG_H
 
 // ============================================================================
-// デバッグモード設定
+// 動作モード設定
 // ============================================================================
-#define DEBUG_MODE \
-    false  // true: デバッグ（PWMなし、シリアルあり）
-           // false: 実機（PWMあり、シリアルなし）
+// モード定義:
+//   0: MODE_DEBUG      - デバッグ専用（PWMなし、シリアルあり）
+//   1: MODE_PRODUCTION - 本番走行（PWMあり、シリアルなし）
+//   2: MODE_DEBUG_RUN  - デバッグ走行（PWMあり、シリアルあり）
+#define MODE_DEBUG 0
+#define MODE_PRODUCTION 1
+#define MODE_DEBUG_RUN 2
+
+#define RUN_MODE MODE_PRODUCTION // ← ここで動作モードを選択
+
+// 各機能の有効/無効を自動設定
+#define ENABLE_SERIAL (RUN_MODE == MODE_DEBUG || RUN_MODE == MODE_DEBUG_RUN)
+#define ENABLE_PWM (RUN_MODE == MODE_PRODUCTION || RUN_MODE == MODE_DEBUG_RUN)
 
 // ============================================================================
 // ハードウェア設定
@@ -57,7 +67,7 @@ const float OBSTACLE_INFLATION_RADIUS = 200.0;  // 障害物膨張半径（mm）
 const float MIN_GAP_WIDTH_ANGLE = 30.0;         // 最小通過可能ギャップ幅（度）
 const float GAP_WEIGHT_DISTANCE = 0.3;          // ギャップ選択時の距離重み
 const float GAP_WEIGHT_WIDTH = 0.4;             // ギャップ選択時の幅重み
-const float GAP_WEIGHT_FORWARD = 0.2;           // ギャップ選択時の前方優先重み
+const float GAP_WEIGHT_FORWARD = 0.4;           // ギャップ選択時の前方優先重み
 
 // ============================================================================
 // PD制御パラメータ
@@ -75,8 +85,8 @@ const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 // ============================================================================
 // サーボ（ステアリング）- 新サーボ: 1200(右)〜1500(中央)〜1800(左)
 const uint16_t SERVO_CENTER = 1585;  // 中央位置（μs）
-const uint16_t SERVO_MIN = 1000;     // 最小パルス幅（μs）= 最も右
-const uint16_t SERVO_MAX = 2000;     // 最大パルス幅（μs）= 最も左
+const uint16_t SERVO_MIN = 1200;     // 最小パルス幅（μs）= 最も右
+const uint16_t SERVO_MAX = 1800;     // 最大パルス幅（μs）= 最も左
 
 // ESC（速度制御）- 全てμs単位で統一
 const uint16_t ESC_STOP_US = 1500;   // 停止（μs）
@@ -87,8 +97,8 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 // ステアリング連動速度制御パラメータ
 // ============================================================================
 const bool SPEED_STEERING_LINK_ENABLED = true;  // true: 有効, false: 固定速度
-const uint16_t TOP_SPEED_US = 1580;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
-const uint16_t CORNER_SPEED_US = 1560;          // 最大ステアリング時の減速パルス（μs）
+const uint16_t TOP_SPEED_US = 1640;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
+const uint16_t CORNER_SPEED_US = 1640;          // 最大ステアリング時の減速パルス（μs）
 const float STEERING_DEADZONE = 5.0;            // この角度まで減速しない（度）
 
 #endif  // CONFIG_H
