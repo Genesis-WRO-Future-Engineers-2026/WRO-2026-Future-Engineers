@@ -32,10 +32,6 @@ Servo steeringServo;
 Servo escController;
 VL53L1X sensors[NUM_SENSORS];
 
-int testStep = 0;
-unsigned long lastStepTime = 0;
-const unsigned long STEP_INTERVAL = 2000;  // 2秒ごとにステップ進行
-
 // センサー読み取り用
 unsigned long lastSensorRead = 0;
 const unsigned long SENSOR_READ_INTERVAL = 60;  // 60msごとに読み取り
@@ -127,10 +123,10 @@ void setup() {
 
     Serial.println();
     Serial.println("=== All Initialization Complete ===");
-    Serial.println("Starting test sequence in 2 seconds...");
+    Serial.println("Waiting 3 seconds for ESC arming...");
+    delay(3000);  // ESCアーミング待ち
+    Serial.println("Starting sensor-reactive control...");
     Serial.println();
-
-    lastStepTime = millis();
 }
 
 // センサー読み取り
@@ -169,68 +165,21 @@ void loop() {
         printForPlotter();
     }
 
-    if (now - lastStepTime >= STEP_INTERVAL) {
-        lastStepTime = now;
+    // === センサー反応制御 ===
 
-        switch (testStep) {
-            // === 単体テスト ===
-            case 0:
-                Serial.println("[TEST 1/9] Servo RIGHT (1200us)");
-                steeringServo.writeMicroseconds(SERVO_MIN);
-                break;
+    // モーター: S2（正面）が1000mm以上なら前進
+    if (sensorDistances[2] > 1000) {
+        escController.writeMicroseconds(ESC_FORWARD);
+    } else {
+        escController.writeMicroseconds(ESC_STOP);
+    }
 
-            case 1:
-                Serial.println("[TEST 2/9] Servo CENTER (1500us)");
-                steeringServo.writeMicroseconds(SERVO_CENTER);
-                break;
-
-            case 2:
-                Serial.println("[TEST 3/9] Servo LEFT (1800us)");
-                steeringServo.writeMicroseconds(SERVO_MAX);
-                break;
-
-            case 3:
-                Serial.println("[TEST 4/9] Servo CENTER (1500us)");
-                steeringServo.writeMicroseconds(SERVO_CENTER);
-                break;
-
-            case 4:
-                Serial.println("[TEST 5/9] ESC FORWARD (1600us)");
-                escController.writeMicroseconds(ESC_FORWARD);
-                break;
-
-            case 5:
-                Serial.println("[TEST 6/9] ESC STOP (1500us)");
-                escController.writeMicroseconds(ESC_STOP);
-                break;
-
-            // === 同時動作テスト ===
-            case 6:
-                Serial.println("[TEST 7/9] SIMULTANEOUS: Servo LEFT + ESC FORWARD");
-                steeringServo.writeMicroseconds(SERVO_MAX);
-                escController.writeMicroseconds(ESC_FORWARD);
-                break;
-
-            case 7:
-                Serial.println("[TEST 8/9] SIMULTANEOUS: Servo RIGHT + ESC FORWARD");
-                steeringServo.writeMicroseconds(SERVO_MIN);
-                escController.writeMicroseconds(ESC_FORWARD);
-                break;
-
-            case 8:
-                Serial.println("[TEST 9/9] SIMULTANEOUS: Servo CENTER + ESC STOP");
-                steeringServo.writeMicroseconds(SERVO_CENTER);
-                escController.writeMicroseconds(ESC_STOP);
-                break;
-
-            case 9:
-                Serial.println();
-                Serial.println("=== Test Complete! Restarting... ===");
-                Serial.println();
-                testStep = -1;
-                break;
-        }
-
-        testStep++;
+    // サーボ: S1（左前）とS3（右前）の大小比較
+    if (sensorDistances[1] > sensorDistances[3] + 200) {
+        steeringServo.writeMicroseconds(SERVO_MAX);
+    } else if (sensorDistances[3] > sensorDistances[1] + 200) {
+        steeringServo.writeMicroseconds(SERVO_MIN);
+    } else {
+        steeringServo.writeMicroseconds(SERVO_CENTER);
     }
 }

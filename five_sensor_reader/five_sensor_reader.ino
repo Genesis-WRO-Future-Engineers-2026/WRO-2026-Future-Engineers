@@ -75,6 +75,10 @@ void setup() {
     // アクチュエーター初期化
     actuator.begin();
 
+    // ESCアーミング待ち
+    Logger::println("Waiting 3 seconds for ESC arming...");
+    delay(3000);
+
     // HC-06シリアル初期化
     Serial1.begin(9600);
 
