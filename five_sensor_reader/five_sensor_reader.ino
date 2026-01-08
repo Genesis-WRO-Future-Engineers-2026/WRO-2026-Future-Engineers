@@ -5,14 +5,14 @@
  *
  * 接続:
  * - TCA9548A I2Cマルチプレクサ (アドレス: 0x70)
- * - VL53L0Xセンサー → マルチプレクサのチャンネル0-4に接続
+ * - VL53L1Xセンサー → マルチプレクサのチャンネル0-4に接続
  * - サーボモーター → Pin 9
  * - ESC → Pin 10
  *
  * 使用方法:
  * 1. Arduino IDEでこのファイルを開く
  * 2. 必要なライブラリをインストール:
- *    - Adafruit_VL53L0X
+ *    - VL53L1X (Pololu)
  *    - Servo (Arduino標準ライブラリ)
  * 3. Config.hでDEBUG_MODEを設定
  *    - true: デバッグ（PWMなし、シリアル出力あり）
@@ -74,6 +74,10 @@ void setup() {
 
     // アクチュエーター初期化
     actuator.begin();
+
+    // ESCアーミング待ち
+    Logger::println("Waiting 3 seconds for ESC arming...");
+    delay(3000);
 
     // HC-06シリアル初期化
     Serial1.begin(9600);

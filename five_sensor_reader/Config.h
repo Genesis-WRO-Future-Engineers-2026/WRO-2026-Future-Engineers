@@ -35,9 +35,6 @@ const uint8_t ESC_PIN = 10;   // ESC（モーター制御）
 // ============================================================================
 const uint16_t MIN_VALID_DISTANCE = 50;  // 最小有効測定距離（mm）
 const uint16_t RELIABLE_RANGE = 4000;    // 信頼できる測定範囲（mm）L1Xは最大4m
-const uint16_t MAX_SENSOR_DIFF =
-    3000;  // センサーペア間の最大許容差（mm）L1X遠距離対応
-
 // VL53L1X タイミング設定
 const uint32_t L1X_TIMING_BUDGET_US = 20000;   // 測定時間(μs)
 const uint32_t L1X_INTER_MEASUREMENT_MS = 25;  // 測定間隔（ms）
@@ -76,13 +73,13 @@ const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 // ============================================================================
 // サーボ・ESC パルス幅設定
 // ============================================================================
-// サーボ（ステアリング）
-const uint16_t SERVO_CENTER = 1510;  // 中央位置（μs）+10でちょい右に修正
-const uint16_t SERVO_MIN = 600;      // 最小パルス幅（μs）
-const uint16_t SERVO_MAX = 2400;     // 最大パルス幅（μs）
+// サーボ（ステアリング）- 新サーボ: 1200(右)〜1500(中央)〜1800(左)
+const uint16_t SERVO_CENTER = 1500;  // 中央位置（μs）
+const uint16_t SERVO_MIN = 1200;     // 最小パルス幅（μs）= 最も右
+const uint16_t SERVO_MAX = 1800;     // 最大パルス幅（μs）= 最も左
 
-// ESC（速度制御）
-const float STOP_SPEED_PULSE = 1.5;  // 停止（ms）
+// ESC（速度制御）- 全てμs単位で統一
+const uint16_t ESC_STOP_US = 1500;   // 停止（μs）
 const uint16_t ESC_MIN_US = 1000;    // ESC最小パルス（μs）
 const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 
@@ -90,8 +87,8 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 // ステアリング連動速度制御パラメータ
 // ============================================================================
 const bool SPEED_STEERING_LINK_ENABLED = true;  // true: 有効, false: 固定速度
-const float TOP_SPEED_PULSE = 1.39;             // 直進時の最速パルス（ms）
-const float CORNER_SPEED_PULSE = 1.44;  // 最大ステアリング時の減速パルス（ms）
-const float STEERING_DEADZONE = 5.0;   // この角度まで減速しない（度）
+const uint16_t TOP_SPEED_US = 1580;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
+const uint16_t CORNER_SPEED_US = 1560;          // 最大ステアリング時の減速パルス（μs）
+const float STEERING_DEADZONE = 5.0;            // この角度まで減速しない（度）
 
 #endif  // CONFIG_H
