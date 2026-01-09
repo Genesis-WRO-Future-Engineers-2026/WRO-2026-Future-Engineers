@@ -19,11 +19,19 @@
 #define MODE_PRODUCTION 1
 #define MODE_DEBUG_RUN 2
 
-#define RUN_MODE MODE_PRODUCTION // ← ここで動作モードを選択
+#define RUN_MODE MODE_DEBUG_RUN // ← ここで動作モードを選択
 
 // 各機能の有効/無効を自動設定
 #define ENABLE_SERIAL (RUN_MODE == MODE_DEBUG || RUN_MODE == MODE_DEBUG_RUN)
 #define ENABLE_PWM (RUN_MODE == MODE_PRODUCTION || RUN_MODE == MODE_DEBUG_RUN)
+
+// ============================================================================
+// Bluetooth出力設定（HC-06モジュール）
+// ============================================================================
+// true: Bluetooth経由でログ出力 + 緊急停止機能を有効化
+// false: モジュール未接続時（コンパイル時にSerial1関連コードを除外）
+#define ENABLE_BLUETOOTH true
+const unsigned long BLUETOOTH_BAUD = 9600;  // HC-06のデフォルト速度
 
 // ============================================================================
 // ハードウェア設定
@@ -97,8 +105,8 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 // ステアリング連動速度制御パラメータ
 // ============================================================================
 const bool SPEED_STEERING_LINK_ENABLED = true;  // true: 有効, false: 固定速度
-const uint16_t TOP_SPEED_US = 1640;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
-const uint16_t CORNER_SPEED_US = 1640;          // 最大ステアリング時の減速パルス（μs）
+const uint16_t TOP_SPEED_US = 1580;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
+const uint16_t CORNER_SPEED_US = 1580;          // 最大ステアリング時の減速パルス（μs）
 const float STEERING_DEADZONE = 5.0;            // この角度まで減速しない（度）
 
 #endif  // CONFIG_H

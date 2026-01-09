@@ -86,9 +86,6 @@ void setup() {
     Logger::println("Waiting 3 seconds for ESC arming...");
     delay(3000);
 
-    // HC-06シリアル初期化
-    Serial1.begin(9600);
-
     Logger::println();
     Logger::println("System ready!");
     Logger::println();
@@ -101,7 +98,8 @@ void loop() {
     static unsigned long lastMeasurement = 0;
     unsigned long currentTime = millis();
 
-    // シリアル入力があれば停止
+#if ENABLE_BLUETOOTH
+    // Bluetooth経由で入力があれば緊急停止
     if (Serial1.available()) {
         actuator.setSteering(0.0);
         actuator.stop();
@@ -109,6 +107,7 @@ void loop() {
             delay(1000);
         }  // 終了
     }
+#endif
 
     // 指定した間隔で測定・制御（固定周期を維持）
     if (currentTime - lastMeasurement >= MEASUREMENT_INTERVAL) {

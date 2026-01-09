@@ -25,6 +25,9 @@ class Logger {
             delay(10);
         }  // シリアル接続待ち
 #endif
+#if ENABLE_BLUETOOTH
+        Serial1.begin(BLUETOOTH_BAUD);
+#endif
     }
 
     // 汎用プリント（改行なし）
@@ -33,12 +36,18 @@ class Logger {
 #if ENABLE_SERIAL
         Serial.print(value);
 #endif
+#if ENABLE_BLUETOOTH
+        Serial1.print(value);
+#endif
     }
 
     // float出力（小数点以下桁数指定）
     static void print(float value, int decimals) {
 #if ENABLE_SERIAL
         Serial.print(value, decimals);
+#endif
+#if ENABLE_BLUETOOTH
+        Serial1.print(value, decimals);
 #endif
     }
 
@@ -48,12 +57,18 @@ class Logger {
 #if ENABLE_SERIAL
         Serial.println(value);
 #endif
+#if ENABLE_BLUETOOTH
+        Serial1.println(value);
+#endif
     }
 
     // 改行のみ（引数なし版）
     static void println() {
 #if ENABLE_SERIAL
         Serial.println();
+#endif
+#if ENABLE_BLUETOOTH
+        Serial1.println();
 #endif
     }
 
@@ -70,6 +85,16 @@ class Logger {
             Serial.print("---");
         }
 #endif
+#if ENABLE_BLUETOOTH
+        Serial1.print("S");
+        Serial1.print(channel);
+        Serial1.print(":");
+        if (valid) {
+            Serial1.print(distance);
+        } else {
+            Serial1.print("---");
+        }
+#endif
     }
 
     // 壁検出状態の表示
@@ -78,6 +103,11 @@ class Logger {
         Serial.print(" | W:");
         Serial.print(left_valid ? "L" : "-");
         Serial.print(right_valid ? "R" : "-");
+#endif
+#if ENABLE_BLUETOOTH
+        Serial1.print(" | W:");
+        Serial1.print(left_valid ? "L" : "-");
+        Serial1.print(right_valid ? "R" : "-");
 #endif
     }
 
@@ -96,6 +126,20 @@ class Logger {
             Serial.print((int)right_dist);
         } else {
             Serial.print("---");
+        }
+#endif
+#if ENABLE_BLUETOOTH
+        Serial1.print(" D:");
+        if (left_valid) {
+            Serial1.print((int)left_dist);
+        } else {
+            Serial1.print("---");
+        }
+        Serial1.print("/");
+        if (right_valid) {
+            Serial1.print((int)right_dist);
+        } else {
+            Serial1.print("---");
         }
 #endif
     }
@@ -117,6 +161,20 @@ class Logger {
             Serial.print("---");
         }
 #endif
+#if ENABLE_BLUETOOTH
+        Serial1.print(" A:");
+        if (left_valid) {
+            Serial1.print(left_angle, 1);
+        } else {
+            Serial1.print("---");
+        }
+        Serial1.print("/");
+        if (right_valid) {
+            Serial1.print(right_angle, 1);
+        } else {
+            Serial1.print("---");
+        }
+#endif
     }
 
     // ギャップ検出結果の表示（Follow the Gap用）
@@ -133,6 +191,17 @@ class Logger {
             Serial.print("---");
         }
 #endif
+#if ENABLE_BLUETOOTH
+        Serial1.print(" | G:");
+        Serial1.print(numGaps);
+        Serial1.print(" T:");
+        if (hasValidGap) {
+            Serial1.print(targetAngle, 1);
+            Serial1.print("°");
+        } else {
+            Serial1.print("---");
+        }
+#endif
     }
 
     // ギャップ詳細の表示
@@ -147,6 +216,15 @@ class Logger {
         Serial.print((int)minDistance);
         Serial.print("]");
 #endif
+#if ENABLE_BLUETOOTH
+        Serial1.print(" [C:");
+        Serial1.print(centerAngle, 1);
+        Serial1.print(" W:");
+        Serial1.print(widthAngle, 1);
+        Serial1.print(" D:");
+        Serial1.print((int)minDistance);
+        Serial1.print("]");
+#endif
     }
 
     // PIDエラー値の表示
@@ -154,6 +232,10 @@ class Logger {
 #if ENABLE_SERIAL
         Serial.print(" E:");
         Serial.print(error, 1);
+#endif
+#if ENABLE_BLUETOOTH
+        Serial1.print(" E:");
+        Serial1.print(error, 1);
 #endif
     }
 
@@ -178,6 +260,22 @@ class Logger {
             Serial.print("|");
         }
 #endif
+#if ENABLE_BLUETOOTH
+        Serial1.print(" St:");
+        Serial1.print(angle, 1);
+        Serial1.print(" ");
+
+        // 視覚的インジケーター
+        if (angle < -5.0) {
+            int bars = constrain((int)(-angle / 5), 1, 6);
+            for (int i = 0; i < bars; i++) Serial1.print("L");
+        } else if (angle > 5.0) {
+            int bars = constrain((int)(angle / 5), 1, 6);
+            for (int i = 0; i < bars; i++) Serial1.print("R");
+        } else {
+            Serial1.print("|");
+        }
+#endif
     }
 
     // アクチュエーター情報の表示
@@ -189,6 +287,13 @@ class Logger {
         Serial.print(pulse_us);
         Serial.print("]");
 #endif
+#if ENABLE_BLUETOOTH
+        Serial1.print(" [");
+        Serial1.print(name);
+        Serial1.print(":");
+        Serial1.print(pulse_us);
+        Serial1.print("]");
+#endif
     }
 
     // ループタイミング情報の表示（μs単位）
@@ -199,6 +304,13 @@ class Logger {
         Serial.print("us(S:");
         Serial.print(sensor_us);
         Serial.print("us)");
+#endif
+#if ENABLE_BLUETOOTH
+        Serial1.print(" | T:");
+        Serial1.print(loop_us);
+        Serial1.print("us(S:");
+        Serial1.print(sensor_us);
+        Serial1.print("us)");
 #endif
     }
 
@@ -219,6 +331,22 @@ class Logger {
         Serial.print(L1X_INTER_MEASUREMENT_MS * NUM_SENSORS);
         Serial.println(" ms (sensor read time)");
         Serial.println("----------------------------");
+#endif
+#if ENABLE_BLUETOOTH
+        Serial1.println("--- Timing Configuration ---");
+        Serial1.print("  L1X Timing Budget: ");
+        Serial1.print(L1X_TIMING_BUDGET_US);
+        Serial1.println(" us");
+        Serial1.print("  L1X Inter-Measurement: ");
+        Serial1.print(L1X_INTER_MEASUREMENT_MS);
+        Serial1.println(" ms");
+        Serial1.print("  Loop Interval: ");
+        Serial1.print(MEASUREMENT_INTERVAL);
+        Serial1.println(" ms");
+        Serial1.print("  Expected Min Loop: ");
+        Serial1.print(L1X_INTER_MEASUREMENT_MS * NUM_SENSORS);
+        Serial1.println(" ms (sensor read time)");
+        Serial1.println("----------------------------");
 #endif
     }
 };
