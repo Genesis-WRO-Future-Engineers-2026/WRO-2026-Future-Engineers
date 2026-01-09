@@ -19,7 +19,7 @@
 #define MODE_PRODUCTION 1
 #define MODE_DEBUG_RUN 2
 
-#define RUN_MODE MODE_PRODUCTION // ← ここで動作モードを選択
+#define RUN_MODE MODE_DEBUG_RUN // ← ここで動作モードを選択
 
 // 各機能の有効/無効を自動設定
 #define ENABLE_SERIAL (RUN_MODE == MODE_DEBUG || RUN_MODE == MODE_DEBUG_RUN)
@@ -70,7 +70,7 @@ const float MAX_STEERING_ANGLE = 20.0;  // 最大操舵角（度）
 // ============================================================================
 // Follow the Gap パラメータ
 // ============================================================================
-const float OBSTACLE_THRESHOLD = 1500.0;        // 障害物判定閾値（mm）
+const float OBSTACLE_THRESHOLD = 1000.0;        // 障害物判定閾値（mm）
 const float OBSTACLE_INFLATION_RADIUS = 200.0;  // 障害物膨張半径（mm）
 const float MIN_GAP_WIDTH_ANGLE = 20.0;         // 最小通過可能ギャップ幅（度）
 const float GAP_WEIGHT_DISTANCE = 0.3;          // ギャップ選択時の距離重み
@@ -105,7 +105,7 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 // ステアリング連動速度制御パラメータ
 // ============================================================================
 const bool SPEED_STEERING_LINK_ENABLED = true;  // true: 有効, false: 固定速度
-const uint16_t TOP_SPEED_US = 1600;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
+const uint16_t TOP_SPEED_US = 1580;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
 const uint16_t CORNER_SPEED_US = 1580;          // 最大ステアリング時の減速パルス（μs）
 const float STEERING_DEADZONE = 5.0;            // この角度まで減速しない（度）
 
