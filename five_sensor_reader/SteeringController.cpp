@@ -25,9 +25,9 @@ float SteeringController::calculate(const GapResult& gap) {
     // P項: 目標角度に比例
     float p_term = STEERING_KP * gap.target_angle;
 
-    // D項: 角度変化率に比例（予測制御）
+    // D項: 角度変化率に比例（急変動を抑制）
     float angle_change = gap.target_angle - _lastTargetAngle;
-    float d_term = STEERING_KD * angle_change;
+    float d_term = -STEERING_KD * angle_change;  // 負のフィードバックで急変動を抑制
 
     // 目標角度を保存（次回のD項計算用）
     _lastTargetAngle = gap.target_angle;

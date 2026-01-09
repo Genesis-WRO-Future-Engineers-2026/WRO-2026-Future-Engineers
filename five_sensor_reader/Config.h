@@ -72,7 +72,7 @@ const float MAX_STEERING_ANGLE = 20.0;  // 最大操舵角（度）
 // ============================================================================
 const float OBSTACLE_THRESHOLD = 1500.0;        // 障害物判定閾値（mm）
 const float OBSTACLE_INFLATION_RADIUS = 200.0;  // 障害物膨張半径（mm）
-const float MIN_GAP_WIDTH_ANGLE = 30.0;         // 最小通過可能ギャップ幅（度）
+const float MIN_GAP_WIDTH_ANGLE = 20.0;         // 最小通過可能ギャップ幅（度）
 const float GAP_WEIGHT_DISTANCE = 0.3;          // ギャップ選択時の距離重み
 const float GAP_WEIGHT_WIDTH = 0.4;             // ギャップ選択時の幅重み
 const float GAP_WEIGHT_FORWARD = 0.4;           // ギャップ選択時の前方優先重み
