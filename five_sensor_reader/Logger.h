@@ -25,7 +25,7 @@ class Logger {
             delay(10);
         }  // シリアル接続待ち
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING || ENABLE_BLUETOOTH_EMERGENCY
         Serial1.begin(BLUETOOTH_BAUD);
 #endif
     }
@@ -36,7 +36,7 @@ class Logger {
 #if ENABLE_SERIAL
         Serial.print(value);
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING
         Serial1.print(value);
 #endif
     }
@@ -46,7 +46,7 @@ class Logger {
 #if ENABLE_SERIAL
         Serial.print(value, decimals);
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING
         Serial1.print(value, decimals);
 #endif
     }
@@ -57,7 +57,7 @@ class Logger {
 #if ENABLE_SERIAL
         Serial.println(value);
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING
         Serial1.println(value);
 #endif
     }
@@ -67,7 +67,7 @@ class Logger {
 #if ENABLE_SERIAL
         Serial.println();
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING
         Serial1.println();
 #endif
     }
@@ -85,7 +85,7 @@ class Logger {
             Serial.print("---");
         }
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING
         Serial1.print("S");
         Serial1.print(channel);
         Serial1.print(":");
@@ -104,7 +104,7 @@ class Logger {
         Serial.print(left_valid ? "L" : "-");
         Serial.print(right_valid ? "R" : "-");
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING
         Serial1.print(" | W:");
         Serial1.print(left_valid ? "L" : "-");
         Serial1.print(right_valid ? "R" : "-");
@@ -128,7 +128,7 @@ class Logger {
             Serial.print("---");
         }
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING
         Serial1.print(" D:");
         if (left_valid) {
             Serial1.print((int)left_dist);
@@ -161,7 +161,7 @@ class Logger {
             Serial.print("---");
         }
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING
         Serial1.print(" A:");
         if (left_valid) {
             Serial1.print(left_angle, 1);
@@ -177,53 +177,19 @@ class Logger {
 #endif
     }
 
-    // ギャップ検出結果の表示（Follow the Gap用）
-    static void printGapResult(int numGaps, float targetAngle,
-                               bool hasValidGap) {
+    // ギャップ検出結果の表示
+    static void printGapResult(float targetAngle, float farthestDistance) {
 #if ENABLE_SERIAL
-        Serial.print(" | G:");
-        Serial.print(numGaps);
-        Serial.print(" T:");
-        if (hasValidGap) {
-            Serial.print(targetAngle, 1);
-            Serial.print("°");
-        } else {
-            Serial.print("---");
-        }
+        Serial.print(" | T:");
+        Serial.print(targetAngle, 1);
+        Serial.print("° D:");
+        Serial.print((int)farthestDistance);
 #endif
-#if ENABLE_BLUETOOTH
-        Serial1.print(" | G:");
-        Serial1.print(numGaps);
-        Serial1.print(" T:");
-        if (hasValidGap) {
-            Serial1.print(targetAngle, 1);
-            Serial1.print("°");
-        } else {
-            Serial1.print("---");
-        }
-#endif
-    }
-
-    // ギャップ詳細の表示
-    static void printGapDetail(float centerAngle, float widthAngle,
-                               float minDistance) {
-#if ENABLE_SERIAL
-        Serial.print(" [C:");
-        Serial.print(centerAngle, 1);
-        Serial.print(" W:");
-        Serial.print(widthAngle, 1);
-        Serial.print(" D:");
-        Serial.print((int)minDistance);
-        Serial.print("]");
-#endif
-#if ENABLE_BLUETOOTH
-        Serial1.print(" [C:");
-        Serial1.print(centerAngle, 1);
-        Serial1.print(" W:");
-        Serial1.print(widthAngle, 1);
-        Serial1.print(" D:");
-        Serial1.print((int)minDistance);
-        Serial1.print("]");
+#if ENABLE_BLUETOOTH_LOGGING
+        Serial1.print(" | T:");
+        Serial1.print(targetAngle, 1);
+        Serial1.print("° D:");
+        Serial1.print((int)farthestDistance);
 #endif
     }
 
@@ -233,7 +199,7 @@ class Logger {
         Serial.print(" E:");
         Serial.print(error, 1);
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING
         Serial1.print(" E:");
         Serial1.print(error, 1);
 #endif
@@ -250,17 +216,17 @@ class Logger {
         if (angle < -5.0) {
             // 左に大きく切る
             int bars = constrain((int)(-angle / 5), 1, 6);
-            for (int i = 0; i < bars; i++) Serial.print("L");
+            for (int i = 0; i < bars; ++i) Serial.print("L");
         } else if (angle > 5.0) {
             // 右に大きく切る
             int bars = constrain((int)(angle / 5), 1, 6);
-            for (int i = 0; i < bars; i++) Serial.print("R");
+            for (int i = 0; i < bars; ++i) Serial.print("R");
         } else {
             // ほぼ中央
             Serial.print("|");
         }
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING
         Serial1.print(" St:");
         Serial1.print(angle, 1);
         Serial1.print(" ");
@@ -268,10 +234,10 @@ class Logger {
         // 視覚的インジケーター
         if (angle < -5.0) {
             int bars = constrain((int)(-angle / 5), 1, 6);
-            for (int i = 0; i < bars; i++) Serial1.print("L");
+            for (int i = 0; i < bars; ++i) Serial1.print("L");
         } else if (angle > 5.0) {
             int bars = constrain((int)(angle / 5), 1, 6);
-            for (int i = 0; i < bars; i++) Serial1.print("R");
+            for (int i = 0; i < bars; ++i) Serial1.print("R");
         } else {
             Serial1.print("|");
         }
@@ -287,7 +253,7 @@ class Logger {
         Serial.print(pulse_us);
         Serial.print("]");
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING
         Serial1.print(" [");
         Serial1.print(name);
         Serial1.print(":");
@@ -305,7 +271,7 @@ class Logger {
         Serial.print(sensor_us);
         Serial.print("us)");
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING
         Serial1.print(" | T:");
         Serial1.print(loop_us);
         Serial1.print("us(S:");
@@ -332,7 +298,7 @@ class Logger {
         Serial.println(" ms (sensor read time)");
         Serial.println("----------------------------");
 #endif
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_LOGGING
         Serial1.println("--- Timing Configuration ---");
         Serial1.print("  L1X Timing Budget: ");
         Serial1.print(L1X_TIMING_BUDGET_US);
