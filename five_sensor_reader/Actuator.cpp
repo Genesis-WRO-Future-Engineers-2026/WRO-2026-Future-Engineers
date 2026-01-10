@@ -32,9 +32,16 @@ void Actuator::begin() {
 }
 
 void Actuator::setSteering(float angle_degrees) {
-    // 角度をパルス幅に変換
+    // 角度をパルス幅に変換（MAX_STEERING_ANGLEを基準にマッピング）
     int pulse_us =
-        map((int)(angle_degrees * 10), -900, 900, SERVO_MIN, SERVO_MAX);
+        map((int)(angle_degrees * 10),
+            (int)(-MAX_STEERING_ANGLE * 10),
+            (int)(MAX_STEERING_ANGLE * 10),
+            SERVO_MAX, SERVO_MIN);
+
+    // 中央オフセット補正: SERVO_CENTERを基準に調整
+    // map計算の中央は(SERVO_MIN+SERVO_MAX)/2、これとSERVO_CENTERの差分を補正
+    pulse_us += SERVO_CENTER - (SERVO_MIN + SERVO_MAX) / 2;
 
     // 範囲チェック
     if (pulse_us < SERVO_MIN) pulse_us = SERVO_MIN;

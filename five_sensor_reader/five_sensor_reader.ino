@@ -14,9 +14,10 @@
  * 2. 必要なライブラリをインストール:
  *    - VL53L1X (Pololu)
  *    - Servo (Arduino標準ライブラリ)
- * 3. Config.hでDEBUG_MODEを設定
- *    - true: デバッグ（PWMなし、シリアル出力あり）
- *    - false: 実機（PWMあり、シリアル出力なし）
+ * 3. Config.hでRUN_MODEを設定
+ *    - MODE_DEBUG: デバッグ専用（PWMなし、シリアルあり）
+ *    - MODE_PRODUCTION: 本番走行（PWMあり、シリアルなし）
+ *    - MODE_DEBUG_RUN: デバッグ走行（PWMあり、シリアルあり）
  * 4. Arduino Nano R4に書き込み
  */
 
@@ -45,8 +46,14 @@ void setup() {
     Logger::println("==========================================");
     Logger::println("  VL53L1X Follow the Gap + P Control");
     Logger::println("==========================================");
-    Logger::print("Debug Mode: ");
-    Logger::println(DEBUG_MODE ? "ON (No PWM)" : "OFF (PWM Active)");
+    Logger::print("Run Mode: ");
+#if RUN_MODE == MODE_DEBUG
+    Logger::println("DEBUG (No PWM, Serial ON)");
+#elif RUN_MODE == MODE_PRODUCTION
+    Logger::println("PRODUCTION (PWM ON, Serial OFF)");
+#else
+    Logger::println("DEBUG_RUN (PWM ON, Serial ON)");
+#endif
     Logger::print("Measurement Interval: ");
     Logger::print(MEASUREMENT_INTERVAL);
     Logger::println("ms");
@@ -79,9 +86,6 @@ void setup() {
     Logger::println("Waiting 3 seconds for ESC arming...");
     delay(3000);
 
-    // HC-06シリアル初期化
-    Serial1.begin(9600);
-
     Logger::println();
     Logger::println("System ready!");
     Logger::println();
@@ -94,7 +98,8 @@ void loop() {
     static unsigned long lastMeasurement = 0;
     unsigned long currentTime = millis();
 
-    // シリアル入力があれば停止
+#if ENABLE_BLUETOOTH
+    // Bluetooth経由で入力があれば緊急停止
     if (Serial1.available()) {
         actuator.setSteering(0.0);
         actuator.stop();
@@ -102,6 +107,7 @@ void loop() {
             delay(1000);
         }  // 終了
     }
+#endif
 
     // 指定した間隔で測定・制御（固定周期を維持）
     if (currentTime - lastMeasurement >= MEASUREMENT_INTERVAL) {
