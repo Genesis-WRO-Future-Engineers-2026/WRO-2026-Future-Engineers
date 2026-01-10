@@ -30,7 +30,7 @@
 // ============================================================================
 // true: Bluetooth経由でログ出力 + 緊急停止機能を有効化
 // false: モジュール未接続時（コンパイル時にSerial1関連コードを除外）
-#define ENABLE_BLUETOOTH true
+#define ENABLE_BLUETOOTH false
 const unsigned long BLUETOOTH_BAUD = 9600;  // HC-06のデフォルト速度
 
 // ============================================================================
