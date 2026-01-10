@@ -19,7 +19,7 @@
 #define MODE_PRODUCTION 1
 #define MODE_DEBUG_RUN 2
 
-#define RUN_MODE MODE_DEBUG_RUN // ← ここで動作モードを選択
+#define RUN_MODE MODE_DEBUG // ← ここで動作モードを選択
 
 // 各機能の有効/無効を自動設定
 #define ENABLE_SERIAL (RUN_MODE == MODE_DEBUG || RUN_MODE == MODE_DEBUG_RUN)
@@ -54,28 +54,28 @@ const uint8_t ESC_PIN = 10;   // ESC（モーター制御）
 const uint16_t MIN_VALID_DISTANCE = 50;  // 最小有効測定距離（mm）
 const uint16_t RELIABLE_RANGE = 4000;    // 信頼できる測定範囲（mm）L1Xは最大4m
 // VL53L1X タイミング設定
-const uint32_t L1X_TIMING_BUDGET_US = 50000;   // 測定時間（μs）50ms
-const uint32_t L1X_INTER_MEASUREMENT_MS = 50;  // 測定間隔（ms）
+const uint32_t L1X_TIMING_BUDGET_US = 33000;   // 測定時間（μs）50ms
+const uint32_t L1X_INTER_MEASUREMENT_MS = 40;  // 測定間隔（ms）
 
 // ============================================================================
 // タイミング設定
 // ============================================================================
-const unsigned long MEASUREMENT_INTERVAL = 60;  // 60ms（L1X測定間隔以上を推奨）
+const unsigned long MEASUREMENT_INTERVAL = 50;  // 60ms（L1X測定間隔以上を推奨）
 
 // ============================================================================
 // ステアリングパラメータ
 // ============================================================================
-const float MAX_STEERING_ANGLE = 20.0;  // 最大操舵角（度）
+const float MAX_STEERING_ANGLE = 30.0;  // 最大操舵角（度）
 
 // ============================================================================
 // Follow the Gap パラメータ
 // ============================================================================
-const float OBSTACLE_THRESHOLD = 1000.0;        // 障害物判定閾値（mm）
-const float OBSTACLE_INFLATION_RADIUS = 200.0;  // 障害物膨張半径（mm）
+const float OBSTACLE_THRESHOLD = 1200.0;        // 障害物判定閾値（mm）
+const float OBSTACLE_INFLATION_RADIUS = 150.0;  // 障害物膨張半径（mm）
 const float MIN_GAP_WIDTH_ANGLE = 20.0;         // 最小通過可能ギャップ幅（度）
 const float GAP_WEIGHT_DISTANCE = 0.3;          // ギャップ選択時の距離重み
 const float GAP_WEIGHT_WIDTH = 0.4;             // ギャップ選択時の幅重み
-const float GAP_WEIGHT_FORWARD = 0.4;           // ギャップ選択時の前方優先重み
+const float GAP_WEIGHT_FORWARD = 0.3;           // ギャップ選択時の前方優先重み
 
 // ============================================================================
 // PD制御パラメータ
@@ -105,8 +105,8 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 // ステアリング連動速度制御パラメータ
 // ============================================================================
 const bool SPEED_STEERING_LINK_ENABLED = true;  // true: 有効, false: 固定速度
-const uint16_t TOP_SPEED_US = 1580;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
-const uint16_t CORNER_SPEED_US = 1580;          // 最大ステアリング時の減速パルス（μs）
+const uint16_t TOP_SPEED_US = 1600;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
+const uint16_t CORNER_SPEED_US = 1600;          // 最大ステアリング時の減速パルス（μs）
 const float STEERING_DEADZONE = 5.0;            // この角度まで減速しない（度）
 
 #endif  // CONFIG_H
