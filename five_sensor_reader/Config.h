@@ -19,18 +19,21 @@
 #define MODE_PRODUCTION 1
 #define MODE_DEBUG_RUN 2
 
-#define RUN_MODE MODE_DEBUG // ← ここで動作モードを選択
+#define RUN_MODE MODE_PRODUCTION // ← ここで動作モードを選択
 
 // 各機能の有効/無効を自動設定
 #define ENABLE_SERIAL (RUN_MODE == MODE_DEBUG || RUN_MODE == MODE_DEBUG_RUN)
 #define ENABLE_PWM (RUN_MODE == MODE_PRODUCTION || RUN_MODE == MODE_DEBUG_RUN)
 
 // ============================================================================
-// Bluetooth出力設定（HC-06モジュール）
+// Bluetooth設定（HC-06モジュール）
 // ============================================================================
-// true: Bluetooth経由でログ出力 + 緊急停止機能を有効化
-// false: モジュール未接続時（コンパイル時にSerial1関連コードを除外）
-#define ENABLE_BLUETOOTH false
+// ログ出力: true でBluetooth経由のシリアル出力を有効化
+#define ENABLE_BLUETOOTH_LOGGING false
+
+// 緊急停止: true でBluetooth経由の緊急停止機能を有効化
+#define ENABLE_BLUETOOTH_EMERGENCY true
+
 const unsigned long BLUETOOTH_BAUD = 9600;  // HC-06のデフォルト速度
 
 // ============================================================================
@@ -75,8 +78,8 @@ const float FARTHEST_HYSTERESIS = 100.0;  // 最遠センサー切り替えの�
 // ============================================================================
 // PD制御パラメータ
 // ============================================================================
-const float STEERING_KP = 0.9;  // 比例ゲイン（0.7→0.9に増加）
-const float STEERING_KD = 0.1;  // 微分ゲイン（予測制御用、控えめからスタート）
+const float STEERING_KP = 0.9;  // 比例ゲイン
+const float STEERING_KD = 0.2;  // 微分ゲイン（予測制御用、控えめからスタート）
 
 // ============================================================================
 // 安全パラメータ
@@ -87,7 +90,7 @@ const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 // サーボ・ESC パルス幅設定
 // ============================================================================
 // サーボ（ステアリング）- 新サーボ: 1200(右)〜1500(中央)〜1800(左)
-const uint16_t SERVO_CENTER = 1585;  // 中央位置（μs）
+const uint16_t SERVO_CENTER = 1485;  // 中央位置（μs）
 const uint16_t SERVO_MIN = 1300;     // 最小パルス幅（μs）= 最も右
 const uint16_t SERVO_MAX = 1700;     // 最大パルス幅（μs）= 最も左
 
@@ -100,8 +103,8 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 // ステアリング連動速度制御パラメータ
 // ============================================================================
 const bool SPEED_STEERING_LINK_ENABLED = true;  // true: 有効, false: 固定速度
-const uint16_t TOP_SPEED_US = 1580;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
-const uint16_t CORNER_SPEED_US = 1580;          // 最大ステアリング時の減速パルス（μs）
+const uint16_t TOP_SPEED_US = 1600;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
+const uint16_t CORNER_SPEED_US = 1600;          // 最大ステアリング時の減速パルス（μs）
 const float STEERING_DEADZONE = 5.0;            // この角度まで減速しない（度）
 
 #endif  // CONFIG_H

@@ -97,7 +97,7 @@ void loop() {
     static unsigned long lastMeasurement = 0;
     unsigned long currentTime = millis();
 
-#if ENABLE_BLUETOOTH
+#if ENABLE_BLUETOOTH_EMERGENCY
     // Bluetooth経由で入力があれば緊急停止
     if (Serial1.available()) {
         actuator.setSteering(0.0);
