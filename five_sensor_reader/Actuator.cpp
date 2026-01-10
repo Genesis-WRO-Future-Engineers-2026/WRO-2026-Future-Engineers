@@ -13,7 +13,7 @@ Actuator::Actuator() {
 }
 
 void Actuator::begin() {
-#if !DEBUG_MODE
+#if ENABLE_PWM
     _steeringServo.attach(SERVO_PIN);
     _escController.attach(ESC_PIN);
 
@@ -48,7 +48,7 @@ void Actuator::setSteering(float angle_degrees) {
     if (pulse_us > SERVO_MAX) pulse_us = SERVO_MAX;
 
 // PWM出力
-#if !DEBUG_MODE
+#if ENABLE_PWM
     _steeringServo.writeMicroseconds(pulse_us);
 #endif
 
@@ -61,7 +61,7 @@ void Actuator::setSpeed(uint16_t pulse_us) {
     if (pulse_us > ESC_MAX_US) pulse_us = ESC_MAX_US;
 
 // PWM出力
-#if !DEBUG_MODE
+#if ENABLE_PWM
     _escController.writeMicroseconds(pulse_us);
 #endif
 

@@ -59,9 +59,8 @@ void setup() {
     Logger::println("ms");
     Logger::print("Steering Kp: ");
     Logger::println(STEERING_KP);
-    Logger::print("Obstacle Threshold: ");
-    Logger::print(OBSTACLE_THRESHOLD);
-    Logger::println("mm");
+    Logger::print("Steering Kd: ");
+    Logger::println(STEERING_KD);
     Logger::println();
 
     // タイミング設定のサマリー表示
@@ -146,18 +145,12 @@ void loop() {
         }
 
         // =========================================================================
-        // Phase 3: ギャップ検出（Follow the Gap）
+        // Phase 3: ギャップ検出（最遠+隣接センサー方式）
         // =========================================================================
         GapResult gap = gapFinder.find(sensorData);
 
         // デバッグ: ギャップ検出結果表示
-        Logger::printGapResult(gap.num_gaps, gap.target_angle,
-                               gap.has_valid_gap);
-        if (gap.has_valid_gap) {
-            Logger::printGapDetail(gap.best_gap.center_angle,
-                                   gap.best_gap.width_angle,
-                                   gap.best_gap.min_distance);
-        }
+        Logger::printGapResult(gap.target_angle, gap.farthest_distance);
 
         // =========================================================================
         // Phase 4: ステアリング角度計算（P制御）

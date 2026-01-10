@@ -19,7 +19,7 @@
 #define MODE_PRODUCTION 1
 #define MODE_DEBUG_RUN 2
 
-#define RUN_MODE MODE_DEBUG_RUN // ← ここで動作モードを選択
+#define RUN_MODE MODE_DEBUG // ← ここで動作モードを選択
 
 // 各機能の有効/無効を自動設定
 #define ENABLE_SERIAL (RUN_MODE == MODE_DEBUG || RUN_MODE == MODE_DEBUG_RUN)
@@ -68,14 +68,9 @@ const unsigned long MEASUREMENT_INTERVAL = 50;  // 60ms（L1X測定間隔以上�
 const float MAX_STEERING_ANGLE = 30.0;  // 最大操舵角（度）
 
 // ============================================================================
-// Follow the Gap パラメータ
+// ギャップ検出パラメータ
 // ============================================================================
-const float OBSTACLE_THRESHOLD = 1200.0;        // 障害物判定閾値（mm）
-const float OBSTACLE_INFLATION_RADIUS = 150.0;  // 障害物膨張半径（mm）
-const float MIN_GAP_WIDTH_ANGLE = 20.0;         // 最小通過可能ギャップ幅（度）
-const float GAP_WEIGHT_DISTANCE = 0.3;          // ギャップ選択時の距離重み
-const float GAP_WEIGHT_WIDTH = 0.4;             // ギャップ選択時の幅重み
-const float GAP_WEIGHT_FORWARD = 0.3;           // ギャップ選択時の前方優先重み
+const float FARTHEST_HYSTERESIS = 100.0;  // 最遠センサー切り替えのヒステリシス（mm）
 
 // ============================================================================
 // PD制御パラメータ

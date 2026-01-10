@@ -177,53 +177,19 @@ class Logger {
 #endif
     }
 
-    // ギャップ検出結果の表示（Follow the Gap用）
-    static void printGapResult(int numGaps, float targetAngle,
-                               bool hasValidGap) {
+    // ギャップ検出結果の表示
+    static void printGapResult(float targetAngle, float farthestDistance) {
 #if ENABLE_SERIAL
-        Serial.print(" | G:");
-        Serial.print(numGaps);
-        Serial.print(" T:");
-        if (hasValidGap) {
-            Serial.print(targetAngle, 1);
-            Serial.print("°");
-        } else {
-            Serial.print("---");
-        }
+        Serial.print(" | T:");
+        Serial.print(targetAngle, 1);
+        Serial.print("° D:");
+        Serial.print((int)farthestDistance);
 #endif
 #if ENABLE_BLUETOOTH
-        Serial1.print(" | G:");
-        Serial1.print(numGaps);
-        Serial1.print(" T:");
-        if (hasValidGap) {
-            Serial1.print(targetAngle, 1);
-            Serial1.print("°");
-        } else {
-            Serial1.print("---");
-        }
-#endif
-    }
-
-    // ギャップ詳細の表示
-    static void printGapDetail(float centerAngle, float widthAngle,
-                               float minDistance) {
-#if ENABLE_SERIAL
-        Serial.print(" [C:");
-        Serial.print(centerAngle, 1);
-        Serial.print(" W:");
-        Serial.print(widthAngle, 1);
-        Serial.print(" D:");
-        Serial.print((int)minDistance);
-        Serial.print("]");
-#endif
-#if ENABLE_BLUETOOTH
-        Serial1.print(" [C:");
-        Serial1.print(centerAngle, 1);
-        Serial1.print(" W:");
-        Serial1.print(widthAngle, 1);
-        Serial1.print(" D:");
-        Serial1.print((int)minDistance);
-        Serial1.print("]");
+        Serial1.print(" | T:");
+        Serial1.print(targetAngle, 1);
+        Serial1.print("° D:");
+        Serial1.print((int)farthestDistance);
 #endif
     }
 
@@ -250,11 +216,11 @@ class Logger {
         if (angle < -5.0) {
             // 左に大きく切る
             int bars = constrain((int)(-angle / 5), 1, 6);
-            for (int i = 0; i < bars; i++) Serial.print("L");
+            for (int i = 0; i < bars; ++i) Serial.print("L");
         } else if (angle > 5.0) {
             // 右に大きく切る
             int bars = constrain((int)(angle / 5), 1, 6);
-            for (int i = 0; i < bars; i++) Serial.print("R");
+            for (int i = 0; i < bars; ++i) Serial.print("R");
         } else {
             // ほぼ中央
             Serial.print("|");
@@ -268,10 +234,10 @@ class Logger {
         // 視覚的インジケーター
         if (angle < -5.0) {
             int bars = constrain((int)(-angle / 5), 1, 6);
-            for (int i = 0; i < bars; i++) Serial1.print("L");
+            for (int i = 0; i < bars; ++i) Serial1.print("L");
         } else if (angle > 5.0) {
             int bars = constrain((int)(angle / 5), 1, 6);
-            for (int i = 0; i < bars; i++) Serial1.print("R");
+            for (int i = 0; i < bars; ++i) Serial1.print("R");
         } else {
             Serial1.print("|");
         }
