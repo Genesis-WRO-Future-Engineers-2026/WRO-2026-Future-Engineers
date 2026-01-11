@@ -13,7 +13,7 @@
 
 #include "SteeringController.h"
 
-#include "Logger.h"
+#include "SensorReader.h"
 
 SteeringController::SteeringController() { _lastTargetAngle = 0.0; }
 
@@ -21,7 +21,14 @@ void SteeringController::begin() {
     _lastTargetAngle = 0.0;
 }
 
-float SteeringController::calculate(const GapResult& gap) {
+float SteeringController::calculate(const GapResult& gap, const SensorData* sensorData) {
+    // 直進モード: 正面センサー（インデックス2、0度）が閾値以上空いていれば直進
+    if (sensorData[2].valid &&
+        sensorData[2].distance >= STRAIGHT_MODE_THRESHOLD) {
+        _lastTargetAngle = 0.0;
+        return 0.0;
+    }
+
     // P項: 目標角度に比例
     float p_term = STEERING_KP * gap.target_angle;
 

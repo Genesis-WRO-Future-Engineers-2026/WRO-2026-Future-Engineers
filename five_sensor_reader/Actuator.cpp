@@ -6,7 +6,10 @@
 
 #include "Actuator.h"
 
+#include <math.h>
+
 #include "Logger.h"
+#include "SensorReader.h"
 
 Actuator::Actuator() {
     // 何もしない
@@ -68,38 +71,49 @@ void Actuator::setSpeed(uint16_t pulse_us) {
     Logger::printActuator("ESC", pulse_us);
 }
 
-uint16_t Actuator::calculateSpeedFromSteering(float steering_angle) {
+uint16_t Actuator::calculateSpeed(float steering_angle, const SensorData* sensorData) {
     // ステアリング連動が無効の場合は固定速度
     if (!SPEED_STEERING_LINK_ENABLED) {
         return TOP_SPEED_US;
     }
 
-    // ステアリング角度の絶対値を取得（左右どちらでも同じ減速）
+    // 正面センサー（インデックス2）の距離を取得（無効時は最大距離）
+    uint16_t front_distance = sensorData[2].valid ? sensorData[2].distance : RELIABLE_RANGE;
+
+    // === 1. ステアリング角度による減速 ===
+    uint16_t speed_from_steering = TOP_SPEED_US;
     float abs_angle = abs(steering_angle);
 
-    // デッドゾーン内では最速維持（小角度での無駄な減速を回避）
-    if (abs_angle <= STEERING_DEADZONE) {
-        return TOP_SPEED_US;
+    if (abs_angle > STEERING_DEADZONE) {
+        float effective_angle = abs_angle - STEERING_DEADZONE;
+        float effective_max = MAX_STEERING_ANGLE - STEERING_DEADZONE;
+        if (effective_angle > effective_max) {
+            effective_angle = effective_max;
+        }
+        float ratio = effective_angle / effective_max;
+        speed_from_steering = TOP_SPEED_US +
+            (uint16_t)((CORNER_SPEED_US - TOP_SPEED_US) * sqrt(ratio));
     }
 
-    // デッドゾーン以降の有効角度を計算
-    float effective_angle = abs_angle - STEERING_DEADZONE;
-    float effective_max = MAX_STEERING_ANGLE - STEERING_DEADZONE;
+    // === 2. 正面距離による先行減速 ===
+    // STRAIGHT_MODE_THRESHOLD以下で減速開始、EMERGENCY_FRONT_THRESHOLDで最大減速
+    uint16_t speed_from_distance = TOP_SPEED_US;
 
-    // 最大角度でクランプ
-    if (effective_angle > effective_max) {
-        effective_angle = effective_max;
+    if (front_distance < STRAIGHT_MODE_THRESHOLD) {
+        if (front_distance <= EMERGENCY_FRONT_THRESHOLD) {
+            // 最大減速
+            speed_from_distance = CORNER_SPEED_US;
+        } else {
+            // 線形補間: 距離が近いほど減速
+            float dist_ratio = (float)(STRAIGHT_MODE_THRESHOLD - front_distance) /
+                               (float)(STRAIGHT_MODE_THRESHOLD - EMERGENCY_FRONT_THRESHOLD);
+            speed_from_distance = TOP_SPEED_US +
+                (uint16_t)((CORNER_SPEED_US - TOP_SPEED_US) * dist_ratio);
+        }
     }
 
-    // 線形補間で角度に比例して減速
-    // 5度以下  → 1580μs（最速）
-    // 20度    → 1520μs（最大減速）
-    float ratio = effective_angle / effective_max;
-    uint16_t speed_us =
-        TOP_SPEED_US +
-        (uint16_t)((CORNER_SPEED_US - TOP_SPEED_US) * ratio);
-
-    return speed_us;
+    // === 3. より大きい減速を採用（小さいパルス幅 = より遅い） ===
+    return min(speed_from_steering, speed_from_distance);
 }
 
 void Actuator::stop() { setSpeed(ESC_STOP_US); }
