@@ -81,18 +81,12 @@ uint16_t Actuator::calculateSpeed(float steering_angle, const SensorData* sensor
     uint16_t front_distance = sensorData[2].valid ? sensorData[2].distance : RELIABLE_RANGE;
 
     // === 1. ステアリング角度による減速 ===
+    // デバッグ用: 単純にデッドゾーン外ならCORNER_SPEED_USに落とす
     uint16_t speed_from_steering = TOP_SPEED_US;
     float abs_angle = abs(steering_angle);
 
     if (abs_angle > STEERING_DEADZONE) {
-        float effective_angle = abs_angle - STEERING_DEADZONE;
-        float effective_max = MAX_STEERING_ANGLE - STEERING_DEADZONE;
-        if (effective_angle > effective_max) {
-            effective_angle = effective_max;
-        }
-        float ratio = effective_angle / effective_max;
-        speed_from_steering = TOP_SPEED_US +
-            (uint16_t)((CORNER_SPEED_US - TOP_SPEED_US) * sqrt(ratio));
+        speed_from_steering = CORNER_SPEED_US;
     }
 
     // === 2. 正面距離による先行減速 ===
