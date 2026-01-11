@@ -81,9 +81,15 @@ const float FARTHEST_HYSTERESIS = 100.0;  // 最遠センサー切り替えの�
 const uint16_t STRAIGHT_MODE_THRESHOLD = 1500;  // 正面がこの距離以上なら直進（mm）
 
 // ============================================================================
+// 壁回避パラメータ
+// ============================================================================
+const uint16_t WALL_PROXIMITY_THRESHOLD = 400;  // この距離以下で補正開始（mm）
+const float WALL_AVOIDANCE_GAIN = 0.0;         // 補正ゲイン
+
+// ============================================================================
 // PD制御パラメータ
 // ============================================================================
-const float STEERING_KP = 1.1;  // 比例ゲイン
+const float STEERING_KP = 1.0;  // 比例ゲイン
 const float STEERING_KD = 0.0;  // 微分ゲイン（予測制御用、控えめからスタート）
 
 // ============================================================================
@@ -96,8 +102,8 @@ const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 // ============================================================================
 // サーボ（ステアリング）- 新サーボ: 1200(右)〜1500(中央)〜1800(左)
 const uint16_t SERVO_CENTER = 1425;  // 中央位置（μs）
-const uint16_t SERVO_MIN = 1300;     // 最小パルス幅（μs）= 最も右
-const uint16_t SERVO_MAX = 1700;     // 最大パルス幅（μs）= 最も左
+const uint16_t SERVO_MIN = 1225;     // 最小パルス幅（μs）= 最も右
+const uint16_t SERVO_MAX = 1625;     // 最大パルス幅（μs）= 最も左
 
 // ESC（速度制御）- 全てμs単位で統一
 const uint16_t ESC_STOP_US = 1500;   // 停止（μs）
@@ -108,7 +114,7 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 // ステアリング連動速度制御パラメータ
 // ============================================================================
 const bool SPEED_STEERING_LINK_ENABLED = true;  // true: 有効, false: 固定速度
-const uint16_t TOP_SPEED_US = 1610;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
+const uint16_t TOP_SPEED_US = 1620;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
 const uint16_t CORNER_SPEED_US = 1480;          // 最大ステアリング時の減速パルス（μs）
 const float STEERING_DEADZONE = 5.0;            // この角度まで減速しない（度）
 
