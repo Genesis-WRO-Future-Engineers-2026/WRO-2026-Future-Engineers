@@ -2,7 +2,7 @@
  * SteeringController.h
  *
  * ステアリング制御クラス（宣言）
- * Follow the Gap + PD制御 + 壁回避補正によるステアリング
+ * Follow the Gap + PD制御によるステアリング
  */
 
 #ifndef STEERING_CONTROLLER_H
@@ -12,7 +12,6 @@
 
 #include "Config.h"
 #include "GapFinder.h"
-#include "WallAvoider.h"
 
 // 前方宣言（ポインタ型のみ使用のためフルインクルード不要）
 struct SensorData;
@@ -20,7 +19,6 @@ struct SensorData;
 class SteeringController {
    private:
     float _lastTargetAngle;  // 最後の目標角度（D項計算用）
-    WallAvoider _wallAvoider;  // 壁回避補正
 
    public:
     SteeringController();

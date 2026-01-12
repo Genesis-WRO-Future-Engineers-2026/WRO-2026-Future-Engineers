@@ -61,7 +61,6 @@ five_sensor_reader/
 ├── SensorReader.cpp/h      # VL53L1Xセンサー読み取り
 ├── GapFinder.cpp/h         # 最遠+隣接センサー方式による目標角度決定
 ├── SteeringController.cpp/h # PD制御によるステアリング計算
-├── WallAvoider.cpp/h       # 壁回避補正
 ├── Actuator.cpp/h          # サーボ・ESCへのPWM出力
 ├── Logger.h                # デバッグ出力（ヘッダーオンリー）
 ├── README.md               # 本ドキュメント
@@ -193,19 +192,6 @@ steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
 
 直進モード動作:
 - 正面センサー（Sensor 2）の距離が閾値以上の場合、ステアリングを0°（直進）に固定
-- 壁回避補正は直進モード中でも適用される
-
-### 壁回避パラメータ
-
-| 定数 | 型 | 値 | 説明 |
-|------|----|----|------|
-| `WALL_PROXIMITY_THRESHOLD` | uint16_t | 400 | この距離以下で補正開始（mm） |
-| `WALL_AVOIDANCE_GAIN` | float | 0.0 | 補正ゲイン（現在無効） |
-
-壁回避動作:
-- 各センサーが閾値以下の壁を検出した場合、そのセンサー角度の逆方向へ補正
-- 補正量 = `−センサー角度 × 接近度 × GAIN`
-- 現在はGAIN=0.0で無効化されている
 
 ### ギャップ検出パラメータ
 

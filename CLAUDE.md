@@ -26,7 +26,6 @@ minicar-battle/
 │   ├── SensorReader.cpp/h       # VL53L1Xセンサー読み取り
 │   ├── GapFinder.cpp/h          # 最遠+隣接センサー方式による目標角度決定
 │   ├── SteeringController.cpp/h # PD制御によるステアリング計算
-│   ├── WallAvoider.cpp/h        # 壁回避補正（現在無効）
 │   ├── Actuator.cpp/h           # サーボ・ESCへのPWM出力
 │   └── Logger.h                 # デバッグ出力（ヘッダーオンリー）
 ├── CLAUDE.md                    # 本ドキュメント
