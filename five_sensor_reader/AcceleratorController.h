@@ -16,15 +16,22 @@
 struct SensorData;
 
 class AcceleratorController {
+   private:
+    // ステアリング角度から速度を計算
+    uint16_t _calculateFromSteering(float steering_angle);
+
+    // 前方距離から速度を計算
+    uint16_t _calculateFromDistance(const SensorData* sensorData);
+
    public:
     AcceleratorController();
 
     // 初期化
     void begin();
 
-    // 速度を計算（ステアリング角度に応じた線形補間）
+    // 速度を計算（ステアリング角度と前方距離から）
     // steering_angle: ステアリング角度（度）
-    // sensorData: センサーデータ（将来の拡張用、現在は未使用）
+    // sensorData: センサーデータ（前方距離による減速に使用）
     // 戻り値: ESCパルス幅（μs）
     uint16_t calculate(float steering_angle, const SensorData* sensorData = nullptr);
 
