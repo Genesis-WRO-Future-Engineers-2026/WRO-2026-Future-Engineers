@@ -153,9 +153,9 @@ void loop() {
         Logger::printGapResult(gap.target_angle, gap.farthest_distance);
 
         // =========================================================================
-        // Phase 4: ステアリング角度計算（P制御）
+        // Phase 4: ステアリング角度計算（PD制御 + 直進モード判定）
         // =========================================================================
-        float steering_angle = steeringController.calculate(gap);
+        float steering_angle = steeringController.calculate(gap, sensorData);
 
         // デバッグ: 目標角度とステアリング表示
         Logger::printSteering(steering_angle);
@@ -168,10 +168,10 @@ void loop() {
             actuator.setSteering(0.0);
             actuator.stop();
         } else {
-            // 通常走行：ステアリング角度に応じた可変速度
+            // 通常走行：ステアリング角度とセンサーデータに応じた可変速度
             actuator.setSteering(steering_angle);
-            float variable_speed =
-                actuator.calculateSpeedFromSteering(steering_angle);
+            uint16_t variable_speed =
+                actuator.calculateSpeed(steering_angle, sensorData);
             actuator.setSpeed(variable_speed);
         }
 

@@ -4,311 +4,224 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-自動運転ミニカーバトルプロジェクト - Tamiya TT-02シャーシを使った競技用自動運転システムの開発。以下の2つの主要コンポーネントで構成:
+自動運転ミニカーバトルプロジェクト - Tamiya TT-02シャーシを使った競技用自動運転システムの開発。
 
-1. **ハードウェア制御システム** (`AutoDriveCode/`) - Raspberry Pi + Arduino + ToFセンサーを使った実機制御
-2. **強化学習シミュレーター** (`reinforcement-learning/2d-simulator/`) - PPO強化学習による走行戦略の開発
+**ハードウェア制御システム** (`five_sensor_reader/`) - Arduino Nano R4 + VL53L1X ToFセンサー5個による自動走行システム
 
 ### 競技目標
 - **タイムトライアル**: 9秒以下のラップタイムを目指す
 - **エンデュランス**: 6分間の連続周回レース（壁衝突なし、チェックポイント順番通過）
 
+### 現在の記録
+- **3周**: 24.11秒（1周平均8.04秒）
+- **1周最速**: 8.3秒
+
 ## Repository Structure
 
 ```
 minicar-battle/
-├── AutoDriveCode/               # 実機制御システム（幾何計算ベース）
-│   ├── VL53L0X_raspi/          # 5センサー制御コード（Raspberry Pi）
-│   │   └── src/                # Python実装（main, sensors, actuators, etc.）
-│   ├── arduino/                # Arduino PWM生成
-│   │   └── pulse_generator.ino
-│   ├── ARDUINO_SYSTEM_PLAN.md  # 壁追従アルゴリズムの数式と設計
-│   └── SERIAL_PWM_SYSTEM.md    # Raspi-Arduino通信プロトコル
-│
-└── reinforcement-learning/
-    └── 2d-simulator/           # 強化学習システム（Sim2Real）
-        ├── src/                # シミュレーター本体
-        │   ├── env/           # Gymnasium互換環境
-        │   ├── physics/       # Box2D物理エンジン
-        │   ├── rl/            # PPO実装
-        │   └── curriculum/    # カリキュラム学習
-        ├── scripts/           # 学習・評価スクリプト
-        ├── courses/           # コース定義（JSON）
-        └── CLAUDE.md          # シミュレーター専用ドキュメント
+├── five_sensor_reader/           # Arduino自動走行システム
+│   ├── five_sensor_reader.ino   # メインスケッチ（エントリーポイント）
+│   ├── Config.h                 # 全設定値の一元管理
+│   ├── SensorReader.cpp/h       # VL53L1Xセンサー読み取り
+│   ├── GapFinder.cpp/h          # 最遠+隣接センサー方式による目標角度決定
+│   ├── SteeringController.cpp/h # PD制御によるステアリング計算
+│   ├── WallAvoider.cpp/h        # 壁回避補正（現在無効）
+│   ├── Actuator.cpp/h           # サーボ・ESCへのPWM出力
+│   └── Logger.h                 # デバッグ出力（ヘッダーオンリー）
+├── CLAUDE.md                    # 本ドキュメント
+└── README.md                    # プロジェクト詳細ドキュメント
 ```
 
 ---
 
-## AutoDriveCode: Hardware Control System
-
-### System Architecture
+## System Architecture
 
 ```
-┌────────────────────────────────┐
-│ Raspberry Pi (計算処理)         │
-│  - VL53L0X距離センサー読取 (I2C)│
-│  - 壁検出・交点計算             │
-│  - ステアリング角度決定          │
-│  - パルス幅計算                 │
-└──────────┬─────────────────────┘
-           │ Serial (115200bps)
-           │ GPIO14/15
-┌──────────▼─────────────────────┐
-│ Arduino Nano (PWM生成)          │
-│  - 高精度PWMパルス出力 (50Hz)   │
-│  - サーボ制御 (Pin 9)           │
-│  - ESC制御 (Pin 10)             │
-│  - 通信タイムアウト検知 (200ms) │
-└──────────┬─────────────────────┘
-           │
-    ┌──────┴───────┐
-    ▼              ▼
- サーボ          ESC/モーター
+┌─────────────────────────────────────────────────────────────┐
+│                    Arduino Nano R4                          │
+│                                                             │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
+│  │ SensorReader │───▶│  GapFinder   │───▶│  Steering    │  │
+│  │  (I2C読取)   │    │(目標角度決定) │    │  Controller  │  │
+│  └──────────────┘    └──────────────┘    │  (PD制御)    │  │
+│         ▲                                └──────┬───────┘  │
+│         │                                       │          │
+│  ┌──────┴───────┐                        ┌──────▼───────┐  │
+│  │  TCA9548A    │                        │   Actuator   │  │
+│  │ マルチプレクサ│                        │  (PWM出力)   │  │
+│  └──────────────┘                        └──────────────┘  │
+└───────┬─────────────────────────────────────────┬──────────┘
+        │                                         │
+   ┌────┴────┐                              ┌─────┴─────┐
+   │ VL53L1X │ × 5                          │サーボ/ESC │
+   └─────────┘                              └───────────┘
 ```
 
 ### Hardware Requirements
 
-- **Raspberry Pi**: GPIO & I2Cが使用可能なモデル
-- **Arduino Nano R4**: PWM生成専用
-- **センサー**: VL53L0X ToFセンサー × 5個
-  - I2Cアドレス: 0x2B, 0x2D, 0x2E, 0x2F, 0x30
-  - GPIO Shutdown ピン: 2, 3, 4, 5, 6
+- **マイコン**: Arduino Nano R4
+- **センサー**: VL53L1X ToFセンサー × 5
+- **I2Cマルチプレクサ**: TCA9548A（アドレス: 0x70）
 - **アクチュエーター**: サーボモーター（ステアリング）、ESC（速度制御）
+- **通信**: HC-06 Bluetooth（緊急停止用、オプション）
 
 ### Sensor Layout
 
 ```
-        正面 (Sensor 3: 0°)
-              |
-       -20°   |   +20°
-         \    |    /
-          \   |   /
--70°       \  |  /       +70°
-(S1 左)     \ | /     (S5 右)
-           (S2) (S4)
+              正面 (Sensor 2: 0°)
+                    │
+           -20°     │     +20°
+             \      │      /
+              \     │     /
+    -70°       \    │    /       +70°
+  (Sensor 0)   (S1) │ (S3)   (Sensor 4)
+     左              │              右
 ```
 
-### Wall Following Algorithm
+| センサー | チャンネル | 角度 | 役割 |
+|---------|-----------|------|------|
+| Sensor 0 | CH0 | -70° | 左側方 |
+| Sensor 1 | CH1 | -20° | 左前方 |
+| Sensor 2 | CH2 | 0° | 正面 |
+| Sensor 3 | CH3 | +20° | 右前方 |
+| Sensor 4 | CH4 | +70° | 右側方 |
 
-**核心ロジック**: 左右2つのセンサーペアで壁の直線を検出し、y軸（車体正面方向）との交点差からステアリング角度を決定。
+---
 
-**数式詳細**: `AutoDriveCode/ARDUINO_SYSTEM_PLAN.md`を参照。
+## Control Algorithm: Follow the Gap + PD制御
 
-**制御状態**:
-1. 両壁検出 → 交点差に比例したステアリング
-2. 左壁のみ → 左へステアリング（開けた方向へ）
-3. 右壁のみ → 右へステアリング
-4. 壁なし → 直進
+### 最遠+隣接センサー方式
 
-### Running the Hardware System
+1. 有効な5センサーから距離が最も遠い1つを選択
+2. その隣接センサー（左右）を取得（端の場合は片側のみ）
+3. 最遠センサー+隣接センサーの距離で重み付けした角度をtarget_angleとする
 
-#### Setup (初回のみ)
-
-```bash
-# Raspberry Piのシリアルポート有効化
-sudo raspi-config
-# Interface Options → Serial Port → No (login shell), Yes (hardware)
-sudo reboot
-
-# Pythonライブラリインストール
-pip3 install pyserial
-
-# Arduinoプログラム書き込み（Arduino IDEまたはarduino-cli使用）
-arduino-cli compile --fqbn arduino:avr:nano AutoDriveCode/arduino/pulse_generator.ino
-arduino-cli upload -p /dev/ttyUSB0 --fqbn arduino:avr:nano AutoDriveCode/arduino/pulse_generator.ino
-```
-
-#### Run
-
-```bash
-cd AutoDriveCode/VL53L0X_raspi/src
-
-# メインプログラム実行（Raspberry Pi上、sudo必須）
-make run
-# または
-sudo python3 main.py
-
-# テスト（Dockerコンテナ内で実行）
-make test
-make test-cov
-
-# アクチュエーターテスト（Raspberry Pi上）
-python3 test_serial_actuator.py
-```
-
-### Serial Communication Protocol
-
-Raspberry Pi → Arduino間の通信フォーマット:
+### PD制御
 
 ```
-S<pulse_width_us>\n  # サーボ制御（例: S1500 = 中央）
-E<pulse_width_us>\n  # ESC制御（例: E1500 = 停止）
+steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
 ```
 
-**パルス幅範囲**:
-- サーボ: 500-2400μs（-90°～+90°）
-- ESC: 1000-2000μs（後退～前進）
-  - 注意: 実際の最大前進速度は1.4ms（1400μs）
+- **P項（比例）**: 目標角度に比例したステアリング
+- **D項（微分）**: 角度変化率に基づく急変動抑制
 
-**安全機能**: Arduino側で200ms通信途絶時に自動停止（中央ステアリング + ESC停止）
+### 制御フロー
 
-### Key Configuration Parameters
-
-`AutoDriveCode/VL53L0X_raspi/src/config.py`で設定:
-
-```python
-# ステアリングパラメータ
-MAX_STEER_ANGLE = 30.0           # 最大操舵角（度）
-INTERSECTION_DIFF_GAIN = 0.1     # 交点差のゲイン
-ONE_SIDE_OPEN_STEER_RATIO = 0.5  # 片側開放時の操舵比率
-
-# センサー信頼性パラメータ
-RELIABLE_RANGE = 700             # 信頼できる測定範囲（mm）
-MAX_SENSOR_DIFF = 200            # センサーペア間の最大許容差（mm）
-
-# 速度パラメータ（ESCパルス幅, ms）
-BASE_SPEED_PULSE = 1.52          # 基本速度
-MAX_SPEED_PULSE = 1.4            # 最大速度（実機制約）
+```
+1. センサーデータ取得（5センサー同時読み取り）
+      ↓
+2. 緊急停止チェック（前方 < 400mm）
+      ↓
+3. 最遠センサー特定 + 隣接センサーで目標角度計算
+      ↓
+4. PD制御でステアリング角度を決定
+      ↓
+5. ステアリング連動速度制御でPWM出力
 ```
 
 ---
 
-## Reinforcement Learning Simulator
+## Running the System
 
-### Overview
+### 1. ライブラリのインストール
 
-Box2D物理エンジンを使った2Dシミュレーターで、PPO強化学習によりSim2Real転移を目指す。
+Arduino IDEで以下をインストール:
+- **VL53L1X** (Pololu)
+- **Servo** (Arduino標準)
 
-**詳細は `reinforcement-learning/2d-simulator/CLAUDE.md` を参照。**
+### 2. 設定
 
-### Quick Start
+`Config.h` の `RUN_MODE` を設定:
+```cpp
+#define MODE_DEBUG 0       // デバッグ専用（PWMなし、シリアルあり）
+#define MODE_PRODUCTION 1  // 本番走行（PWMあり、シリアルなし）
+#define MODE_DEBUG_RUN 2   // デバッグ走行（PWMあり、シリアルあり）
 
-```bash
-cd reinforcement-learning/2d-simulator
-
-# 環境構築
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# 重要: PYTHONPATHを設定（常に必要）
-export PYTHONPATH="$(pwd):$PYTHONPATH"
-
-# 適応的学習開始（カリキュラム学習 + 自動報酬調整）
-python scripts/rl-training/train_adaptive.py --total-iterations 2000 --gui
-
-# TensorBoardで進捗確認
-tensorboard --logdir=logs
+#define RUN_MODE MODE_PRODUCTION  // ← ここで動作モードを選択
 ```
 
-### Training Commands
+### 3. 書き込み
 
 ```bash
-# 適応的学習（推奨）
-python scripts/rl-training/train_adaptive.py --total-iterations 2000
-
-# GUIで可視化
-python scripts/rl-training/train_adaptive.py --gui --total-iterations 500
-
-# チェックポイントから再開
-python scripts/rl-training/train_adaptive.py \
-  --resume models/checkpoints_adaptive/checkpoint_500.pth \
-  --total-iterations 2000
+# Arduino CLIを使用する場合
+arduino-cli compile --fqbn arduino:renesas_uno:unor4wifi five_sensor_reader
+arduino-cli upload -p /dev/cu.usbmodem* --fqbn arduino:renesas_uno:unor4wifi five_sensor_reader
 ```
 
-### Testing
+### 4. 停止方法
 
-```bash
-# すべてのテスト実行
-pytest tests/
-
-# カバレッジ付き
-pytest tests/ --cov=src --cov-report=html
-
-# 特定のテスト
-pytest tests/test_env.py -v
-```
-
-### Observation Space (10 dimensions)
-
-- **LiDAR**: 5方向（-60°, -30°, 0°, +30°, +60°）
-- **速度**: vx, vy
-- **角速度**: 1次元
-- **前回の行動**: steering, throttle
-
-**重要**: チェックポイント情報は観測空間に含まれない（Sim2Real対応のため）。エージェントはLiDARと速度情報のみで走行を学習。
-
-### Reward Design
-
-`src/env/minicar_env.py`の`_compute_reward()`メソッドで実装:
-
-- 速度報酬: `speed * 0.03`
-- 時間ペナルティ: `-0.2`（探索時間を許容）
-- 壁接近ペナルティ: 距離 < 0.3m で発動
-- 衝突ペナルティ: `-100.0`（Box2D物理衝突検出）
-- チェックポイント報酬: `+200.0`（偶然の通過を強く評価）
-- ゴール到達報酬: `+500.0`
-- 時間ボーナス: `(max_steps - current_step) * 1.5`
+`ENABLE_BLUETOOTH_EMERGENCY=true` の場合、HC-06 Bluetooth経由で任意のデータを送信すると緊急停止
 
 ---
 
-## Development Workflow
+## Key Configuration Parameters
 
-### Hardware Development
+`five_sensor_reader/Config.h` で設定:
 
-1. **アルゴリズム変更**: `AutoDriveCode/VL53L0X_raspi/src/steering_controller.py`を編集
-2. **パラメータ調整**: `config.py`のゲイン値や閾値を調整
-3. **テスト実行**: Dockerコンテナ内で`make test`（単体テスト）
-4. **実機テスト**: Raspberry Pi上で`make run`
+```cpp
+// タイミング設定
+const unsigned long MEASUREMENT_INTERVAL = 50;  // メインループ周期（ms）
 
-### Simulation Development
+// PD制御パラメータ
+const float STEERING_KP = 1.0;  // 比例ゲイン
+const float STEERING_KD = 0.0;  // 微分ゲイン
 
-1. **報酬関数変更**: `src/env/minicar_env.py`の`_compute_reward()`を編集
-2. **コース追加**: `courses/`に新しいJSON定義を追加
-3. **学習実行**: `train_adaptive.py`でカリキュラム学習
-4. **モデル評価**: `test_saved_model.py`でGUI可視化
+// 直進モード
+const uint16_t STRAIGHT_MODE_THRESHOLD = 1500;  // 正面がこの距離以上なら直進（mm）
 
-### Testing Strategy
+// 安全パラメータ
+const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 
-- **AutoDriveCode**: Dockerコンテナでユニットテスト（実機センサーなしでテスト可能）
-- **Simulator**: pytestで物理エンジン、環境、PPOの動作を検証
+// ステアリング連動速度制御
+const uint16_t TOP_SPEED_US = 1640;      // 直進時の最速パルス（μs）
+const uint16_t CORNER_SPEED_US = 1580;   // 最大ステアリング時の減速パルス（μs）
+const float STEERING_DEADZONE = 5.0;     // 減速しない角度範囲（度）
+
+// サーボ設定（μs単位）
+const uint16_t SERVO_CENTER = 1425;  // 中央位置
+const uint16_t SERVO_MIN = 1225;     // 最小パルス幅（右）
+const uint16_t SERVO_MAX = 1625;     // 最大パルス幅（左）
+```
+
+---
+
+## Debug Output Format
+
+`RUN_MODE=MODE_DEBUG_RUN` 時のシリアル出力例:
+
+```
+S0:1234 | S1:567 | S2:890 | S3:456 | S4:789 | G:1 T:15.0° [C:12.3 W:40.0 D:1200] St:13.5 RR | T:28000us(S:25000us)
+```
+
+| フィールド | 説明 |
+|-----------|------|
+| S0-S4 | 各センサーの距離（mm） |
+| T | 目標角度（度） |
+| St | ステアリング角度（度） |
+| L/R | ステアリング方向インジケーター |
+| T | ループ時間（μs） |
+
+---
+
+## Safety Features
+
+1. **緊急停止**: 前方センサー < 400mm で自動停止
+2. **Bluetooth停止**: Serial1への入力で即時停止（`ENABLE_BLUETOOTH_EMERGENCY=true`時）
 
 ---
 
 ## Common Issues
 
-### AutoDriveCode
-
-**Q: "Failed to open serial port"**
-→ ユーザーをdialoutグループに追加: `sudo usermod -a -G dialout $USER` → 再ログイン
+**Q: センサーが初期化できない**
+→ I2C接続確認、TCA9548Aのアドレス（0x70）確認、VL53L1Xの電源確認
 
 **Q: サーボやESCが動かない**
-→ ESCキャリブレーション: `test_serial_actuator.py`でESCテスト実行（停止→最高速→停止の順）
+→ `RUN_MODE` が `MODE_PRODUCTION` または `MODE_DEBUG_RUN` になっているか確認
+→ ESCキャリブレーション実行
 
-**Q: センサーが初期化できない**
-→ I2C接続確認: `i2cdetect -y 1`（Raspberry Pi上）
-
-### Simulator
-
-**Q: "ModuleNotFoundError: No module named 'src'"**
-→ `export PYTHONPATH="$(pwd):$PYTHONPATH"`を実行
-
-**Q: Box2Dインストールエラー**
-→ macOS: `brew install swig`, Linux: `sudo apt-get install swig`
-
-**Q: 学習が進まない**
-→ 報酬関数をデバッグ（`info['total_reward']`を確認）、ハイパーパラメータ調整
-
----
-
-## Key Documents
-
-- `AutoDriveCode/ARDUINO_SYSTEM_PLAN.md` - 壁追従アルゴリズムの数学的基礎（極座標変換、直線方程式、交点計算）
-- `AutoDriveCode/SERIAL_PWM_SYSTEM.md` - Raspberry Pi-Arduino間のシリアル通信詳細
-- `AutoDriveCode/VL53L0X_raspi/src/README.md` - 5センサーシステムの概要
-- `reinforcement-learning/2d-simulator/CLAUDE.md` - シミュレーター専用の詳細ドキュメント
-- `reinforcement-learning/2d-simulator/doc/ADAPTIVE_TRAINING.md` - カリキュラム学習の詳細
-- `reinforcement-learning/2d-simulator/doc/REWARD_DESIGN.md` - 報酬設計の思想と履歴
+**Q: ステアリングが逆方向**
+→ `Config.h` の `SERVO_MIN` / `SERVO_MAX` を入れ替え
 
 ---
 
@@ -317,7 +230,7 @@ pytest tests/test_env.py -v
 - `main` - メインブランチ（プロダクション）
 - `feat/*` - 新機能開発用ブランチ
 
-現在のブランチ: `feat/5sensors_raspi`
+現在のブランチ: `feat/search_best_speed`
 
 ---
 
