@@ -105,11 +105,10 @@ const uint16_t ESC_MIN_US = 1000;    // ESC最小パルス（μs）
 const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 
 // ============================================================================
-// ステアリング連動速度制御パラメータ
+// 距離連動速度制御パラメータ
 // ============================================================================
 const bool SPEED_STEERING_LINK_ENABLED = true;  // true: 有効, false: 固定速度
-const uint16_t TOP_SPEED_US = 1640;             // 直進時の最速パルス（μs）- 新ESC: 1500より大きい方向が前進
-const uint16_t CORNER_SPEED_US = 1580;          // 最大ステアリング時の減速パルス（μs）
-const float STEERING_DEADZONE = 5.0;            // この角度まで減速しない（度）
+const uint16_t TOP_SPEED_US = 1640;             // 直進時の最速パルス（μs）
+const uint16_t CORNER_SPEED_US = 1580;          // コーナー時の減速パルス（μs）
 
 #endif  // CONFIG_H

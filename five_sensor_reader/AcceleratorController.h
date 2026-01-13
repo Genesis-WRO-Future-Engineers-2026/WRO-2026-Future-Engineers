@@ -17,9 +17,6 @@ struct SensorData;
 
 class AcceleratorController {
    private:
-    // ステアリング角度から速度を計算
-    uint16_t _calculateFromSteering(float steering_angle);
-
     // 前方距離から速度を計算
     uint16_t _calculateFromDistance(const SensorData* sensorData);
 

@@ -2,17 +2,13 @@
  * AcceleratorController.cpp
  *
  * アクセル制御クラス（実装）
- * ステアリング角度と前方距離に応じた速度制御
+ * 前方距離に応じた速度制御
  *
  * 設計思想:
- * - ステアリング角度が大きいほど減速（線形補間）
  * - 前方距離が近いほど減速（線形補間）
- * - 両者のmin（より遅い方）を採用
  */
 
 #include "AcceleratorController.h"
-
-#include <math.h>
 
 #include "SensorReader.h"
 
@@ -28,36 +24,13 @@ uint16_t AcceleratorController::calculate(float steering_angle, const SensorData
         return TOP_SPEED_US;
     }
 
-    // === 1. ステアリング角度による速度 ===
-    uint16_t steering_speed = _calculateFromSteering(steering_angle);
-
-    // === 2. 前方距離による速度 ===
-    uint16_t distance_speed = _calculateFromDistance(sensorData);
-
-    // === 3. より遅い方を採用 ===
-    return min(steering_speed, distance_speed);
-}
-
-uint16_t AcceleratorController::_calculateFromSteering(float steering_angle) {
-    float abs_angle = fabs(steering_angle);
-
-    // DEADZONE以内は最高速度
-    if (abs_angle <= STEERING_DEADZONE) {
-        return TOP_SPEED_US;
-    }
-
-    // 比率を計算（0.0 〜 1.0）
-    float ratio = abs_angle / MAX_STEERING_ANGLE;
-    if (ratio > 1.0) ratio = 1.0;
-
-    // 線形補間: TOP_SPEED_US から CORNER_SPEED_US へ
-    return TOP_SPEED_US + (int16_t)((CORNER_SPEED_US - TOP_SPEED_US) * ratio);
+    return _calculateFromDistance(sensorData);
 }
 
 uint16_t AcceleratorController::_calculateFromDistance(const SensorData* sensorData) {
-    // sensorDataがnullの場合は最高速度
+    // sensorDataがnullの場合は停止
     if (sensorData == nullptr) {
-        return 1500; // stop
+        return ESC_STOP_US;
     }
 
     // 正面センサー（インデックス2）の距離を取得

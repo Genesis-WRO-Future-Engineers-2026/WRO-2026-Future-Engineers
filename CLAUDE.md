@@ -20,16 +20,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```
 minicar-battle/
-├── five_sensor_reader/           # Arduino自動走行システム
-│   ├── five_sensor_reader.ino   # メインスケッチ（エントリーポイント）
-│   ├── Config.h                 # 全設定値の一元管理
-│   ├── SensorReader.cpp/h       # VL53L1Xセンサー読み取り
-│   ├── GapFinder.cpp/h          # 最遠+隣接センサー方式による目標角度決定
-│   ├── SteeringController.cpp/h # PD制御によるステアリング計算
-│   ├── Actuator.cpp/h           # サーボ・ESCへのPWM出力
-│   └── Logger.h                 # デバッグ出力（ヘッダーオンリー）
-├── CLAUDE.md                    # 本ドキュメント
-└── README.md                    # プロジェクト詳細ドキュメント
+├── five_sensor_reader/              # Arduino自動走行システム
+│   ├── five_sensor_reader.ino      # メインスケッチ（エントリーポイント）
+│   ├── Config.h                    # 全設定値の一元管理
+│   ├── SensorReader.cpp/h          # VL53L1Xセンサー読み取り
+│   ├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度決定
+│   ├── SteeringController.cpp/h    # PD制御によるステアリング計算
+│   ├── AcceleratorController.cpp/h # 距離連動速度制御
+│   ├── Actuator.cpp/h              # サーボ・ESCへのPWM出力
+│   └── Logger.h                    # デバッグ出力（ヘッダーオンリー）
+├── CLAUDE.md                       # 本ドキュメント
+└── README.md                       # プロジェクト詳細ドキュメント
 ```
 
 ---
@@ -37,24 +38,28 @@ minicar-battle/
 ## System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Arduino Nano R4                          │
-│                                                             │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
-│  │ SensorReader │───▶│  GapFinder   │───▶│  Steering    │  │
-│  │  (I2C読取)   │    │(目標角度決定) │    │  Controller  │  │
-│  └──────────────┘    └──────────────┘    │  (PD制御)    │  │
-│         ▲                                └──────┬───────┘  │
-│         │                                       │          │
-│  ┌──────┴───────┐                        ┌──────▼───────┐  │
-│  │  TCA9548A    │                        │   Actuator   │  │
-│  │ マルチプレクサ│                        │  (PWM出力)   │  │
-│  └──────────────┘                        └──────────────┘  │
-└───────┬─────────────────────────────────────────┬──────────┘
-        │                                         │
-   ┌────┴────┐                              ┌─────┴─────┐
-   │ VL53L1X │ × 5                          │サーボ/ESC │
-   └─────────┘                              └───────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                       Arduino Nano R4                            │
+│                                                                  │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐   │
+│  │ SensorReader │───▶│  GapFinder   │───▶│ SteeringController│   │
+│  │  (I2C読取)   │    │(目標角度決定) │    │    (PD制御)       │   │
+│  └──────────────┘    └──────────────┘    └────────┬─────────┘   │
+│         │                                         │             │
+│         │            ┌───────────────────┐        │             │
+│         └───────────▶│AcceleratorController│       │             │
+│                      │  (距離連動速度)    │       │             │
+│                      └────────┬──────────┘        │             │
+│                               │                   │             │
+│  ┌──────────────┐      ┌──────▼───────────────────▼──────┐      │
+│  │  TCA9548A    │      │            Actuator             │      │
+│  │ マルチプレクサ│      │          (PWM出力)              │      │
+│  └──────────────┘      └──────────────────────────────────┘      │
+└───────┬──────────────────────────────────────────┬───────────────┘
+        │                                          │
+   ┌────┴────┐                               ┌─────┴─────┐
+   │ VL53L1X │ × 5                           │サーボ/ESC │
+   └─────────┘                               └───────────┘
 ```
 
 ### Hardware Requirements
@@ -116,7 +121,9 @@ steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
       ↓
 4. PD制御でステアリング角度を決定
       ↓
-5. ステアリング連動速度制御でPWM出力
+5. 距離連動速度制御（前方距離に応じて減速）
+      ↓
+6. PWM出力（サーボ + ESC）
 ```
 
 ---
@@ -172,10 +179,9 @@ const uint16_t STRAIGHT_MODE_THRESHOLD = 1500;  // 正面がこの距離以上�
 // 安全パラメータ
 const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 
-// ステアリング連動速度制御
+// 距離連動速度制御
 const uint16_t TOP_SPEED_US = 1640;      // 直進時の最速パルス（μs）
-const uint16_t CORNER_SPEED_US = 1580;   // 最大ステアリング時の減速パルス（μs）
-const float STEERING_DEADZONE = 5.0;     // 減速しない角度範囲（度）
+const uint16_t CORNER_SPEED_US = 1580;   // コーナー時の減速パルス（μs）
 
 // サーボ設定（μs単位）
 const uint16_t SERVO_CENTER = 1425;  // 中央位置
