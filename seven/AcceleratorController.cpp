@@ -36,8 +36,8 @@ uint16_t AcceleratorController::_calculateFromDistance(const SensorData* sensorD
         return ESC_STOP_US;
     }
 
-    // 正面センサー（インデックス2）の距離を取得
-    uint16_t front_distance = sensorData[2].valid ? sensorData[2].distance : RELIABLE_RANGE;
+    // 正面センサーの距離を取得
+    uint16_t front_distance = sensorData[FRONT_SENSOR_INDEX].valid ? sensorData[FRONT_SENSOR_INDEX].distance : RELIABLE_RANGE;
 
     // DECEL_START_DISTANCE以上なら最高速度
     if (front_distance >= DECEL_START_DISTANCE) {

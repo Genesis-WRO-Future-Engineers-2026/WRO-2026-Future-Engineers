@@ -1,6 +1,6 @@
-# Five Sensor Reader - 最遠+隣接センサー方式 自動走行システム
+# Seven - 最遠+隣接センサー方式 自動走行システム
 
-5つのVL53L1X ToFセンサーと最遠+隣接センサー方式を使用した、Arduino Nano R4向け自動走行制御システム。
+7つのVL53L1X ToFセンサーと最遠+隣接センサー方式を使用した、Arduino Nano R4向け自動走行制御システム。
 
 ---
 
@@ -29,38 +29,41 @@
 └───────┬──────────────────────────────────────────┬───────────────┘
         │                                          │
    ┌────┴────┐                               ┌─────┴─────┐
-   │ VL53L1X │ × 5                           │サーボ/ESC │
+   │ VL53L1X │ × 7                           │サーボ/ESC │
    └─────────┘                               └───────────┘
 ```
 
 ### センサー配置
 
 ```
-              正面 (Sensor 2: 0°)
-                    │
-           -20°     │     +20°
-             \      │      /
-              \     │     /
-    -70°       \    │    /       +70°
-  (Sensor 0)   (S1) │ (S3)   (Sensor 4)
-     左              │              右
+                   正面 (Sensor 3: 0°)
+                         │
+              -20°       │       +20°
+               (S2)      │      (S4)
+         -40°     \      │      /     +40°
+          (S1)     \     │     /     (S5)
+    -60°            \    │    /            +60°
+  (Sensor 0)             │             (Sensor 6)
+     左                   │                   右
 ```
 
 | センサー | チャンネル | 角度 | 役割 |
 |---------|-----------|------|------|
-| Sensor 0 | CH0 | -70° | 左側方 |
-| Sensor 1 | CH1 | -20° | 左前方 |
-| Sensor 2 | CH2 | 0° | 正面 |
-| Sensor 3 | CH3 | +20° | 右前方 |
-| Sensor 4 | CH4 | +70° | 右側方 |
+| Sensor 0 | CH0 | -60° | 左側方 |
+| Sensor 1 | CH1 | -40° | 左斜め前 |
+| Sensor 2 | CH2 | -20° | 左前方 |
+| Sensor 3 | CH3 | 0° | 正面 |
+| Sensor 4 | CH4 | +20° | 右前方 |
+| Sensor 5 | CH5 | +40° | 右斜め前 |
+| Sensor 6 | CH6 | +60° | 右側方 |
 
 ---
 
 ## ファイル構成
 
 ```
-five_sensor_reader/
-├── five_sensor_reader.ino      # メインスケッチ（エントリーポイント）
+seven/
+├── seven.ino                   # メインスケッチ（エントリーポイント）
 ├── Config.h                    # 全設定値の一元管理
 ├── SensorReader.cpp/h          # VL53L1Xセンサー読み取り
 ├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度決定
@@ -68,7 +71,6 @@ five_sensor_reader/
 ├── AcceleratorController.cpp/h # 距離連動速度制御
 ├── Actuator.cpp/h              # サーボ・ESCへのPWM出力
 ├── Logger.h                    # デバッグ出力（ヘッダーオンリー）
-├── README.md                   # 本ドキュメント
 └── pwm_test/                   # サーボ・ESCキャリブレーション用
     └── pwm_test.ino
 ```
@@ -83,7 +85,7 @@ five_sensor_reader/
 
 ### アルゴリズム
 
-1. 有効な5センサーから距離が最も遠い1つを選択
+1. 有効な7センサーから距離が最も遠い1つを選択
 2. その隣接センサー（左右）を取得（端の場合は片側のみ）
 3. 最遠センサー+隣接センサーの距離で重み付けした角度をtarget_angleとする
 
@@ -107,8 +109,8 @@ five_sensor_reader/
 
 ### 端センサーの処理
 
-- センサー0（-70°）が最遠 → センサー0,1の2点で計算
-- センサー4（+70°）が最遠 → センサー3,4の2点で計算
+- センサー0（-60°）が最遠 → センサー0,1の2点で計算
+- センサー6（+60°）が最遠 → センサー5,6の2点で計算
 
 ---
 
@@ -250,7 +252,7 @@ steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
 ## ハードウェア要件
 
 - **マイコン**: Arduino Nano R4
-- **センサー**: VL53L1X ToFセンサー × 5
+- **センサー**: VL53L1X ToFセンサー × 7
 - **I2Cマルチプレクサ**: TCA9548A
 - **ステアリング**: サーボモーター
 - **駆動**: ESC + ブラシレスモーター
@@ -262,7 +264,7 @@ steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
 |-------|-------|
 | Arduino SDA | TCA9548A SDA |
 | Arduino SCL | TCA9548A SCL |
-| TCA9548A CH0-4 | VL53L1X × 5 |
+| TCA9548A CH0-6 | VL53L1X × 7 |
 | Arduino Pin 9 | サーボ信号線 |
 | Arduino Pin 10 | ESC信号線 |
 | Arduino Serial1 | HC-06（オプション） |

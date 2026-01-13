@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 自動運転ミニカーバトルプロジェクト - Tamiya TT-02シャーシを使った競技用自動運転システムの開発。
 
-**ハードウェア制御システム** (`five_sensor_reader/`) - Arduino Nano R4 + VL53L1X ToFセンサー5個による自動走行システム
+**ハードウェア制御システム** (`seven/`) - Arduino Nano R4 + VL53L1X ToFセンサー7個による自動走行システム
 
 ### 競技目標
 - **タイムトライアル**: 9秒以下のラップタイムを目指す
@@ -20,8 +20,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```
 minicar-battle/
-├── five_sensor_reader/              # Arduino自動走行システム
-│   ├── five_sensor_reader.ino      # メインスケッチ（エントリーポイント）
+├── seven/                           # Arduino自動走行システム
+│   ├── seven.ino                   # メインスケッチ（エントリーポイント）
 │   ├── Config.h                    # 全設定値の一元管理
 │   ├── SensorReader.cpp/h          # VL53L1Xセンサー読み取り
 │   ├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度決定
@@ -58,14 +58,14 @@ minicar-battle/
 └───────┬──────────────────────────────────────────┬───────────────┘
         │                                          │
    ┌────┴────┐                               ┌─────┴─────┐
-   │ VL53L1X │ × 5                           │サーボ/ESC │
+   │ VL53L1X │ × 7                           │サーボ/ESC │
    └─────────┘                               └───────────┘
 ```
 
 ### Hardware Requirements
 
 - **マイコン**: Arduino Nano R4
-- **センサー**: VL53L1X ToFセンサー × 5
+- **センサー**: VL53L1X ToFセンサー × 7
 - **I2Cマルチプレクサ**: TCA9548A（アドレス: 0x70）
 - **アクチュエーター**: サーボモーター（ステアリング）、ESC（速度制御）
 - **通信**: HC-06 Bluetooth（緊急停止用、オプション）
@@ -73,23 +73,26 @@ minicar-battle/
 ### Sensor Layout
 
 ```
-              正面 (Sensor 2: 0°)
-                    │
-           -20°     │     +20°
-             \      │      /
-              \     │     /
-    -70°       \    │    /       +70°
-  (Sensor 0)   (S1) │ (S3)   (Sensor 4)
-     左              │              右
+                   正面 (Sensor 3: 0°)
+                         │
+              -20°       │       +20°
+               (S2)      │      (S4)
+         -40°     \      │      /     +40°
+          (S1)     \     │     /     (S5)
+    -60°            \    │    /            +60°
+  (Sensor 0)             │             (Sensor 6)
+     左                   │                   右
 ```
 
 | センサー | チャンネル | 角度 | 役割 |
 |---------|-----------|------|------|
-| Sensor 0 | CH0 | -70° | 左側方 |
-| Sensor 1 | CH1 | -20° | 左前方 |
-| Sensor 2 | CH2 | 0° | 正面 |
-| Sensor 3 | CH3 | +20° | 右前方 |
-| Sensor 4 | CH4 | +70° | 右側方 |
+| Sensor 0 | CH0 | -60° | 左側方 |
+| Sensor 1 | CH1 | -40° | 左斜め前 |
+| Sensor 2 | CH2 | -20° | 左前方 |
+| Sensor 3 | CH3 | 0° | 正面 |
+| Sensor 4 | CH4 | +20° | 右前方 |
+| Sensor 5 | CH5 | +40° | 右斜め前 |
+| Sensor 6 | CH6 | +60° | 右側方 |
 
 ---
 
@@ -97,7 +100,7 @@ minicar-battle/
 
 ### 最遠+隣接センサー方式
 
-1. 有効な5センサーから距離が最も遠い1つを選択
+1. 有効な7センサーから距離が最も遠い1つを選択
 2. その隣接センサー（左右）を取得（端の場合は片側のみ）
 3. 最遠センサー+隣接センサーの距離で重み付けした角度をtarget_angleとする
 
@@ -151,8 +154,8 @@ Arduino IDEで以下をインストール:
 
 ```bash
 # Arduino CLIを使用する場合
-arduino-cli compile --fqbn arduino:renesas_uno:unor4wifi five_sensor_reader
-arduino-cli upload -p /dev/cu.usbmodem* --fqbn arduino:renesas_uno:unor4wifi five_sensor_reader
+arduino-cli compile --fqbn arduino:renesas_uno:unor4wifi seven
+arduino-cli upload -p /dev/cu.usbmodem* --fqbn arduino:renesas_uno:unor4wifi seven
 ```
 
 ### 4. 停止方法
@@ -163,7 +166,7 @@ arduino-cli upload -p /dev/cu.usbmodem* --fqbn arduino:renesas_uno:unor4wifi fiv
 
 ## Key Configuration Parameters
 
-`five_sensor_reader/Config.h` で設定:
+`seven/Config.h` で設定:
 
 ```cpp
 // タイミング設定

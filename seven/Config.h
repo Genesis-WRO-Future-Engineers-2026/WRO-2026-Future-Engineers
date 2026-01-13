@@ -43,9 +43,10 @@ const unsigned long BLUETOOTH_BAUD = 9600;  // HC-06のデフォルト速度
 const uint8_t TCA9548A_ADDR = 0x70;
 
 // センサー設定
-const uint8_t NUM_SENSORS = 5;
-const uint8_t SENSOR_CHANNELS[NUM_SENSORS] = {0, 1, 2, 3, 4};
-const float SENSOR_ANGLES[NUM_SENSORS] = {-70.0, -20.0, 0.0, 20.0, 70.0};
+const uint8_t NUM_SENSORS = 7;
+const uint8_t SENSOR_CHANNELS[NUM_SENSORS] = {0, 1, 2, 3, 4, 5, 6};
+const float SENSOR_ANGLES[NUM_SENSORS] = {-60.0, -40.0, -20.0, 0.0, 20.0, 40.0, 60.0};
+const uint8_t FRONT_SENSOR_INDEX = 3;  // 正面センサーのインデックス（0度）
 
 // PWM出力ピン
 const uint8_t SERVO_PIN = 9;  // ステアリングサーボ
@@ -110,7 +111,7 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 const bool SPEED_DISTANCE_LINK_ENABLED = false;  // true: 有効, false: 固定速度
 const uint16_t DECEL_START_DISTANCE = 2000;     // 減速開始距離（mm）
 const float DECEL_CURVE_EXPONENT = 0.5;         // 減速カーブ指数（0.2〜1.0、小さいほど急）
-const uint16_t MAX_SPEED_US = 1650;             // 最高速度パルス（μs）
+const uint16_t MAX_SPEED_US = 1580;             // 最高速度パルス（μs）
 const uint16_t MIN_SPEED_US = 1580;             // 最低速度パルス（μs）
 
 #endif  // CONFIG_H

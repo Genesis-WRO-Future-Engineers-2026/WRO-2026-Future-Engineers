@@ -1,11 +1,11 @@
 /*
- * five_sensor_reader.ino
+ * seven.ino
  *
- * 5つのVL53L1Xセンサーを使った Follow the Gap + P制御
+ * 7つのVL53L1Xセンサーを使った Follow the Gap + PD制御
  *
  * 接続:
  * - TCA9548A I2Cマルチプレクサ (アドレス: 0x70)
- * - VL53L1Xセンサー → マルチプレクサのチャンネル0-4に接続
+ * - VL53L1Xセンサー → マルチプレクサのチャンネル0-6に接続
  * - サーボモーター → Pin 9
  * - ESC → Pin 10
  *
@@ -143,8 +143,8 @@ void loop() {
         // Phase 2: 緊急停止チェック（前方障害物検出）
         // =========================================================================
         bool emergency_stop = false;
-        if (sensorData[2].valid &&
-            sensorData[2].distance < EMERGENCY_FRONT_THRESHOLD) {
+        if (sensorData[FRONT_SENSOR_INDEX].valid &&
+            sensorData[FRONT_SENSOR_INDEX].distance < EMERGENCY_FRONT_THRESHOLD) {
             emergency_stop = true;
             Logger::print(" | EMERGENCY!");
         }
