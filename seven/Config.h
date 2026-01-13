@@ -19,7 +19,7 @@
 #define MODE_PRODUCTION 1
 #define MODE_DEBUG_RUN 2
 
-#define RUN_MODE MODE_DEBUG // ← ここで動作モードを選択
+#define RUN_MODE MODE_PRODUCTION // ← ここで動作モードを選択
 
 // 各機能の有効/無効を自動設定
 #define ENABLE_SERIAL (RUN_MODE == MODE_DEBUG || RUN_MODE == MODE_DEBUG_RUN)
@@ -79,13 +79,13 @@ const float FARTHEST_HYSTERESIS = 100.0;  // 最遠センサー切り替えの�
 // ============================================================================
 // 直進モードパラメータ
 // ============================================================================
-const uint16_t STRAIGHT_MODE_THRESHOLD = 1500;  // 正面がこの距離以上なら直進（mm）
+const uint16_t STRAIGHT_MODE_THRESHOLD = 2000;  // 正面がこの距離以上なら直進（mm）
 
 // ============================================================================
 // PD制御パラメータ
 // ============================================================================
 const float STEERING_KP = 1.0;  // 比例ゲイン
-const float STEERING_KD = 0.2;  // 微分ゲイン（予測制御用、控えめからスタート）
+const float STEERING_KD = 0.0;  // 微分ゲイン（予測制御用、控えめからスタート）
 
 // ============================================================================
 // 安全パラメータ
@@ -111,7 +111,7 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 const bool SPEED_DISTANCE_LINK_ENABLED = false;  // true: 有効, false: 固定速度
 const uint16_t DECEL_START_DISTANCE = 2000;     // 減速開始距離（mm）
 const float DECEL_CURVE_EXPONENT = 0.5;         // 減速カーブ指数（0.2〜1.0、小さいほど急）
-const uint16_t MAX_SPEED_US = 1650;             // 最高速度パルス（μs）
+const uint16_t MAX_SPEED_US = 1660;             // 最高速度パルス（μs）
 const uint16_t MIN_SPEED_US = 1580;             // 最低速度パルス（μs）
 
 #endif  // CONFIG_H
