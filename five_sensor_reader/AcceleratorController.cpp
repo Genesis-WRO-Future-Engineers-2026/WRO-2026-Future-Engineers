@@ -5,10 +5,13 @@
  * 前方距離に応じた速度制御
  *
  * 設計思想:
- * - 前方距離が近いほど減速（線形補間）
+ * - 前方距離が近いほど減速（非線形カーブ）
+ * - DECEL_CURVE_EXPONENT で減速の急さを調整
  */
 
 #include "AcceleratorController.h"
+
+#include <math.h>
 
 #include "SensorReader.h"
 
@@ -46,11 +49,13 @@ uint16_t AcceleratorController::_calculateFromDistance(const SensorData* sensorD
         return MIN_SPEED_US;
     }
 
-    // 線形補間: 距離が近いほど減速
+    // 非線形カーブ: 距離が近いほど減速
     // front_distance = DECEL_START_DISTANCE → ratio = 0 → MAX_SPEED_US
     // front_distance = EMERGENCY_FRONT_THRESHOLD → ratio = 1 → MIN_SPEED_US
-    float ratio = (float)(DECEL_START_DISTANCE - front_distance) /
-                  (float)(DECEL_START_DISTANCE - EMERGENCY_FRONT_THRESHOLD);
+    // DECEL_CURVE_EXPONENT < 1.0 で最初に急激に減速
+    float ratio_linear = (float)(DECEL_START_DISTANCE - front_distance) /
+                         (float)(DECEL_START_DISTANCE - EMERGENCY_FRONT_THRESHOLD);
+    float ratio = pow(ratio_linear, DECEL_CURVE_EXPONENT);
 
     return MAX_SPEED_US + (int16_t)((MIN_SPEED_US - MAX_SPEED_US) * ratio);
 }

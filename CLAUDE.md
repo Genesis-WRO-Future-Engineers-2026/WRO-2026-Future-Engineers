@@ -180,7 +180,8 @@ const uint16_t STRAIGHT_MODE_THRESHOLD = 1500;  // 正面がこの距離以上�
 const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 
 // 距離連動速度制御
-const uint16_t DECEL_START_DISTANCE = 2000;  // 減速開始距離（mm）
+const uint16_t DECEL_START_DISTANCE = 3000;  // 減速開始距離（mm）
+const float DECEL_CURVE_EXPONENT = 0.5;      // 減速カーブ指数（小さいほど急）
 const uint16_t MAX_SPEED_US = 1640;          // 最高速度パルス（μs）
 const uint16_t MIN_SPEED_US = 1580;          // 最低速度パルス（μs）
 
