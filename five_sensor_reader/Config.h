@@ -107,8 +107,9 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 // ============================================================================
 // 距離連動速度制御パラメータ
 // ============================================================================
-const bool SPEED_STEERING_LINK_ENABLED = true;  // true: 有効, false: 固定速度
-const uint16_t TOP_SPEED_US = 1640;             // 直進時の最速パルス（μs）
-const uint16_t CORNER_SPEED_US = 1580;          // コーナー時の減速パルス（μs）
+const bool SPEED_DISTANCE_LINK_ENABLED = true;  // true: 有効, false: 固定速度
+const uint16_t DECEL_START_DISTANCE = 3000;     // 減速開始距離（mm）
+const uint16_t MAX_SPEED_US = 1640;             // 最高速度パルス（μs）
+const uint16_t MIN_SPEED_US = 1580;             // 最低速度パルス（μs）
 
 #endif  // CONFIG_H

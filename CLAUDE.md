@@ -180,8 +180,9 @@ const uint16_t STRAIGHT_MODE_THRESHOLD = 1500;  // 正面がこの距離以上�
 const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 
 // 距離連動速度制御
-const uint16_t TOP_SPEED_US = 1640;      // 直進時の最速パルス（μs）
-const uint16_t CORNER_SPEED_US = 1580;   // コーナー時の減速パルス（μs）
+const uint16_t DECEL_START_DISTANCE = 2000;  // 減速開始距離（mm）
+const uint16_t MAX_SPEED_US = 1640;          // 最高速度パルス（μs）
+const uint16_t MIN_SPEED_US = 1580;          // 最低速度パルス（μs）
 
 // サーボ設定（μs単位）
 const uint16_t SERVO_CENTER = 1425;  // 中央位置

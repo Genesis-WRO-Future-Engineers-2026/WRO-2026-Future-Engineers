@@ -234,13 +234,14 @@ steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
 
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
-| `SPEED_STEERING_LINK_ENABLED` | bool | true | 速度連動の有効/無効 |
-| `TOP_SPEED_US` | uint16_t | 1640 | 直進時の最速パルス |
-| `CORNER_SPEED_US` | uint16_t | 1580 | コーナー時の減速パルス |
+| `SPEED_DISTANCE_LINK_ENABLED` | bool | true | 速度連動の有効/無効 |
+| `DECEL_START_DISTANCE` | uint16_t | 2000 | 減速開始距離（mm） |
+| `MAX_SPEED_US` | uint16_t | 1640 | 最高速度パルス |
+| `MIN_SPEED_US` | uint16_t | 1580 | 最低速度パルス |
 
 速度制御動作:
-- 前方距離 ≥ 1500mm → TOP_SPEED_US（最高速度）
-- 前方距離 ≤ 400mm → CORNER_SPEED_US（最低速度）
+- 前方距離 ≥ 2000mm → MAX_SPEED_US（最高速度）
+- 前方距離 ≤ 400mm → MIN_SPEED_US（最低速度）
 - その間は線形補間で減速
 
 ---
