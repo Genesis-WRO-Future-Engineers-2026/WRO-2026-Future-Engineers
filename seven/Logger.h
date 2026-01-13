@@ -293,9 +293,9 @@ class Logger {
         Serial.print("  Loop Interval: ");
         Serial.print(MEASUREMENT_INTERVAL);
         Serial.println(" ms");
-        Serial.print("  Expected Min Loop: ");
-        Serial.print(L1X_INTER_MEASUREMENT_MS * NUM_SENSORS);
-        Serial.println(" ms (sensor read time)");
+        Serial.print("  Sensor Count: ");
+        Serial.print(NUM_SENSORS);
+        Serial.println(" (continuous mode, ~5ms/sensor)");
         Serial.println("----------------------------");
 #endif
 #if ENABLE_BLUETOOTH_LOGGING
@@ -309,9 +309,9 @@ class Logger {
         Serial1.print("  Loop Interval: ");
         Serial1.print(MEASUREMENT_INTERVAL);
         Serial1.println(" ms");
-        Serial1.print("  Expected Min Loop: ");
-        Serial1.print(L1X_INTER_MEASUREMENT_MS * NUM_SENSORS);
-        Serial1.println(" ms (sensor read time)");
+        Serial1.print("  Sensor Count: ");
+        Serial1.print(NUM_SENSORS);
+        Serial1.println(" (continuous mode, ~5ms/sensor)");
         Serial1.println("----------------------------");
 #endif
     }
