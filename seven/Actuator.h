@@ -13,9 +13,6 @@
 
 #include "Config.h"
 
-// 前方宣言
-struct SensorData;
-
 class Actuator {
    private:
     Servo _steeringServo;
@@ -33,9 +30,6 @@ class Actuator {
 
     // 速度を設定（μs単位のパルス幅）
     void setSpeed(uint16_t speed_pulse_us);
-
-    // ステアリング角度とセンサーデータから速度パルスを計算（μs単位で返す）
-    uint16_t calculateSpeed(float steering_angle, const SensorData* sensorData);
 
     // 停止
     void stop();

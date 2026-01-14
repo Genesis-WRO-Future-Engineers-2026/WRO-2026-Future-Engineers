@@ -4,7 +4,7 @@
  * 最遠+隣接センサー方式によるギャップ検出（実装）
  *
  * アルゴリズム概要:
- * 1. 有効な5センサーから距離が最も遠い1つを選択（ヒステリシス付き）
+ * 1. 有効な7センサーから距離が最も遠い1つを選択（ヒステリシス付き）
  * 2. その隣接センサー（左右）を取得（端の場合は片側のみ）
  * 3. 三角形面積按分で目標角度を計算（両側隣接あり）
  *    または距離重み付けで計算（片側のみ）
@@ -24,7 +24,7 @@
 #define DEG_TO_RAD 0.017453292519943295  // PI / 180.0
 #endif
 
-GapFinder::GapFinder() : _lastFarthestIdx(2) {}  // 初期値は正面（センサー2）
+GapFinder::GapFinder() : _lastFarthestIdx(FRONT_SENSOR_INDEX) {}  // 初期値は正面センサー
 
 GapResult GapFinder::find(const SensorData* data) {
     GapResult result;

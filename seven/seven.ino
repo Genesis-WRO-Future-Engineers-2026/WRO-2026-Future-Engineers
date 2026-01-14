@@ -1,11 +1,11 @@
 /*
- * five_sensor_reader.ino
+ * seven.ino
  *
- * 5つのVL53L1Xセンサーを使った Follow the Gap + P制御
+ * 7つのVL53L1Xセンサーを使った Follow the Gap + PD制御
  *
  * 接続:
  * - TCA9548A I2Cマルチプレクサ (アドレス: 0x70)
- * - VL53L1Xセンサー → マルチプレクサのチャンネル0-4に接続
+ * - VL53L1Xセンサー → マルチプレクサのチャンネル0-6に接続
  * - サーボモーター → Pin 9
  * - ESC → Pin 10
  *
@@ -21,6 +21,7 @@
  * 4. Arduino Nano R4に書き込み
  */
 
+#include "AcceleratorController.h"
 #include "Actuator.h"
 #include "Config.h"
 #include "GapFinder.h"
@@ -34,6 +35,7 @@
 SensorReader sensorReader;
 GapFinder gapFinder;
 SteeringController steeringController;
+AcceleratorController acceleratorController;
 Actuator actuator;
 
 // ============================================================================
@@ -77,6 +79,9 @@ void setup() {
 
     // ステアリングコントローラー初期化
     steeringController.begin();
+
+    // アクセルコントローラー初期化
+    acceleratorController.begin();
 
     // アクチュエーター初期化
     actuator.begin();
@@ -138,8 +143,8 @@ void loop() {
         // Phase 2: 緊急停止チェック（前方障害物検出）
         // =========================================================================
         bool emergency_stop = false;
-        if (sensorData[2].valid &&
-            sensorData[2].distance < EMERGENCY_FRONT_THRESHOLD) {
+        if (sensorData[FRONT_SENSOR_INDEX].valid &&
+            sensorData[FRONT_SENSOR_INDEX].distance < EMERGENCY_FRONT_THRESHOLD) {
             emergency_stop = true;
             Logger::print(" | EMERGENCY!");
         }
@@ -153,7 +158,7 @@ void loop() {
         Logger::printGapResult(gap.target_angle, gap.farthest_distance);
 
         // =========================================================================
-        // Phase 4: ステアリング角度計算（PD制御 + 直進モード判定）
+        // Phase 4: ステアリング角度計算（PD制御）
         // =========================================================================
         float steering_angle = steeringController.calculate(gap, sensorData);
 
@@ -168,10 +173,10 @@ void loop() {
             actuator.setSteering(0.0);
             actuator.stop();
         } else {
-            // 通常走行：ステアリング角度とセンサーデータに応じた可変速度
+            // 通常走行：ステアリング角度に応じた可変速度
             actuator.setSteering(steering_angle);
             uint16_t variable_speed =
-                actuator.calculateSpeed(steering_angle, sensorData);
+                acceleratorController.calculate(steering_angle, sensorData);
             actuator.setSpeed(variable_speed);
         }
 
