@@ -63,6 +63,8 @@ const uint32_t L1X_INTER_MEASUREMENT_MS = 40;  // 測定間隔（ms）
 
 // ============================================================================
 // タイミング設定
+// 40が最低値で秒間当たりの測定回数を最大化可能. 
+// 40 ~ 60がセンサーのMediumモードの範囲で, 有効測定距離は~3m程度になる
 // ============================================================================
 const unsigned long MEASUREMENT_INTERVAL = 40;  // 60ms（L1X測定間隔以上を推奨）
 
@@ -78,11 +80,13 @@ const float FARTHEST_HYSTERESIS = 100.0;  // 最遠センサー切り替えの�
 
 // ============================================================================
 // 直進モードパラメータ
-// 1000のような短い距離だとコーナーがギリギリすぎて危険
-// 1500以上がベストか
-// 直線を長く取ろうと動くため効率的
+// 条件1: 前方センサーが十分開けている
+// 条件2: 全センサーが壁から離れている AND 前方もある程度開けている
+// どちらかを満たせば直進モード
 // ============================================================================
-const uint16_t STRAIGHT_MODE_THRESHOLD = 3000;  // 正面がこの距離以上なら直進（mm）
+const uint16_t STRAIGHT_THRESHOLD_FRONT = 3000;      // 条件1: 前方センサー閾値（mm）
+const uint16_t STRAIGHT_THRESHOLD_MIN = 800;         // 条件2: 全センサー最小距離閾値（mm）
+const uint16_t STRAIGHT_THRESHOLD_FRONT_MIN = 1500;  // 条件2: 前方センサー最低閾値（mm）
 
 // ============================================================================
 // PD制御パラメータ
@@ -114,7 +118,7 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 const bool SPEED_DISTANCE_LINK_ENABLED = false;  // true: 有効, false: 固定速度
 const uint16_t DECEL_START_DISTANCE = 2000;     // 減速開始距離（mm）
 const float DECEL_CURVE_EXPONENT = 0.5;         // 減速カーブ指数（0.2〜1.0、小さいほど急）
-const uint16_t MAX_SPEED_US = 1580;             // 最高速度パルス（μs）
+const uint16_t MAX_SPEED_US = 1620;             // 最高速度パルス（μs）
 const uint16_t MIN_SPEED_US = 1580;             // 最低速度パルス（μs）
 
 #endif  // CONFIG_H

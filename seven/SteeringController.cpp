@@ -22,9 +22,33 @@ void SteeringController::begin() {
 }
 
 float SteeringController::calculate(const GapResult& gap, const SensorData* sensorData) {
-    // 直進モード: 正面センサー（インデックス3、0度）が閾値以上空いていれば直進
+    // 直進モード判定
+    bool is_straight = false;
+
+    // 条件1: 前方センサーが十分開けている
     if (sensorData[FRONT_SENSOR_INDEX].valid &&
-        sensorData[FRONT_SENSOR_INDEX].distance >= STRAIGHT_MODE_THRESHOLD) {
+        sensorData[FRONT_SENSOR_INDEX].distance >= STRAIGHT_THRESHOLD_FRONT) {
+        is_straight = true;
+    }
+
+    // 条件2: 全センサーが壁から離れている AND 前方もある程度開けている
+    if (!is_straight) {
+        uint16_t min_dist = UINT16_MAX;
+        for (uint8_t i = 0; i < NUM_SENSORS; ++i) {
+            if (sensorData[i].valid && sensorData[i].distance < min_dist) {
+                min_dist = sensorData[i].distance;
+            }
+        }
+        uint16_t front_dist = sensorData[FRONT_SENSOR_INDEX].valid
+            ? sensorData[FRONT_SENSOR_INDEX].distance : 0;
+        if (min_dist >= STRAIGHT_THRESHOLD_MIN &&
+            front_dist >= STRAIGHT_THRESHOLD_FRONT_MIN) {
+            is_straight = true;
+        }
+    }
+
+    // 直進モード: ステアリング0度
+    if (is_straight) {
         _lastTargetAngle = 0.0;
         return 0.0;
     }
