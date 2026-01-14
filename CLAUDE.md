@@ -24,8 +24,8 @@ minicar-battle/
 │   ├── seven.ino                   # メインスケッチ（エントリーポイント）
 │   ├── Config.h                    # 全設定値の一元管理
 │   ├── SensorReader.cpp/h          # VL53L1Xセンサー読み取り
-│   ├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度決定
-│   ├── SteeringController.cpp/h    # PD制御によるステアリング計算
+│   ├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度・距離決定
+│   ├── SteeringController.cpp/h    # Pure Pursuit制御によるステアリング計算
 │   ├── AcceleratorController.cpp/h # 距離連動速度制御
 │   ├── Actuator.cpp/h              # サーボ・ESCへのPWM出力
 │   └── Logger.h                    # デバッグ出力（ヘッダーオンリー）
@@ -43,7 +43,7 @@ minicar-battle/
 │                                                                  │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐   │
 │  │ SensorReader │───▶│  GapFinder   │───▶│ SteeringController│   │
-│  │  (I2C読取)   │    │(目標角度決定) │    │    (PD制御)       │   │
+│  │  (I2C読取)   │    │(目標角度決定) │    │  (Pure Pursuit)   │   │
 │  └──────────────┘    └──────────────┘    └────────┬─────────┘   │
 │         │                                         │             │
 │         │            ┌───────────────────┐        │             │
@@ -96,37 +96,41 @@ minicar-battle/
 
 ---
 
-## Control Algorithm: Follow the Gap + PD制御
+## Control Algorithm: Follow the Gap + Pure Pursuit
 
 ### 最遠+隣接センサー方式
 
 1. 有効な7センサーから距離が最も遠い1つを選択
 2. その隣接センサー（左右）を取得（端の場合は片側のみ）
 3. 最遠センサー+隣接センサーの距離で重み付けした角度をtarget_angleとする
+4. target_angle方向への距離を線形補間で計算（target_distance）
 
-### PD制御
+### Pure Pursuit制御
 
 ```
-steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
+steering_angle = atan2(2 × L × sin(α), Ld)
 ```
 
-- **P項（比例）**: 目標角度に比例したステアリング
-- **D項（微分）**: 角度変化率に基づく急変動抑制
+- **L**: ホイールベース（mm）- MF-01X = 210mm
+- **α**: 目標点への角度（ラジアン）- GapFinderのtarget_angle
+- **Ld**: ルックアヘッド距離（mm）- GapFinderのtarget_distance（クランプ後）
 
 ### 制御フロー
 
 ```
-1. センサーデータ取得（5センサー同時読み取り）
+1. センサーデータ取得（7センサー同時読み取り）
       ↓
 2. 緊急停止チェック（前方 < 400mm）
       ↓
 3. 最遠センサー特定 + 隣接センサーで目標角度計算
       ↓
-4. PD制御でステアリング角度を決定
+4. 目標方向への距離を線形補間で計算
       ↓
-5. 距離連動速度制御（前方距離に応じて減速）
+5. Pure Pursuitでステアリング角度を決定
       ↓
-6. PWM出力（サーボ + ESC）
+6. 距離連動速度制御（前方距離に応じて減速）
+      ↓
+7. PWM出力（サーボ + ESC）
 ```
 
 ---
@@ -170,25 +174,26 @@ arduino-cli upload -p /dev/cu.usbmodem* --fqbn arduino:renesas_uno:unor4wifi sev
 
 ```cpp
 // タイミング設定
-const unsigned long MEASUREMENT_INTERVAL = 50;  // メインループ周期（ms）
+const unsigned long MEASUREMENT_INTERVAL = 40;  // メインループ周期（ms）
 
-// PD制御パラメータ
-const float STEERING_KP = 1.0;  // 比例ゲイン
-const float STEERING_KD = 0.0;  // 微分ゲイン
+// Pure Pursuitパラメータ
+const float WHEELBASE_MM = 210.0;       // ホイールベース（mm）- MF-01X
+const float MIN_LOOKAHEAD_MM = 500.0;   // 最小ルックアヘッド距離（mm）- 約3周期分
+const float MAX_LOOKAHEAD_MM = 2500.0;  // 最大ルックアヘッド距離（mm）- センサー有効範囲内
 
 // 安全パラメータ
 const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 
 // 距離連動速度制御
-const uint16_t DECEL_START_DISTANCE = 3000;  // 減速開始距離（mm）
+const uint16_t DECEL_START_DISTANCE = 2000;  // 減速開始距離（mm）
 const float DECEL_CURVE_EXPONENT = 0.5;      // 減速カーブ指数（小さいほど急）
-const uint16_t MAX_SPEED_US = 1640;          // 最高速度パルス（μs）
+const uint16_t MAX_SPEED_US = 1680;          // 最高速度パルス（μs）
 const uint16_t MIN_SPEED_US = 1580;          // 最低速度パルス（μs）
 
 // サーボ設定（μs単位）
 const uint16_t SERVO_CENTER = 1425;  // 中央位置
-const uint16_t SERVO_MIN = 1225;     // 最小パルス幅（右）
-const uint16_t SERVO_MAX = 1625;     // 最大パルス幅（左）
+const uint16_t SERVO_MIN = 1125;     // 最小パルス幅（右）
+const uint16_t SERVO_MAX = 1725;     // 最大パルス幅（左）
 ```
 
 ---
@@ -198,13 +203,14 @@ const uint16_t SERVO_MAX = 1625;     // 最大パルス幅（左）
 `RUN_MODE=MODE_DEBUG_RUN` 時のシリアル出力例:
 
 ```
-S0:1234 | S1:567 | S2:890 | S3:456 | S4:789 | G:1 T:15.0° [C:12.3 W:40.0 D:1200] St:13.5 RR | T:28000us(S:25000us)
+S0:1234 | S1:567 | S2:890 | S3:456 | S4:789 | S5:321 | S6:654 | T:15.0° Ld:600 St:13.5 RR | T:28000us(S:25000us)
 ```
 
 | フィールド | 説明 |
 |-----------|------|
-| S0-S4 | 各センサーの距離（mm） |
+| S0-S6 | 各センサーの距離（mm） |
 | T | 目標角度（度） |
+| Ld | ルックアヘッド距離（mm） |
 | St | ステアリング角度（度） |
 | L/R | ステアリング方向インジケーター |
 | T | ループ時間（μs） |
@@ -237,7 +243,7 @@ S0:1234 | S1:567 | S2:890 | S3:456 | S4:789 | G:1 T:15.0° [C:12.3 W:40.0 D:1200
 - `main` - メインブランチ（プロダクション）
 - `feat/*` - 新機能開発用ブランチ
 
-現在のブランチ: `feat/search_best_speed`
+現在のブランチ: `feat/pure_pursuit`
 
 ---
 

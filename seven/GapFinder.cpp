@@ -8,6 +8,7 @@
  * 2. その隣接センサー（左右）を取得（端の場合は片側のみ）
  * 3. 三角形面積按分で目標角度を計算（両側隣接あり）
  *    または距離重み付けで計算（片側のみ）
+ * 4. 目標方向への距離を線形補間で計算
  *
  * 三角形面積按分:
  * - 左三角形面積 = d_left × d_farthest × sin(角度差)
@@ -24,16 +25,16 @@
 #define DEG_TO_RAD 0.017453292519943295  // PI / 180.0
 #endif
 
-GapFinder::GapFinder() : _lastFarthestIdx(FRONT_SENSOR_INDEX) {}  // 初期値は正面センサー
+GapFinder::GapFinder() : _lastFarthestIdx(FRONT_SENSOR_INDEX) {}
 
-GapResult GapFinder::find(const SensorData* data) {
-    GapResult result;
-    result.target_angle = 0.0;
-    result.farthest_distance = 0.0;
+// ============================================================================
+// プライベートメソッド
+// ============================================================================
 
-    // Step 1: 最も遠いセンサーを見つける
+int GapFinder::_findFarthestSensor(const SensorData* data,
+                                  float& outDistance) const {
     int farthest_idx = -1;
-    float farthest_dist = 0.0;
+    float farthest_dist = 0.0f;
 
     for (int i = 0; i < NUM_SENSORS; ++i) {
         if (data[i].valid && data[i].distance > farthest_dist) {
@@ -42,50 +43,61 @@ GapResult GapFinder::find(const SensorData* data) {
         }
     }
 
-    // 有効なセンサーがない場合は直進
-    if (farthest_idx < 0) {
-        return result;
-    }
+    outDistance = farthest_dist;
+    return farthest_idx;
+}
 
-    // Step 1.5: ヒステリシス処理（最遠センサーの切り替え抑制）
+int GapFinder::_applyHysteresis(const SensorData* data, int candidateIdx,
+                               float candidateDist, float& outDistance) {
+    int result_idx = candidateIdx;
+    float result_dist = candidateDist;
+
     // 前回の最遠センサーが有効で、新しい最遠との差がヒステリシス未満なら切り替えない
     if (_lastFarthestIdx >= 0 && _lastFarthestIdx < NUM_SENSORS &&
-        data[_lastFarthestIdx].valid && farthest_idx != _lastFarthestIdx) {
-        float diff = farthest_dist - data[_lastFarthestIdx].distance;
+        data[_lastFarthestIdx].valid && candidateIdx != _lastFarthestIdx) {
+        float diff = candidateDist - data[_lastFarthestIdx].distance;
         if (diff < FARTHEST_HYSTERESIS) {
             // 切り替えない：前回の最遠センサーを維持
-            farthest_idx = _lastFarthestIdx;
-            farthest_dist = data[farthest_idx].distance;
+            result_idx = _lastFarthestIdx;
+            result_dist = data[_lastFarthestIdx].distance;
         }
     }
-    _lastFarthestIdx = farthest_idx;
 
-    // Step 2: 隣接センサーのインデックスを決定
-    int left_idx = (farthest_idx > 0) ? farthest_idx - 1 : -1;
-    int right_idx = (farthest_idx < NUM_SENSORS - 1) ? farthest_idx + 1 : -1;
+    // 状態を更新
+    _lastFarthestIdx = result_idx;
+    outDistance = result_dist;
+    return result_idx;
+}
 
-    // Step 3: 目標角度を計算
+float GapFinder::_calculateTargetAngle(const SensorData* data, int farthestIdx,
+                                      float farthestDist) const {
+    // 隣接センサーのインデックスを決定
+    int left_idx = (farthestIdx > 0) ? farthestIdx - 1 : -1;
+    int right_idx = (farthestIdx < NUM_SENSORS - 1) ? farthestIdx + 1 : -1;
+
     bool has_left = (left_idx >= 0 && data[left_idx].valid);
     bool has_right = (right_idx >= 0 && data[right_idx].valid);
 
     if (has_left && has_right) {
-        // 両側に隣接センサーあり: 三角形面積按分（方式A）
+        // 両側に隣接センサーあり: 三角形面積按分
         // 面積 = d1 × d2 × sin(角度差)、(1/2)は比率計算で消えるので省略
-        float angle_diff_left = fabs(SENSOR_ANGLES[farthest_idx] - SENSOR_ANGLES[left_idx]);
-        float angle_diff_right = fabs(SENSOR_ANGLES[right_idx] - SENSOR_ANGLES[farthest_idx]);
+        float angle_diff_left =
+            fabs(SENSOR_ANGLES[farthestIdx] - SENSOR_ANGLES[left_idx]);
+        float angle_diff_right =
+            fabs(SENSOR_ANGLES[right_idx] - SENSOR_ANGLES[farthestIdx]);
 
-        float area_left = data[left_idx].distance * farthest_dist *
+        float area_left = data[left_idx].distance * farthestDist *
                           sin(angle_diff_left * DEG_TO_RAD);
-        float area_right = farthest_dist * data[right_idx].distance *
+        float area_right = farthestDist * data[right_idx].distance *
                            sin(angle_diff_right * DEG_TO_RAD);
 
-        result.target_angle = (SENSOR_ANGLES[left_idx] * area_left +
-                               SENSOR_ANGLES[right_idx] * area_right) /
-                              (area_left + area_right);
+        return (SENSOR_ANGLES[left_idx] * area_left +
+                SENSOR_ANGLES[right_idx] * area_right) /
+               (area_left + area_right);
     } else {
-        // 片側のみ or 隣接なし: 従来の距離重み付け
-        float weighted_sum = SENSOR_ANGLES[farthest_idx] * farthest_dist;
-        float weight_total = farthest_dist;
+        // 片側のみ or 隣接なし: 距離重み付け
+        float weighted_sum = SENSOR_ANGLES[farthestIdx] * farthestDist;
+        float weight_total = farthestDist;
 
         if (has_left) {
             weighted_sum += SENSOR_ANGLES[left_idx] * data[left_idx].distance;
@@ -96,9 +108,76 @@ GapResult GapFinder::find(const SensorData* data) {
             weight_total += data[right_idx].distance;
         }
 
-        result.target_angle = weighted_sum / weight_total;
+        return weighted_sum / weight_total;
     }
-    result.farthest_distance = farthest_dist;
+}
+
+float GapFinder::_interpolateTargetDistance(const SensorData* data,
+                                           float targetAngle) const {
+    // target_angleが位置するセンサー区間を見つける
+    int lower_idx = -1;
+    int upper_idx = -1;
+
+    for (int i = 0; i < NUM_SENSORS - 1; ++i) {
+        if (SENSOR_ANGLES[i] <= targetAngle &&
+            targetAngle <= SENSOR_ANGLES[i + 1]) {
+            lower_idx = i;
+            upper_idx = i + 1;
+            break;
+        }
+    }
+
+    // エッジケースの処理（target_angleがセンサー範囲外の場合）
+    if (lower_idx < 0) {
+        if (targetAngle < SENSOR_ANGLES[0]) {
+            // 目標が最左センサーより左側
+            return data[0].valid ? data[0].distance : RELIABLE_RANGE;
+        } else {
+            // 目標が最右センサーより右側
+            return data[NUM_SENSORS - 1].valid ? data[NUM_SENSORS - 1].distance
+                                               : RELIABLE_RANGE;
+        }
+    }
+
+    // 2つのセンサー間で線形補間
+    float angle_range = SENSOR_ANGLES[upper_idx] - SENSOR_ANGLES[lower_idx];
+    float ratio = (targetAngle - SENSOR_ANGLES[lower_idx]) / angle_range;
+
+    float dist_lower =
+        data[lower_idx].valid ? data[lower_idx].distance : RELIABLE_RANGE;
+    float dist_upper =
+        data[upper_idx].valid ? data[upper_idx].distance : RELIABLE_RANGE;
+
+    return dist_lower + ratio * (dist_upper - dist_lower);
+}
+
+// ============================================================================
+// パブリックメソッド
+// ============================================================================
+
+GapResult GapFinder::find(const SensorData* data) {
+    GapResult result = {0.0f, 0.0f};
+
+    // Step 1: 最も遠いセンサーを見つける
+    float farthest_dist;
+    int farthest_idx = _findFarthestSensor(data, farthest_dist);
+
+    // 有効なセンサーがない場合は直進
+    if (farthest_idx < 0) {
+        return result;
+    }
+
+    // Step 2: ヒステリシス処理を適用
+    farthest_idx = _applyHysteresis(data, farthest_idx, farthest_dist,
+                                   farthest_dist);
+
+    // Step 3: 目標角度を計算
+    result.target_angle = _calculateTargetAngle(data, farthest_idx,
+                                               farthest_dist);
+
+    // Step 4: 目標方向への距離を線形補間で計算
+    result.target_distance = _interpolateTargetDistance(data,
+                                                       result.target_angle);
 
     return result;
 }

@@ -178,18 +178,18 @@ class Logger {
     }
 
     // ギャップ検出結果の表示
-    static void printGapResult(float targetAngle, float farthestDistance) {
+    static void printGapResult(float targetAngle, float targetDistance) {
 #if ENABLE_SERIAL
         Serial.print(" | T:");
         Serial.print(targetAngle, 1);
-        Serial.print("° D:");
-        Serial.print((int)farthestDistance);
+        Serial.print("° Ld:");
+        Serial.print((int)targetDistance);
 #endif
 #if ENABLE_BLUETOOTH_LOGGING
         Serial1.print(" | T:");
         Serial1.print(targetAngle, 1);
-        Serial1.print("° D:");
-        Serial1.print((int)farthestDistance);
+        Serial1.print("° Ld:");
+        Serial1.print((int)targetDistance);
 #endif
     }
 

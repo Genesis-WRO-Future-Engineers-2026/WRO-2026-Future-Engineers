@@ -14,7 +14,7 @@
 │                                                                  │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐   │
 │  │ SensorReader │───▶│  GapFinder   │───▶│ SteeringController│   │
-│  │  (I2C読取)   │    │(目標角度決定) │    │    (PD制御)       │   │
+│  │  (I2C読取)   │    │(目標角度決定) │    │  (Pure Pursuit)   │   │
 │  └──────────────┘    └──────────────┘    └────────┬─────────┘   │
 │         │                                         │             │
 │         │            ┌───────────────────┐        │             │
@@ -66,8 +66,8 @@ seven/
 ├── seven.ino                   # メインスケッチ（エントリーポイント）
 ├── Config.h                    # 全設定値の一元管理
 ├── SensorReader.cpp/h          # VL53L1Xセンサー読み取り
-├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度決定
-├── SteeringController.cpp/h    # PD制御によるステアリング計算
+├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度・距離決定
+├── SteeringController.cpp/h    # Pure Pursuit制御によるステアリング計算
 ├── AcceleratorController.cpp/h # 距離連動速度制御
 ├── Actuator.cpp/h              # サーボ・ESCへのPWM出力
 ├── Logger.h                    # デバッグ出力（ヘッダーオンリー）
@@ -98,7 +98,9 @@ seven/
       ↓
 3. 隣接センサーを含めた距離重み付けで目標角度を計算
       ↓
-4. PD制御でステアリング角度を決定
+4. 目標方向への距離を線形補間で計算
+      ↓
+5. Pure Pursuit制御でステアリング角度を決定
 ```
 
 ### メリット
@@ -114,23 +116,36 @@ seven/
 
 ---
 
-## PD制御
+## Pure Pursuit制御
+
+### 概要
+
+Pure Pursuitは、車両の後輪軸中心から目標点へ向かう円弧を描く経路追従アルゴリズム。
+GapFinderが検出した目標方向と距離をそのままPure Pursuitの入力として使用する。
 
 ### 計算式
 
 ```
-steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
+steering_angle = atan2(2 × L × sin(α), Ld)
 ```
 
-- **P項（比例）**: 目標角度に比例したステアリング
-- **D項（微分）**: 角度変化率に基づく急変動抑制
+- **L**: ホイールベース（mm）- MF-01X = 210mm
+- **α**: 目標点への角度（ラジアン）- GapFinderのtarget_angle
+- **Ld**: ルックアヘッド距離（mm）- GapFinderのtarget_distance（クランプ後）
 
-### パラメータ調整
+### 特徴
 
-| パラメータ | 推奨範囲 | 効果 |
-|-----------|---------|------|
-| STEERING_KP | 0.5〜1.0 | 大きいほど反応が鋭敏 |
-| STEERING_KD | 0.05〜0.3 | 大きいほど急変動を抑制 |
+- **距離適応型**: 同じ角度でも距離が近いほど急旋回、遠いほど緩旋回
+- **幾何学的**: 車両の運動学に基づいた理論的なアプローチ
+- **ステートレス**: 過去の状態を保持しないため、急な状況変化にも即応
+
+### パラメータ
+
+| パラメータ | 値 | 効果 |
+|-----------|----|----|
+| WHEELBASE_MM | 210 | ホイールベース（大きいほど緩旋回） |
+| MIN_LOOKAHEAD_MM | 500 | 最小Ld（約3周期分、反応遅延考慮） |
+| MAX_LOOKAHEAD_MM | 2500 | 最大Ld（センサー有効範囲内） |
 
 ---
 
@@ -184,12 +199,13 @@ steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
 |------|----|----|------|
 | `MAX_STEERING_ANGLE` | float | 30.0 | 最大操舵角（度） |
 
-### PD制御パラメータ
+### Pure Pursuitパラメータ
 
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
-| `STEERING_KP` | float | 1.0 | 比例ゲイン |
-| `STEERING_KD` | float | 0.0 | 微分ゲイン（現在無効） |
+| `WHEELBASE_MM` | float | 210.0 | ホイールベース（mm） |
+| `MIN_LOOKAHEAD_MM` | float | 500.0 | 最小ルックアヘッド距離（mm） |
+| `MAX_LOOKAHEAD_MM` | float | 2500.0 | 最大ルックアヘッド距離（mm） |
 
 ### ギャップ検出パラメータ
 
