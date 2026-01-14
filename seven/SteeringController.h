@@ -26,7 +26,7 @@ class SteeringController {
     // 初期化
     void begin();
 
-    // ステアリング角度を計算（PD制御 + 直進モード判定）
+    // ステアリング角度を計算（PD制御）
     float calculate(const GapResult& gap, const SensorData* sensorData);
 
     // 最後の目標角度を取得（デバッグ用）

@@ -191,15 +191,6 @@ steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
 | `STEERING_KP` | float | 1.0 | 比例ゲイン |
 | `STEERING_KD` | float | 0.0 | 微分ゲイン（現在無効） |
 
-### 直進モードパラメータ
-
-| 定数 | 型 | 値 | 説明 |
-|------|----|----|------|
-| `STRAIGHT_MODE_THRESHOLD` | uint16_t | 1500 | 正面がこの距離以上なら直進（mm） |
-
-直進モード動作:
-- 正面センサー（Sensor 2）の距離が閾値以上の場合、ステアリングを0°（直進）に固定
-
 ### ギャップ検出パラメータ
 
 | 定数 | 型 | 値 | 説明 |

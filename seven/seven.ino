@@ -158,7 +158,7 @@ void loop() {
         Logger::printGapResult(gap.target_angle, gap.farthest_distance);
 
         // =========================================================================
-        // Phase 4: ステアリング角度計算（PD制御 + 直進モード判定）
+        // Phase 4: ステアリング角度計算（PD制御）
         // =========================================================================
         float steering_angle = steeringController.calculate(gap, sensorData);
 

@@ -176,9 +176,6 @@ const unsigned long MEASUREMENT_INTERVAL = 50;  // メインループ周期（ms
 const float STEERING_KP = 1.0;  // 比例ゲイン
 const float STEERING_KD = 0.0;  // 微分ゲイン
 
-// 直進モード
-const uint16_t STRAIGHT_MODE_THRESHOLD = 1500;  // 正面がこの距離以上なら直進（mm）
-
 // 安全パラメータ
 const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 

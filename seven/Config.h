@@ -19,7 +19,7 @@
 #define MODE_PRODUCTION 1
 #define MODE_DEBUG_RUN 2
 
-#define RUN_MODE MODE_PRODUCTION // ← ここで動作モードを選択
+#define RUN_MODE MODE_DEBUG // ← ここで動作モードを選択
 
 // 各機能の有効/無効を自動設定
 #define ENABLE_SERIAL (RUN_MODE == MODE_DEBUG || RUN_MODE == MODE_DEBUG_RUN)
@@ -78,16 +78,6 @@ const float MAX_STEERING_ANGLE = 30.0;  // 最大操舵角（度）
 // 0~200辺りで試験済みだが、蛇行には明確な効果なし
 // ============================================================================
 const float FARTHEST_HYSTERESIS = 100.0;  // 最遠センサー切り替えのヒステリシス（mm）
-
-// ============================================================================
-// 直進モードパラメータ
-// 条件1: 前方センサーが十分開けている
-// 条件2: 全センサーが壁から離れている AND 前方もある程度開けている
-// どちらかを満たせば直進モード
-// ============================================================================
-const uint16_t STRAIGHT_THRESHOLD_FRONT = 3000;      // 条件1: 前方センサー閾値（mm）
-const uint16_t STRAIGHT_THRESHOLD_MIN = 800;         // 条件2: 全センサー最小距離閾値（mm）
-const uint16_t STRAIGHT_THRESHOLD_FRONT_MIN = 1500;  // 条件2: 前方センサー最低閾値（mm）
 
 // ============================================================================
 // PD制御パラメータ
