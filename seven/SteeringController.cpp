@@ -2,10 +2,14 @@
  * SteeringController.cpp
  *
  * ステアリング制御クラス（実装）
- * Follow the Gap + PD制御
+ * Follow the Gap + PD制御 + 直進モード判定
  *
  * 設計思想:
- * - GapFinderが検出したギャップ中心方向へステアリング
+ * - 直進モード: 2条件のいずれかを満たせばステアリング0度
+ *   - 条件1: 前方センサーが十分開けている（≥ STRAIGHT_THRESHOLD_FRONT）
+ *   - 条件2: 全センサー最小距離 ≥ STRAIGHT_THRESHOLD_MIN
+ *            AND 前方センサー ≥ STRAIGHT_THRESHOLD_FRONT_MIN
+ * - 通常モード: GapFinderが検出したギャップ中心方向へステアリング
  * - P項: 目標角度に比例したステアリング
  * - D項: 角度変化率に比例した予測制御（高速時のオーバーシュート抑制）
  * - 調整パラメータは STEERING_KP, STEERING_KD
