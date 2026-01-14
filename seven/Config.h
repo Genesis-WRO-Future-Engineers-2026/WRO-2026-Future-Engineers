@@ -78,8 +78,11 @@ const float FARTHEST_HYSTERESIS = 100.0;  // 最遠センサー切り替えの�
 
 // ============================================================================
 // 直進モードパラメータ
+// 1000のような短い距離だとコーナーがギリギリすぎて危険
+// 1500以上がベストか
+// 直線を長く取ろうと動くため効率的
 // ============================================================================
-const uint16_t STRAIGHT_MODE_THRESHOLD = 2000;  // 正面がこの距離以上なら直進（mm）
+const uint16_t STRAIGHT_MODE_THRESHOLD = 3000;  // 正面がこの距離以上なら直進（mm）
 
 // ============================================================================
 // PD制御パラメータ
@@ -111,7 +114,7 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 const bool SPEED_DISTANCE_LINK_ENABLED = false;  // true: 有効, false: 固定速度
 const uint16_t DECEL_START_DISTANCE = 2000;     // 減速開始距離（mm）
 const float DECEL_CURVE_EXPONENT = 0.5;         // 減速カーブ指数（0.2〜1.0、小さいほど急）
-const uint16_t MAX_SPEED_US = 1660;             // 最高速度パルス（μs）
+const uint16_t MAX_SPEED_US = 1580;             // 最高速度パルス（μs）
 const uint16_t MIN_SPEED_US = 1580;             // 最低速度パルス（μs）
 
 #endif  // CONFIG_H
