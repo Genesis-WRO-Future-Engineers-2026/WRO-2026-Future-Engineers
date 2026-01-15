@@ -89,6 +89,7 @@ const float FARTHEST_HYSTERESIS = 100.0;  // 最遠センサー切り替えの�
 const float WHEELBASE_MM = 210.0;       // ホイールベース（mm）- MF-01X
 const float MIN_LOOKAHEAD_MM = 500.0;   // 最小ルックアヘッド距離（mm）- 約3周期分
 const float MAX_LOOKAHEAD_MM = 2500.0;  // 最大ルックアヘッド距離（mm）- センサー有効範囲内
+const float LOOKAHEAD_OFFSET_MM = 300.0; // 壁からのオフセット（mm）- 目標点を壁の手前に設定
 
 // ============================================================================
 // 安全パラメータ

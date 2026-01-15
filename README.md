@@ -146,6 +146,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 | WHEELBASE_MM | 210 | ホイールベース（大きいほど緩旋回） |
 | MIN_LOOKAHEAD_MM | 500 | 最小Ld（約3周期分、反応遅延考慮） |
 | MAX_LOOKAHEAD_MM | 2500 | 最大Ld（センサー有効範囲内） |
+| LOOKAHEAD_OFFSET_MM | 300 | 壁からのオフセット（目標点を壁の手前に） |
 
 ---
 
@@ -206,6 +207,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 | `WHEELBASE_MM` | float | 210.0 | ホイールベース（mm） |
 | `MIN_LOOKAHEAD_MM` | float | 500.0 | 最小ルックアヘッド距離（mm） |
 | `MAX_LOOKAHEAD_MM` | float | 2500.0 | 最大ルックアヘッド距離（mm） |
+| `LOOKAHEAD_OFFSET_MM` | float | 300.0 | 壁からのオフセット（mm） |
 
 ### ギャップ検出パラメータ
 

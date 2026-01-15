@@ -39,7 +39,9 @@ float SteeringController::calculate(const GapResult& gap, const SensorData* sens
     // Ld: ルックアヘッド距離（目標点までの距離）
 
     float alpha_deg = gap.target_angle;
-    float Ld_mm = gap.target_distance;
+
+    // 壁の手前を目標点とする（壁からオフセット分手前）
+    float Ld_mm = gap.target_distance - LOOKAHEAD_OFFSET_MM;
 
     // 安定性のためルックアヘッド距離をクランプ
     Ld_mm = constrain(Ld_mm, MIN_LOOKAHEAD_MM, MAX_LOOKAHEAD_MM);
