@@ -5,11 +5,11 @@
  * Follow the Gap + Pure Pursuit制御
  *
  * 設計思想:
- * - GapFinderが検出した目標方向と距離をPure Pursuit公式に適用
+ * - GapFinderが検出した目標方向をPure Pursuit公式に適用
  * - 公式: steering = atan2(2 × L × sin(α), Ld)
  *   L: ホイールベース（mm）
  *   α: 目標点への角度（ラジアン）
- *   Ld: ルックアヘッド距離（mm）- 目標方向への推定距離
+ *   Ld: ルックアヘッド距離（mm）- 正面センサーの距離を使用
  */
 
 #include "SteeringController.h"
@@ -36,15 +36,17 @@ void SteeringController::begin() {
 float SteeringController::calculate(const GapResult& gap, const SensorData* sensorData) {
     // GapFinderの出力を目標点の極座標として解釈
     // α (alpha): 目標点への角度
-    // Ld: ルックアヘッド距離（目標点までの距離）
+    // Ld: ルックアヘッド距離 - 正面センサーの距離を使用
 
     float alpha_deg = gap.target_angle;
 
-    // 壁の手前を目標点とする（壁からオフセット分手前）
-    float Ld_mm = gap.target_distance - LOOKAHEAD_OFFSET_MM;
+    // 正面センサーの距離から車体長を引いてルックアヘッド距離とする
+    float Ld_mm = sensorData[FRONT_SENSOR_INDEX].valid
+                  ? sensorData[FRONT_SENSOR_INDEX].distance - BODY_LENGTH_MM
+                  : 1000.0f;  // センサー無効時のフォールバック
 
-    // 安定性のためルックアヘッド距離をクランプ
-    Ld_mm = constrain(Ld_mm, MIN_LOOKAHEAD_MM, MAX_LOOKAHEAD_MM);
+    // ゼロ除算防止
+    if (Ld_mm < 50.0f) Ld_mm = 50.0f;
 
     // 角度をラジアンに変換
     float alpha_rad = alpha_deg * DEG_TO_RAD;

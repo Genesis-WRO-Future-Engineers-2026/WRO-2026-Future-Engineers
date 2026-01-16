@@ -8,7 +8,6 @@
  * 2. その隣接センサー（左右）を取得（端の場合は片側のみ）
  * 3. 三角形面積按分で目標角度を計算（両側隣接あり）
  *    または距離重み付けで計算（片側のみ）
- * 4. 目標方向への距離を線形補間で計算
  *
  * 三角形面積按分:
  * - 左三角形面積 = d_left × d_farthest × sin(角度差)
@@ -112,51 +111,12 @@ float GapFinder::_calculateTargetAngle(const SensorData* data, int farthestIdx,
     }
 }
 
-float GapFinder::_interpolateTargetDistance(const SensorData* data,
-                                           float targetAngle) const {
-    // target_angleが位置するセンサー区間を見つける
-    int lower_idx = -1;
-    int upper_idx = -1;
-
-    for (int i = 0; i < NUM_SENSORS - 1; ++i) {
-        if (SENSOR_ANGLES[i] <= targetAngle &&
-            targetAngle <= SENSOR_ANGLES[i + 1]) {
-            lower_idx = i;
-            upper_idx = i + 1;
-            break;
-        }
-    }
-
-    // エッジケースの処理（target_angleがセンサー範囲外の場合）
-    if (lower_idx < 0) {
-        if (targetAngle < SENSOR_ANGLES[0]) {
-            // 目標が最左センサーより左側
-            return data[0].valid ? data[0].distance : RELIABLE_RANGE;
-        } else {
-            // 目標が最右センサーより右側
-            return data[NUM_SENSORS - 1].valid ? data[NUM_SENSORS - 1].distance
-                                               : RELIABLE_RANGE;
-        }
-    }
-
-    // 2つのセンサー間で線形補間
-    float angle_range = SENSOR_ANGLES[upper_idx] - SENSOR_ANGLES[lower_idx];
-    float ratio = (targetAngle - SENSOR_ANGLES[lower_idx]) / angle_range;
-
-    float dist_lower =
-        data[lower_idx].valid ? data[lower_idx].distance : RELIABLE_RANGE;
-    float dist_upper =
-        data[upper_idx].valid ? data[upper_idx].distance : RELIABLE_RANGE;
-
-    return dist_lower + ratio * (dist_upper - dist_lower);
-}
-
 // ============================================================================
 // パブリックメソッド
 // ============================================================================
 
 GapResult GapFinder::find(const SensorData* data) {
-    GapResult result = {0.0f, 0.0f};
+    GapResult result = {0.0f};
 
     // Step 1: 最も遠いセンサーを見つける
     float farthest_dist;
@@ -174,10 +134,6 @@ GapResult GapFinder::find(const SensorData* data) {
     // Step 3: 目標角度を計算
     result.target_angle = _calculateTargetAngle(data, farthest_idx,
                                                farthest_dist);
-
-    // Step 4: 目標方向への距離を線形補間で計算
-    result.target_distance = _interpolateTargetDistance(data,
-                                                       result.target_angle);
 
     return result;
 }

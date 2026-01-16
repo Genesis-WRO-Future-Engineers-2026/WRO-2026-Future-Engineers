@@ -62,11 +62,7 @@ void setup() {
     Logger::print("Wheelbase: ");
     Logger::print(WHEELBASE_MM, 0);
     Logger::println("mm");
-    Logger::print("Lookahead Range: ");
-    Logger::print(MIN_LOOKAHEAD_MM, 0);
-    Logger::print(" - ");
-    Logger::print(MAX_LOOKAHEAD_MM, 0);
-    Logger::println("mm");
+    Logger::println("Lookahead: Front sensor distance");
     Logger::println();
 
     // タイミング設定のサマリー表示
@@ -158,8 +154,11 @@ void loop() {
         // =========================================================================
         GapResult gap = gapFinder.find(sensorData);
 
-        // デバッグ: ギャップ検出結果表示
-        Logger::printGapResult(gap.target_angle, gap.target_distance);
+        // デバッグ: ギャップ検出結果表示（Ldは正面センサー距離）
+        float front_distance = sensorData[FRONT_SENSOR_INDEX].valid
+                               ? sensorData[FRONT_SENSOR_INDEX].distance
+                               : 0.0f;
+        Logger::printGapResult(gap.target_angle, front_distance);
 
         // =========================================================================
         // Phase 4: ステアリング角度計算（Pure Pursuit）

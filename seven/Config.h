@@ -84,12 +84,10 @@ const float FARTHEST_HYSTERESIS = 100.0;  // 最遠センサー切り替えの�
 // 公式: steering_angle = atan2(2 × L × sin(α), Ld)
 //   L: ホイールベース（mm）
 //   α: 目標点への角度（ラジアン）
-//   Ld: ルックアヘッド距離（mm）
+//   Ld: ルックアヘッド距離（mm）- 正面センサー距離 - 車体長
 // ============================================================================
-const float WHEELBASE_MM = 210.0;       // ホイールベース（mm）- MF-01X
-const float MIN_LOOKAHEAD_MM = 500.0;   // 最小ルックアヘッド距離（mm）- 約3周期分
-const float MAX_LOOKAHEAD_MM = 1000.0;  // 最大ルックアヘッド距離（mm）- センサー有効範囲内
-const float LOOKAHEAD_OFFSET_MM = 300.0; // 壁からのオフセット（mm）- 目標点を壁の手前に設定
+const float WHEELBASE_MM = 210.0;    // ホイールベース（mm）- MF-01X
+const float BODY_LENGTH_MM = 360.0;  // 車体長（mm）- センサー位置〜後輪軸
 
 // ============================================================================
 // 安全パラメータ
@@ -115,7 +113,7 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 const bool SPEED_DISTANCE_LINK_ENABLED = false;  // true: 有効, false: 固定速度
 const uint16_t DECEL_START_DISTANCE = 2000;     // 減速開始距離（mm）
 const float DECEL_CURVE_EXPONENT = 0.5;         // 減速カーブ指数（0.2〜1.0、小さいほど急）
-const uint16_t MAX_SPEED_US = 1620;             // 最高速度パルス（μs）
+const uint16_t MAX_SPEED_US = 1660;             // 最高速度パルス（μs）
 const uint16_t MIN_SPEED_US = 1580;             // 最低速度パルス（μs）
 
 #endif  // CONFIG_H
