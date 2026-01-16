@@ -19,7 +19,7 @@
 #define MODE_PRODUCTION 1
 #define MODE_DEBUG_RUN 2
 
-#define RUN_MODE MODE_DEBUG // ← ここで動作モードを選択
+#define RUN_MODE MODE_PRODUCTION // ← ここで動作モードを選択
 
 // 各機能の有効/無効を自動設定
 #define ENABLE_SERIAL (RUN_MODE == MODE_DEBUG || RUN_MODE == MODE_DEBUG_RUN)
@@ -88,7 +88,7 @@ const float FARTHEST_HYSTERESIS = 100.0;  // 最遠センサー切り替えの�
 // ============================================================================
 const float WHEELBASE_MM = 210.0;       // ホイールベース（mm）- MF-01X
 const float MIN_LOOKAHEAD_MM = 500.0;   // 最小ルックアヘッド距離（mm）- 約3周期分
-const float MAX_LOOKAHEAD_MM = 2500.0;  // 最大ルックアヘッド距離（mm）- センサー有効範囲内
+const float MAX_LOOKAHEAD_MM = 1000.0;  // 最大ルックアヘッド距離（mm）- センサー有効範囲内
 const float LOOKAHEAD_OFFSET_MM = 300.0; // 壁からのオフセット（mm）- 目標点を壁の手前に設定
 
 // ============================================================================
@@ -115,7 +115,7 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 const bool SPEED_DISTANCE_LINK_ENABLED = false;  // true: 有効, false: 固定速度
 const uint16_t DECEL_START_DISTANCE = 2000;     // 減速開始距離（mm）
 const float DECEL_CURVE_EXPONENT = 0.5;         // 減速カーブ指数（0.2〜1.0、小さいほど急）
-const uint16_t MAX_SPEED_US = 1680;             // 最高速度パルス（μs）
+const uint16_t MAX_SPEED_US = 1620;             // 最高速度パルス（μs）
 const uint16_t MIN_SPEED_US = 1580;             // 最低速度パルス（μs）
 
 #endif  // CONFIG_H
