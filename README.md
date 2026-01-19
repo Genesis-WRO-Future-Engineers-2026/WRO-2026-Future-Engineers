@@ -14,7 +14,7 @@
 │                                                                  │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐   │
 │  │ SensorReader │───▶│  GapFinder   │───▶│ SteeringController│   │
-│  │  (I2C読取)   │    │(目標角度決定) │    │    (PD制御)       │   │
+│  │  (I2C読取)   │    │(目標角度決定) │    │  (Pure Pursuit)   │   │
 │  └──────────────┘    └──────────────┘    └────────┬─────────┘   │
 │         │                                         │             │
 │         │            ┌───────────────────┐        │             │
@@ -66,8 +66,8 @@ seven/
 ├── seven.ino                   # メインスケッチ（エントリーポイント）
 ├── Config.h                    # 全設定値の一元管理
 ├── SensorReader.cpp/h          # VL53L1Xセンサー読み取り
-├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度決定
-├── SteeringController.cpp/h    # PD制御によるステアリング計算
+├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度・距離決定
+├── SteeringController.cpp/h    # Pure Pursuit制御によるステアリング計算
 ├── AcceleratorController.cpp/h # 距離連動速度制御
 ├── Actuator.cpp/h              # サーボ・ESCへのPWM出力
 ├── Logger.h                    # デバッグ出力（ヘッダーオンリー）
@@ -98,7 +98,9 @@ seven/
       ↓
 3. 隣接センサーを含めた距離重み付けで目標角度を計算
       ↓
-4. PD制御でステアリング角度を決定
+4. 目標方向への距離を線形補間で計算
+      ↓
+5. Pure Pursuit制御でステアリング角度を決定
 ```
 
 ### メリット
@@ -114,23 +116,37 @@ seven/
 
 ---
 
-## PD制御
+## Pure Pursuit制御
+
+### 概要
+
+Pure Pursuitは、車両の後輪軸中心から目標点へ向かう円弧を描く経路追従アルゴリズム。
+GapFinderが検出した目標方向と距離をそのままPure Pursuitの入力として使用する。
 
 ### 計算式
 
 ```
-steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
+steering_angle = atan2(2 × L × sin(α), Ld)
 ```
 
-- **P項（比例）**: 目標角度に比例したステアリング
-- **D項（微分）**: 角度変化率に基づく急変動抑制
+- **L**: ホイールベース（mm）- MF-01X = 210mm
+- **α**: 目標点への角度（ラジアン）- GapFinderのtarget_angle
+- **Ld**: ルックアヘッド距離（mm）- GapFinderのtarget_distance（クランプ後）
 
-### パラメータ調整
+### 特徴
 
-| パラメータ | 推奨範囲 | 効果 |
-|-----------|---------|------|
-| STEERING_KP | 0.5〜1.0 | 大きいほど反応が鋭敏 |
-| STEERING_KD | 0.05〜0.3 | 大きいほど急変動を抑制 |
+- **距離適応型**: 同じ角度でも距離が近いほど急旋回、遠いほど緩旋回
+- **幾何学的**: 車両の運動学に基づいた理論的なアプローチ
+- **ステートレス**: 過去の状態を保持しないため、急な状況変化にも即応
+
+### パラメータ
+
+| パラメータ | 値 | 効果 |
+|-----------|----|----|
+| WHEELBASE_MM | 210 | ホイールベース（大きいほど緩旋回） |
+| MIN_LOOKAHEAD_MM | 500 | 最小Ld（約3周期分、反応遅延考慮） |
+| MAX_LOOKAHEAD_MM | 2500 | 最大Ld（センサー有効範囲内） |
+| LOOKAHEAD_OFFSET_MM | 300 | 壁からのオフセット（目標点を壁の手前に） |
 
 ---
 
@@ -158,8 +174,9 @@ steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
 | `TCA9548A_ADDR` | uint8_t | 0x70 | I2Cマルチプレクサアドレス |
-| `NUM_SENSORS` | uint8_t | 5 | センサー数 |
-| `SENSOR_ANGLES` | float[] | {-70,-20,0,20,70} | 各センサーの取付角度（度） |
+| `NUM_SENSORS` | uint8_t | 7 | センサー数 |
+| `SENSOR_ANGLES` | float[] | {-60,-30,-15,0,15,30,60} | 各センサーの取付角度（度） |
+| `FRONT_SENSOR_INDEX` | uint8_t | 3 | 正面センサーのインデックス（0度） |
 | `SERVO_PIN` | uint8_t | 9 | ステアリングサーボのピン |
 | `ESC_PIN` | uint8_t | 10 | ESCのピン |
 
@@ -176,7 +193,7 @@ steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
 
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
-| `MEASUREMENT_INTERVAL` | unsigned long | 50 | メインループ周期（ms） |
+| `MEASUREMENT_INTERVAL` | unsigned long | 40 | メインループ周期（ms） |
 
 ### ステアリングパラメータ
 
@@ -184,12 +201,12 @@ steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
 |------|----|----|------|
 | `MAX_STEERING_ANGLE` | float | 30.0 | 最大操舵角（度） |
 
-### PD制御パラメータ
+### Pure Pursuitパラメータ
 
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
-| `STEERING_KP` | float | 1.0 | 比例ゲイン |
-| `STEERING_KD` | float | 0.0 | 微分ゲイン（現在無効） |
+| `WHEELBASE_MM` | float | 210.0 | ホイールベース（mm） |
+| `BODY_LENGTH_MM` | float | 900.0 | 車体長（mm）- センサー位置〜後輪軸 |
 
 ### ギャップ検出パラメータ
 
@@ -227,14 +244,14 @@ steering = Kp × target_angle - Kd × (target_angle - last_target_angle)
 
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
-| `SPEED_DISTANCE_LINK_ENABLED` | bool | true | 速度連動の有効/無効 |
-| `DECEL_START_DISTANCE` | uint16_t | 3000 | 減速開始距離（mm） |
+| `SPEED_DISTANCE_LINK_ENABLED` | bool | false | 速度連動の有効/無効 |
+| `DECEL_START_DISTANCE` | uint16_t | 2000 | 減速開始距離（mm） |
 | `DECEL_CURVE_EXPONENT` | float | 0.5 | 減速カーブ指数（小さいほど急） |
-| `MAX_SPEED_US` | uint16_t | 1640 | 最高速度パルス |
-| `MIN_SPEED_US` | uint16_t | 1580 | 最低速度パルス |
+| `MAX_SPEED_US` | uint16_t | 1690 | 最高速度パルス |
+| `MIN_SPEED_US` | uint16_t | 1670 | 最低速度パルス |
 
-速度制御動作:
-- 前方距離 ≥ 3000mm → MAX_SPEED_US（最高速度）
+速度制御動作（SPEED_DISTANCE_LINK_ENABLED=true時）:
+- 前方距離 ≥ 2000mm → MAX_SPEED_US（最高速度）
 - 前方距離 ≤ 400mm → MIN_SPEED_US（最低速度）
 - その間は非線形カーブで減速（指数0.5で最初に急減速）
 
@@ -292,12 +309,12 @@ ENABLE_BLUETOOTH_EMERGENCY=trueの場合、HC-06 Bluetooth経由で任意のデ�
 RUN_MODE=MODE_DEBUG_RUN 時のシリアル出力例:
 
 ```
-S0:1234 | S1:567 | S2:890 | S3:456 | S4:789 | G:1 T:15.0° [C:12.3 W:40.0 D:1200] St:13.5 RR | T:28000us(S:25000us)
+S0:1234 | S1:567 | S2:890 | S3:456 | S4:789 | S5:321 | S6:654 | G:1 T:15.0° [C:12.3 W:40.0 D:1200] St:13.5 RR | T:28000us(S:25000us)
 ```
 
 | フィールド | 説明 |
 |-----------|------|
-| S0-S4 | 各センサーの距離（mm） |
+| S0-S6 | 各センサーの距離（mm） |
 | G | ギャップ数（常に1） |
 | T | 目標角度（度） |
 | C/W/D | 中心角度/使用センサー範囲/最遠距離 |

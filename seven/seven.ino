@@ -1,7 +1,7 @@
 /*
  * seven.ino
  *
- * 7つのVL53L1Xセンサーを使った Follow the Gap + PD制御
+ * 7つのVL53L1Xセンサーを使った Follow the Gap + Pure Pursuit制御
  *
  * 接続:
  * - TCA9548A I2Cマルチプレクサ (アドレス: 0x70)
@@ -45,9 +45,9 @@ void setup() {
     // ロガー初期化（115200bpsで詳細データ表示）
     Logger::begin(115200);
 
-    Logger::println("==========================================");
-    Logger::println("  VL53L1X Follow the Gap + P Control");
-    Logger::println("==========================================");
+    Logger::println("==============================================");
+    Logger::println("  VL53L1X Follow the Gap + Pure Pursuit");
+    Logger::println("==============================================");
     Logger::print("Run Mode: ");
 #if RUN_MODE == MODE_DEBUG
     Logger::println("DEBUG (No PWM, Serial ON)");
@@ -59,10 +59,10 @@ void setup() {
     Logger::print("Measurement Interval: ");
     Logger::print(MEASUREMENT_INTERVAL);
     Logger::println("ms");
-    Logger::print("Steering Kp: ");
-    Logger::println(STEERING_KP);
-    Logger::print("Steering Kd: ");
-    Logger::println(STEERING_KD);
+    Logger::print("Wheelbase: ");
+    Logger::print(WHEELBASE_MM, 0);
+    Logger::println("mm");
+    Logger::println("Lookahead: Front sensor distance");
     Logger::println();
 
     // タイミング設定のサマリー表示
@@ -154,11 +154,14 @@ void loop() {
         // =========================================================================
         GapResult gap = gapFinder.find(sensorData);
 
-        // デバッグ: ギャップ検出結果表示
-        Logger::printGapResult(gap.target_angle, gap.farthest_distance);
+        // デバッグ: ギャップ検出結果表示（Ldは正面センサー距離）
+        float front_distance = sensorData[FRONT_SENSOR_INDEX].valid
+                               ? sensorData[FRONT_SENSOR_INDEX].distance
+                               : 0.0f;
+        Logger::printGapResult(gap.target_angle, front_distance);
 
         // =========================================================================
-        // Phase 4: ステアリング角度計算（PD制御）
+        // Phase 4: ステアリング角度計算（Pure Pursuit）
         // =========================================================================
         float steering_angle = steeringController.calculate(gap, sensorData);
 
