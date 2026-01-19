@@ -13,16 +13,16 @@
  * - 左三角形面積 = d_left × d_farthest × sin(角度差)
  * - 右三角形面積 = d_farthest × d_right × sin(角度差)
  * - target = (左角度 × 左面積 + 右角度 × 右面積) / (左面積 + 右面積)
+ *
+ * 状態保持:
+ * - _lastFarthestIdx: 前回の最遠センサーインデックス
+ *   毎ループ更新され、次回のヒステリシス判定に使用
+ *   センサーノイズや微小な距離変動による頻繁な切り替えを防止
  */
 
 #include "GapFinder.h"
 
 #include <math.h>
-
-// 度からラジアンへの変換定数
-#ifndef DEG_TO_RAD
-#define DEG_TO_RAD 0.017453292519943295  // PI / 180.0
-#endif
 
 GapFinder::GapFinder() : _lastFarthestIdx(FRONT_SENSOR_INDEX) {}
 
@@ -90,9 +90,13 @@ float GapFinder::_calculateTargetAngle(const SensorData* data, int farthestIdx,
         float area_right = farthestDist * data[right_idx].distance *
                            sin(angle_diff_right * DEG_TO_RAD);
 
+        float total_area = area_left + area_right;
+        if (total_area < 0.001f) {
+            // ゼロ除算防止: 最遠センサーの角度を返す
+            return SENSOR_ANGLES[farthestIdx];
+        }
         return (SENSOR_ANGLES[left_idx] * area_left +
-                SENSOR_ANGLES[right_idx] * area_right) /
-               (area_left + area_right);
+                SENSOR_ANGLES[right_idx] * area_right) / total_area;
     } else {
         // 片側のみ or 隣接なし: 距離重み付け
         float weighted_sum = SENSOR_ANGLES[farthestIdx] * farthestDist;
@@ -107,6 +111,10 @@ float GapFinder::_calculateTargetAngle(const SensorData* data, int farthestIdx,
             weight_total += data[right_idx].distance;
         }
 
+        if (weight_total < 0.001f) {
+            // ゼロ除算防止: 最遠センサーの角度を返す
+            return SENSOR_ANGLES[farthestIdx];
+        }
         return weighted_sum / weight_total;
     }
 }

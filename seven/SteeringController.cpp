@@ -18,15 +18,6 @@
 
 #include "SensorReader.h"
 
-// 度からラジアンへの変換定数
-#ifndef DEG_TO_RAD
-#define DEG_TO_RAD 0.017453292519943295f  // PI / 180.0
-#endif
-
-#ifndef RAD_TO_DEG
-#define RAD_TO_DEG 57.29577951308232f  // 180.0 / PI
-#endif
-
 SteeringController::SteeringController() {}
 
 void SteeringController::begin() {
