@@ -174,8 +174,9 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
 | `TCA9548A_ADDR` | uint8_t | 0x70 | I2Cマルチプレクサアドレス |
-| `NUM_SENSORS` | uint8_t | 5 | センサー数 |
-| `SENSOR_ANGLES` | float[] | {-70,-20,0,20,70} | 各センサーの取付角度（度） |
+| `NUM_SENSORS` | uint8_t | 7 | センサー数 |
+| `SENSOR_ANGLES` | float[] | {-60,-30,-15,0,15,30,60} | 各センサーの取付角度（度） |
+| `FRONT_SENSOR_INDEX` | uint8_t | 3 | 正面センサーのインデックス（0度） |
 | `SERVO_PIN` | uint8_t | 9 | ステアリングサーボのピン |
 | `ESC_PIN` | uint8_t | 10 | ESCのピン |
 
@@ -192,7 +193,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
-| `MEASUREMENT_INTERVAL` | unsigned long | 50 | メインループ周期（ms） |
+| `MEASUREMENT_INTERVAL` | unsigned long | 40 | メインループ周期（ms） |
 
 ### ステアリングパラメータ
 
@@ -205,9 +206,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
 | `WHEELBASE_MM` | float | 210.0 | ホイールベース（mm） |
-| `MIN_LOOKAHEAD_MM` | float | 500.0 | 最小ルックアヘッド距離（mm） |
-| `MAX_LOOKAHEAD_MM` | float | 2500.0 | 最大ルックアヘッド距離（mm） |
-| `LOOKAHEAD_OFFSET_MM` | float | 300.0 | 壁からのオフセット（mm） |
+| `BODY_LENGTH_MM` | float | 900.0 | 車体長（mm）- センサー位置〜後輪軸 |
 
 ### ギャップ検出パラメータ
 
@@ -245,14 +244,14 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
-| `SPEED_DISTANCE_LINK_ENABLED` | bool | true | 速度連動の有効/無効 |
-| `DECEL_START_DISTANCE` | uint16_t | 3000 | 減速開始距離（mm） |
+| `SPEED_DISTANCE_LINK_ENABLED` | bool | false | 速度連動の有効/無効 |
+| `DECEL_START_DISTANCE` | uint16_t | 2000 | 減速開始距離（mm） |
 | `DECEL_CURVE_EXPONENT` | float | 0.5 | 減速カーブ指数（小さいほど急） |
-| `MAX_SPEED_US` | uint16_t | 1640 | 最高速度パルス |
-| `MIN_SPEED_US` | uint16_t | 1580 | 最低速度パルス |
+| `MAX_SPEED_US` | uint16_t | 1690 | 最高速度パルス |
+| `MIN_SPEED_US` | uint16_t | 1670 | 最低速度パルス |
 
-速度制御動作:
-- 前方距離 ≥ 3000mm → MAX_SPEED_US（最高速度）
+速度制御動作（SPEED_DISTANCE_LINK_ENABLED=true時）:
+- 前方距離 ≥ 2000mm → MAX_SPEED_US（最高速度）
 - 前方距離 ≤ 400mm → MIN_SPEED_US（最低速度）
 - その間は非線形カーブで減速（指数0.5で最初に急減速）
 
@@ -310,12 +309,12 @@ ENABLE_BLUETOOTH_EMERGENCY=trueの場合、HC-06 Bluetooth経由で任意のデ�
 RUN_MODE=MODE_DEBUG_RUN 時のシリアル出力例:
 
 ```
-S0:1234 | S1:567 | S2:890 | S3:456 | S4:789 | G:1 T:15.0° [C:12.3 W:40.0 D:1200] St:13.5 RR | T:28000us(S:25000us)
+S0:1234 | S1:567 | S2:890 | S3:456 | S4:789 | S5:321 | S6:654 | G:1 T:15.0° [C:12.3 W:40.0 D:1200] St:13.5 RR | T:28000us(S:25000us)
 ```
 
 | フィールド | 説明 |
 |-----------|------|
-| S0-S4 | 各センサーの距離（mm） |
+| S0-S6 | 各センサーの距離（mm） |
 | G | ギャップ数（常に1） |
 | T | 目標角度（度） |
 | C/W/D | 中心角度/使用センサー範囲/最遠距離 |

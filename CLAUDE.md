@@ -75,9 +75,9 @@ minicar-battle/
 ```
                    正面 (Sensor 3: 0°)
                          │
-              -20°       │       +20°
+              -15°       │       +15°
                (S2)      │      (S4)
-         -40°     \      │      /     +40°
+         -30°     \      │      /     +30°
           (S1)     \     │     /     (S5)
     -60°            \    │    /            +60°
   (Sensor 0)             │             (Sensor 6)
@@ -87,11 +87,11 @@ minicar-battle/
 | センサー | チャンネル | 角度 | 役割 |
 |---------|-----------|------|------|
 | Sensor 0 | CH0 | -60° | 左側方 |
-| Sensor 1 | CH1 | -40° | 左斜め前 |
-| Sensor 2 | CH2 | -20° | 左前方 |
+| Sensor 1 | CH1 | -30° | 左斜め前 |
+| Sensor 2 | CH2 | -15° | 左前方 |
 | Sensor 3 | CH3 | 0° | 正面 |
-| Sensor 4 | CH4 | +20° | 右前方 |
-| Sensor 5 | CH5 | +40° | 右斜め前 |
+| Sensor 4 | CH4 | +15° | 右前方 |
+| Sensor 5 | CH5 | +30° | 右斜め前 |
 | Sensor 6 | CH6 | +60° | 右側方 |
 
 ---
@@ -178,18 +178,17 @@ const unsigned long MEASUREMENT_INTERVAL = 40;  // メインループ周期（ms
 
 // Pure Pursuitパラメータ
 const float WHEELBASE_MM = 210.0;       // ホイールベース（mm）- MF-01X
-const float MIN_LOOKAHEAD_MM = 500.0;   // 最小ルックアヘッド距離（mm）- 約3周期分
-const float MAX_LOOKAHEAD_MM = 2500.0;  // 最大ルックアヘッド距離（mm）- センサー有効範囲内
-const float LOOKAHEAD_OFFSET_MM = 300.0; // 壁からのオフセット（mm）- 目標点を壁の手前に
+const float BODY_LENGTH_MM = 900.0;     // 車体長（mm）- センサー位置〜後輪軸
 
 // 安全パラメータ
 const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 
-// 距離連動速度制御
-const uint16_t DECEL_START_DISTANCE = 2000;  // 減速開始距離（mm）
-const float DECEL_CURVE_EXPONENT = 0.5;      // 減速カーブ指数（小さいほど急）
-const uint16_t MAX_SPEED_US = 1680;          // 最高速度パルス（μs）
-const uint16_t MIN_SPEED_US = 1580;          // 最低速度パルス（μs）
+// 距離連動速度制御（SPEED_DISTANCE_LINK_ENABLED=true時のみ有効）
+const bool SPEED_DISTANCE_LINK_ENABLED = false;  // 現在は無効
+const uint16_t DECEL_START_DISTANCE = 2000;      // 減速開始距離（mm）
+const float DECEL_CURVE_EXPONENT = 0.5;          // 減速カーブ指数（小さいほど急）
+const uint16_t MAX_SPEED_US = 1690;              // 最高速度パルス（μs）
+const uint16_t MIN_SPEED_US = 1670;              // 最低速度パルス（μs）
 
 // サーボ設定（μs単位）
 const uint16_t SERVO_CENTER = 1425;  // 中央位置
