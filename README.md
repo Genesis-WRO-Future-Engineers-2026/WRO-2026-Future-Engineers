@@ -38,9 +38,9 @@
 ```
                    正面 (Sensor 3: 0°)
                          │
-              -20°       │       +20°
+              -15°       │       +15°
                (S2)      │      (S4)
-         -40°     \      │      /     +40°
+         -30°     \      │      /     +30°
           (S1)     \     │     /     (S5)
     -60°            \    │    /            +60°
   (Sensor 0)             │             (Sensor 6)
@@ -50,11 +50,11 @@
 | センサー | チャンネル | 角度 | 役割 |
 |---------|-----------|------|------|
 | Sensor 0 | CH0 | -60° | 左側方 |
-| Sensor 1 | CH1 | -40° | 左斜め前 |
-| Sensor 2 | CH2 | -20° | 左前方 |
+| Sensor 1 | CH1 | -30° | 左斜め前 |
+| Sensor 2 | CH2 | -15° | 左前方 |
 | Sensor 3 | CH3 | 0° | 正面 |
-| Sensor 4 | CH4 | +20° | 右前方 |
-| Sensor 5 | CH5 | +40° | 右斜め前 |
+| Sensor 4 | CH4 | +15° | 右前方 |
+| Sensor 5 | CH5 | +30° | 右斜め前 |
 | Sensor 6 | CH6 | +60° | 右側方 |
 
 ---
@@ -70,9 +70,7 @@ seven/
 ├── SteeringController.cpp/h    # Pure Pursuit制御によるステアリング計算
 ├── AcceleratorController.cpp/h # 距離連動速度制御
 ├── Actuator.cpp/h              # サーボ・ESCへのPWM出力
-├── Logger.h                    # デバッグ出力（ヘッダーオンリー）
-└── pwm_test/                   # サーボ・ESCキャリブレーション用
-    └── pwm_test.ino
+└── Logger.h                    # デバッグ出力（ヘッダーオンリー）
 ```
 
 ---
@@ -144,9 +142,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 | パラメータ | 値 | 効果 |
 |-----------|----|----|
 | WHEELBASE_MM | 210 | ホイールベース（大きいほど緩旋回） |
-| MIN_LOOKAHEAD_MM | 500 | 最小Ld（約3周期分、反応遅延考慮） |
-| MAX_LOOKAHEAD_MM | 2500 | 最大Ld（センサー有効範囲内） |
-| LOOKAHEAD_OFFSET_MM | 300 | 壁からのオフセット（目標点を壁の手前に） |
+| BODY_LENGTH_MM | 900 | 車体長（センサー位置〜後輪軸） |
 
 ---
 
@@ -229,8 +225,8 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
 | `SERVO_CENTER` | uint16_t | 1425 | 中央位置 |
-| `SERVO_MIN` | uint16_t | 1225 | 最小パルス幅（右） |
-| `SERVO_MAX` | uint16_t | 1625 | 最大パルス幅（左） |
+| `SERVO_MIN` | uint16_t | 1125 | 最小パルス幅（右） |
+| `SERVO_MAX` | uint16_t | 1725 | 最大パルス幅（左） |
 
 ### ESC設定（μs単位）
 
@@ -309,15 +305,14 @@ ENABLE_BLUETOOTH_EMERGENCY=trueの場合、HC-06 Bluetooth経由で任意のデ�
 RUN_MODE=MODE_DEBUG_RUN 時のシリアル出力例:
 
 ```
-S0:1234 | S1:567 | S2:890 | S3:456 | S4:789 | S5:321 | S6:654 | G:1 T:15.0° [C:12.3 W:40.0 D:1200] St:13.5 RR | T:28000us(S:25000us)
+S0:1234 | S1:567 | S2:890 | S3:456 | S4:789 | S5:321 | S6:654 | T:15.0° Ld:600 St:13.5 RR | T:28000us(S:25000us)
 ```
 
 | フィールド | 説明 |
 |-----------|------|
 | S0-S6 | 各センサーの距離（mm） |
-| G | ギャップ数（常に1） |
 | T | 目標角度（度） |
-| C/W/D | 中心角度/使用センサー範囲/最遠距離 |
+| Ld | ルックアヘッド距離（mm） |
 | St | ステアリング角度（度） |
 | L/R | ステアリング方向インジケーター |
 | T | ループ時間（μs） |
