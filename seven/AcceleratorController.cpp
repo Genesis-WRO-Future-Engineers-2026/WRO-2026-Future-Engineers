@@ -59,7 +59,3 @@ uint16_t AcceleratorController::_calculateFromDistance(const SensorData* sensorD
 
     return MAX_SPEED_US + (int16_t)((MIN_SPEED_US - MAX_SPEED_US) * ratio);
 }
-
-void AcceleratorController::reset() {
-    // 将来の拡張用
-}

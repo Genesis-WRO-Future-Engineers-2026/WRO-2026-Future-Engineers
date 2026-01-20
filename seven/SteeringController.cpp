@@ -53,7 +53,3 @@ float SteeringController::calculate(const GapResult& gap, const SensorData* sens
 
     return steering_deg;
 }
-
-void SteeringController::reset() {
-    // Pure Pursuitはステートレスなのでリセット処理なし
-}

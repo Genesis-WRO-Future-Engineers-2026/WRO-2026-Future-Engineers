@@ -31,9 +31,6 @@ class AcceleratorController {
     // sensorData: センサーデータ（前方距離による減速に使用）
     // 戻り値: ESCパルス幅（μs）
     uint16_t calculate(float steering_angle, const SensorData* sensorData = nullptr);
-
-    // リセット
-    void reset();
 };
 
 #endif  // ACCELERATOR_CONTROLLER_H

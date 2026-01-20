@@ -85,59 +85,12 @@ class Logger {
         }
     }
 
-    // 壁検出状態の表示
-    static void printWallStatus(bool left_valid, bool right_valid) {
-        print(" | W:");
-        print(left_valid ? "L" : "-");
-        print(right_valid ? "R" : "-");
-    }
-
-    // 壁までの距離の表示
-    static void printWallDistances(bool left_valid, float left_dist,
-                                   bool right_valid, float right_dist) {
-        print(" D:");
-        if (left_valid) {
-            print((int)left_dist);
-        } else {
-            print("---");
-        }
-        print("/");
-        if (right_valid) {
-            print((int)right_dist);
-        } else {
-            print("---");
-        }
-    }
-
-    // 壁角度の表示
-    static void printWallAngles(bool left_valid, float left_angle,
-                                bool right_valid, float right_angle) {
-        print(" A:");
-        if (left_valid) {
-            print(left_angle, 1);
-        } else {
-            print("---");
-        }
-        print("/");
-        if (right_valid) {
-            print(right_angle, 1);
-        } else {
-            print("---");
-        }
-    }
-
     // ギャップ検出結果の表示
     static void printGapResult(float targetAngle, float targetDistance) {
         print(" | T:");
         print(targetAngle, 1);
         print("° Ld:");
         print((int)targetDistance);
-    }
-
-    // PIDエラー値の表示
-    static void printError(float error) {
-        print(" E:");
-        print(error, 1);
     }
 
     // ステアリング角度の表示（視覚的インジケーター付き）

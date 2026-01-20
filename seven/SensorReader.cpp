@@ -96,12 +96,4 @@ void SensorReader::readAll() {
     }
 }
 
-SensorData SensorReader::getSensorData(uint8_t index) const {
-    if (index < NUM_SENSORS) {
-        return _sensorData[index];
-    }
-    SensorData empty = {0, false};
-    return empty;
-}
-
 const SensorData* SensorReader::getAllData() const { return _sensorData; }
