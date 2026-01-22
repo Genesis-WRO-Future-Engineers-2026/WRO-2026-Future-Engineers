@@ -66,7 +66,7 @@ seven/
 ├── seven.ino                   # メインスケッチ（エントリーポイント）
 ├── Config.h                    # 全設定値の一元管理
 ├── SensorReader.cpp/h          # VL53L1Xセンサー読み取り
-├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度・距離決定
+├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度決定
 ├── SteeringController.cpp/h    # Pure Pursuit制御によるステアリング計算
 ├── AcceleratorController.cpp/h # 距離連動速度制御
 ├── Actuator.cpp/h              # サーボ・ESCへのPWM出力
@@ -92,11 +92,11 @@ seven/
 ```
 1. センサーデータ取得
       ↓
-2. 最遠センサーを特定
+2. 最遠センサーを特定（ヒステリシス付き）
       ↓
 3. 隣接センサーを含めた距離重み付けで目標角度を計算
       ↓
-4. 目標方向への距離を線形補間で計算
+4. Ld = 正面センサー距離 - 車体長
       ↓
 5. Pure Pursuit制御でステアリング角度を決定
 ```
@@ -129,7 +129,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 
 - **L**: ホイールベース（mm）- MF-01X = 210mm
 - **α**: 目標点への角度（ラジアン）- GapFinderのtarget_angle
-- **Ld**: ルックアヘッド距離（mm）- GapFinderのtarget_distance（クランプ後）
+- **Ld**: ルックアヘッド距離（mm）- 正面センサー(S3)距離 - 車体長(900mm)、最小50mm
 
 ### 特徴
 
