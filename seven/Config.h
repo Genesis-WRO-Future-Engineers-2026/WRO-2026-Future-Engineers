@@ -19,7 +19,7 @@
 #define MODE_PRODUCTION 1
 #define MODE_DEBUG_RUN 2
 
-#define RUN_MODE MODE_DEBUG // ← ここで動作モードを選択
+#define RUN_MODE MODE_PRODUCTION // ← ここで動作モードを選択
 
 // 各機能の有効/無効を自動設定
 #define ENABLE_SERIAL (RUN_MODE == MODE_DEBUG || RUN_MODE == MODE_DEBUG_RUN)
@@ -45,7 +45,7 @@ const uint8_t TCA9548A_ADDR = 0x70;
 // センサー設定
 const uint8_t NUM_SENSORS = 7;
 const uint8_t SENSOR_CHANNELS[NUM_SENSORS] = {0, 1, 2, 3, 4, 5, 6};
-const float SENSOR_ANGLES[NUM_SENSORS] = {-60.0, -30.0, -15.0, 0.0, 15.0, 30.0, 60.0};
+const float SENSOR_ANGLES[NUM_SENSORS] = {-50.0, -30.0, -15.0, 0.0, 15.0, 30.0, 50.0};
 const uint8_t FRONT_SENSOR_INDEX = 3;  // 正面センサーのインデックス（0度）
 
 // PWM出力ピン
@@ -88,7 +88,7 @@ const float FARTHEST_HYSTERESIS = 100.0;  // 最遠センサー切り替えの�
 //   Ld: ルックアヘッド距離（mm）- 正面センサー距離 - 車体長
 // ============================================================================
 const float WHEELBASE_MM = 210.0;    // ホイールベース（mm）- MF-01X
-const float BODY_LENGTH_MM = 900.0;  // 車体長（mm）- センサー位置〜後輪軸
+const float BODY_LENGTH_MM = 1200.0;  // 車体長（mm）- センサー位置〜後輪軸
 
 // ============================================================================
 // 安全パラメータ
@@ -99,9 +99,9 @@ const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 // サーボ・ESC パルス幅設定
 // ============================================================================
 // サーボ（ステアリング）- 新サーボ: 1200(右)〜1500(中央)〜1800(左)
-const uint16_t SERVO_CENTER = 1425;  // 中央位置（μs）
-const uint16_t SERVO_MIN = 1125;     // 最小パルス幅（μs）= 最も右
-const uint16_t SERVO_MAX = 1725;     // 最大パルス幅（μs）= 最も左
+const uint16_t SERVO_CENTER = 1415;  // 中央位置（μs）
+const uint16_t SERVO_MIN = 1115;     // 最小パルス幅（μs）= 最も右
+const uint16_t SERVO_MAX = 1715;     // 最大パルス幅（μs）= 最も左
 
 // ESC（速度制御）- 全てμs単位で統一
 const uint16_t ESC_STOP_US = 1500;   // 停止（μs）
@@ -114,8 +114,8 @@ const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
 const bool SPEED_DISTANCE_LINK_ENABLED = false;  // true: 有効, false: 固定速度
 const uint16_t DECEL_START_DISTANCE = 2000;     // 減速開始距離（mm）
 const float DECEL_CURVE_EXPONENT = 0.5;         // 減速カーブ指数（0.2〜1.0、小さいほど急）
-const uint16_t MAX_SPEED_US = 1690;             // 最高速度パルス（μs）
-const uint16_t MIN_SPEED_US = 1670;             // 最低速度パルス（μs）
+const uint16_t MAX_SPEED_US = 1695;             // 最高速度パルス（μs）
+const uint16_t MIN_SPEED_US = 1630;             // 最低速度パルス（μs）
 
 // ============================================================================
 // 数学定数

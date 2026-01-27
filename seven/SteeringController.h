@@ -25,9 +25,6 @@ class SteeringController {
 
     // ステアリング角度を計算（Pure Pursuit）
     float calculate(const GapResult& gap, const SensorData* sensorData);
-
-    // リセット
-    void reset();
 };
 
 #endif  // STEERING_CONTROLLER_H

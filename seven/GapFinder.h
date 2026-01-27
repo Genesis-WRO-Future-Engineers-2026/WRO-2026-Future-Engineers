@@ -41,7 +41,7 @@ class GapFinder {
    public:
     GapFinder();
 
-    // メイン処理: センサーデータから目標角度と距離を決定
+    // メイン処理: センサーデータから目標角度を決定
     GapResult find(const SensorData* sensorData);
 };
 

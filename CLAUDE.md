@@ -24,7 +24,7 @@ minicar-battle/
 │   ├── seven.ino                   # メインスケッチ（エントリーポイント）
 │   ├── Config.h                    # 全設定値の一元管理
 │   ├── SensorReader.cpp/h          # VL53L1Xセンサー読み取り
-│   ├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度・距離決定
+│   ├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度決定
 │   ├── SteeringController.cpp/h    # Pure Pursuit制御によるステアリング計算
 │   ├── AcceleratorController.cpp/h # 距離連動速度制御
 │   ├── Actuator.cpp/h              # サーボ・ESCへのPWM出力
@@ -98,14 +98,13 @@ minicar-battle/
 
 ## Control Algorithm: Follow the Gap + Pure Pursuit
 
-### 最遠+隣接センサー方式
+### 最遠+隣接センサー方式（GapFinder）
 
-1. 有効な7センサーから距離が最も遠い1つを選択
+1. 有効な7センサーから距離が最も遠い1つを選択（ヒステリシス付き）
 2. その隣接センサー（左右）を取得（端の場合は片側のみ）
 3. 最遠センサー+隣接センサーの距離で重み付けした角度をtarget_angleとする
-4. target_angle方向への距離を線形補間で計算（target_distance）
 
-### Pure Pursuit制御
+### Pure Pursuit制御（SteeringController）
 
 ```
 steering_angle = atan2(2 × L × sin(α), Ld)
@@ -113,7 +112,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 
 - **L**: ホイールベース（mm）- MF-01X = 210mm
 - **α**: 目標点への角度（ラジアン）- GapFinderのtarget_angle
-- **Ld**: ルックアヘッド距離（mm）- GapFinderのtarget_distance（クランプ後）
+- **Ld**: ルックアヘッド距離（mm）- **正面センサー(S3)の距離 - 車体長(900mm)**
 
 ### 制御フロー
 
@@ -122,9 +121,9 @@ steering_angle = atan2(2 × L × sin(α), Ld)
       ↓
 2. 緊急停止チェック（前方 < 400mm）
       ↓
-3. 最遠センサー特定 + 隣接センサーで目標角度計算
+3. 最遠センサー特定 + 隣接センサーで目標角度計算（GapFinder）
       ↓
-4. 目標方向への距離を線形補間で計算
+4. Ld = 正面センサー距離 - 車体長（SteeringController）
       ↓
 5. Pure Pursuitでステアリング角度を決定
       ↓
@@ -242,8 +241,6 @@ S0:1234 | S1:567 | S2:890 | S3:456 | S4:789 | S5:321 | S6:654 | T:15.0° Ld:600 
 
 - `main` - メインブランチ（プロダクション）
 - `feat/*` - 新機能開発用ブランチ
-
-現在のブランチ: `feat/pure_pursuit`
 
 ---
 

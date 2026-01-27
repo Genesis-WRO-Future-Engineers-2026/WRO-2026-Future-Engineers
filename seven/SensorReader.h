@@ -39,9 +39,6 @@ class SensorReader {
     // 全センサーからデータ取得
     void readAll();
 
-    // 指定センサーのデータ取得
-    SensorData getSensorData(uint8_t index) const;
-
     // 全センサーデータの配列を取得
     const SensorData* getAllData() const;
 };
