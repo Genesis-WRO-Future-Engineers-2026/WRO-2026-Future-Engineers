@@ -169,7 +169,7 @@ const unsigned long MEASUREMENT_INTERVAL = 40;  // メインループ周期（ms
 
 // Pure Pursuitパラメータ
 const float WHEELBASE_MM = 210.0;       // ホイールベース（mm）- MF-01X
-const float BODY_LENGTH_MM = 1200.0;    // 車体長（mm）- センサー位置〜後輪軸
+const float LOOKAHEAD_OFFSET_MM = 1200.0;    // 車体長（mm）- センサー位置〜後輪軸
 
 // 安全パラメータ
 const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）

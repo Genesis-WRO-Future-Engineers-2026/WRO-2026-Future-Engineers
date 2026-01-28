@@ -136,7 +136,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 | パラメータ | 値 | 効果 |
 |-----------|----|----|
 | WHEELBASE_MM | 210 | ホイールベース（大きいほど緩旋回） |
-| BODY_LENGTH_MM | 1200 | 車体長（センサー位置〜後輪軸） |
+| LOOKAHEAD_OFFSET_MM | 1200 | Ld計算オフセット（手動探索で最適化） |
 
 ---
 
@@ -195,7 +195,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
 | `WHEELBASE_MM` | float | 210.0 | ホイールベース（mm） |
-| `BODY_LENGTH_MM` | float | 1200.0 | 車体長（mm）- センサー位置〜後輪軸 |
+| `LOOKAHEAD_OFFSET_MM` | float | 1200.0 | Ld計算オフセット（mm）- 手動探索で最適化した値 |
 
 ### ギャップ検出パラメータ
 
