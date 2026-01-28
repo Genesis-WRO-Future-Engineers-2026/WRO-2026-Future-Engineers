@@ -117,4 +117,8 @@ const uint16_t SPEED_US = 1695;      // 走行速度パルス（μs）
 #define RAD_TO_DEG 57.29577951308232f  // 180.0 / PI
 #endif
 
+// センサー間角度差のsin値（事前計算）
+const float SIN_15_DEG = 0.2588190451f;  // sin(15° × π/180)
+const float SIN_20_DEG = 0.3420201433f;  // sin(20° × π/180)
+
 #endif  // CONFIG_H
