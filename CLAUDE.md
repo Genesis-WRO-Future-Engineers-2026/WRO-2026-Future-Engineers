@@ -26,7 +26,6 @@ minicar-battle/
 │   ├── SensorReader.cpp/h          # VL53L1Xセンサー読み取り
 │   ├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度決定
 │   ├── SteeringController.cpp/h    # Pure Pursuit制御によるステアリング計算
-│   ├── AcceleratorController.cpp/h # 距離連動速度制御
 │   ├── Actuator.cpp/h              # サーボ・ESCへのPWM出力
 │   └── Logger.h                    # デバッグ出力（ヘッダーオンリー）
 ├── CLAUDE.md                       # 本ドキュメント
@@ -45,15 +44,10 @@ minicar-battle/
 │  │ SensorReader │───▶│  GapFinder   │───▶│ SteeringController│   │
 │  │  (I2C読取)   │    │(目標角度決定) │    │  (Pure Pursuit)   │   │
 │  └──────────────┘    └──────────────┘    └────────┬─────────┘   │
-│         │                                         │             │
-│         │            ┌───────────────────┐        │             │
-│         └───────────▶│AcceleratorController│       │             │
-│                      │  (距離連動速度)    │       │             │
-│                      └────────┬──────────┘        │             │
-│                               │                   │             │
-│  ┌──────────────┐      ┌──────▼───────────────────▼──────┐      │
+│                                                   │             │
+│  ┌──────────────┐      ┌─────────────────────────▼──────┐      │
 │  │  TCA9548A    │      │            Actuator             │      │
-│  │ マルチプレクサ│      │          (PWM出力)              │      │
+│  │ マルチプレクサ│      │    (PWM出力 + 定速走行)         │      │
 │  └──────────────┘      └──────────────────────────────────┘      │
 └───────┬──────────────────────────────────────────┬───────────────┘
         │                                          │
@@ -79,20 +73,20 @@ minicar-battle/
                (S2)      │      (S4)
          -30°     \      │      /     +30°
           (S1)     \     │     /     (S5)
-    -60°            \    │    /            +60°
+    -50°            \    │    /            +50°
   (Sensor 0)             │             (Sensor 6)
      左                   │                   右
 ```
 
 | センサー | チャンネル | 角度 | 役割 |
 |---------|-----------|------|------|
-| Sensor 0 | CH0 | -60° | 左側方 |
+| Sensor 0 | CH0 | -50° | 左側方 |
 | Sensor 1 | CH1 | -30° | 左斜め前 |
 | Sensor 2 | CH2 | -15° | 左前方 |
 | Sensor 3 | CH3 | 0° | 正面 |
 | Sensor 4 | CH4 | +15° | 右前方 |
 | Sensor 5 | CH5 | +30° | 右斜め前 |
-| Sensor 6 | CH6 | +60° | 右側方 |
+| Sensor 6 | CH6 | +50° | 右側方 |
 
 ---
 
@@ -112,7 +106,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 
 - **L**: ホイールベース（mm）- MF-01X = 210mm
 - **α**: 目標点への角度（ラジアン）- GapFinderのtarget_angle
-- **Ld**: ルックアヘッド距離（mm）- **正面センサー(S3)の距離 - 車体長(900mm)**
+- **Ld**: ルックアヘッド距離（mm）- **正面センサー(S3)の距離 - 車体長(1200mm)**
 
 ### 制御フロー
 
@@ -127,9 +121,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
       ↓
 5. Pure Pursuitでステアリング角度を決定
       ↓
-6. 距離連動速度制御（前方距離に応じて減速）
-      ↓
-7. PWM出力（サーボ + ESC）
+6. PWM出力（サーボ + ESC定速）
 ```
 
 ---
@@ -177,22 +169,18 @@ const unsigned long MEASUREMENT_INTERVAL = 40;  // メインループ周期（ms
 
 // Pure Pursuitパラメータ
 const float WHEELBASE_MM = 210.0;       // ホイールベース（mm）- MF-01X
-const float BODY_LENGTH_MM = 900.0;     // 車体長（mm）- センサー位置〜後輪軸
+const float BODY_LENGTH_MM = 1200.0;    // 車体長（mm）- センサー位置〜後輪軸
 
 // 安全パラメータ
 const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 
-// 距離連動速度制御（SPEED_DISTANCE_LINK_ENABLED=true時のみ有効）
-const bool SPEED_DISTANCE_LINK_ENABLED = false;  // 現在は無効
-const uint16_t DECEL_START_DISTANCE = 2000;      // 減速開始距離（mm）
-const float DECEL_CURVE_EXPONENT = 0.5;          // 減速カーブ指数（小さいほど急）
-const uint16_t MAX_SPEED_US = 1690;              // 最高速度パルス（μs）
-const uint16_t MIN_SPEED_US = 1670;              // 最低速度パルス（μs）
+// 速度設定（定速走行）
+const uint16_t SPEED_US = 1695;  // 走行速度パルス（μs）
 
 // サーボ設定（μs単位）
-const uint16_t SERVO_CENTER = 1425;  // 中央位置
-const uint16_t SERVO_MIN = 1125;     // 最小パルス幅（右）
-const uint16_t SERVO_MAX = 1725;     // 最大パルス幅（左）
+const uint16_t SERVO_CENTER = 1415;  // 中央位置
+const uint16_t SERVO_MIN = 1115;     // 最小パルス幅（右）
+const uint16_t SERVO_MAX = 1715;     // 最大パルス幅（左）
 ```
 
 ---

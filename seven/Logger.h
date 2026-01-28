@@ -25,7 +25,7 @@ class Logger {
             delay(10);
         }  // シリアル接続待ち
 #endif
-#if ENABLE_BLUETOOTH_LOGGING || ENABLE_BLUETOOTH_EMERGENCY
+#if ENABLE_BLUETOOTH_EMERGENCY
         Serial1.begin(BLUETOOTH_BAUD);
 #endif
     }
@@ -36,18 +36,12 @@ class Logger {
 #if ENABLE_SERIAL
         Serial.print(value);
 #endif
-#if ENABLE_BLUETOOTH_LOGGING
-        Serial1.print(value);
-#endif
     }
 
     // float出力（小数点以下桁数指定）
     static void print(float value, int decimals) {
 #if ENABLE_SERIAL
         Serial.print(value, decimals);
-#endif
-#if ENABLE_BLUETOOTH_LOGGING
-        Serial1.print(value, decimals);
 #endif
     }
 
@@ -57,18 +51,12 @@ class Logger {
 #if ENABLE_SERIAL
         Serial.println(value);
 #endif
-#if ENABLE_BLUETOOTH_LOGGING
-        Serial1.println(value);
-#endif
     }
 
     // 改行のみ（引数なし版）
     static void println() {
 #if ENABLE_SERIAL
         Serial.println();
-#endif
-#if ENABLE_BLUETOOTH_LOGGING
-        Serial1.println();
 #endif
     }
 

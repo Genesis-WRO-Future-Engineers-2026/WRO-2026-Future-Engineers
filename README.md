@@ -16,15 +16,10 @@
 │  │ SensorReader │───▶│  GapFinder   │───▶│ SteeringController│   │
 │  │  (I2C読取)   │    │(目標角度決定) │    │  (Pure Pursuit)   │   │
 │  └──────────────┘    └──────────────┘    └────────┬─────────┘   │
-│         │                                         │             │
-│         │            ┌───────────────────┐        │             │
-│         └───────────▶│AcceleratorController│       │             │
-│                      │  (距離連動速度)    │       │             │
-│                      └────────┬──────────┘        │             │
-│                               │                   │             │
-│  ┌──────────────┐      ┌──────▼───────────────────▼──────┐      │
+│                                                   │             │
+│  ┌──────────────┐      ┌─────────────────────────▼──────┐      │
 │  │  TCA9548A    │      │            Actuator             │      │
-│  │ マルチプレクサ│      │          (PWM出力)              │      │
+│  │ マルチプレクサ│      │    (PWM出力 + 定速走行)         │      │
 │  └──────────────┘      └──────────────────────────────────┘      │
 └───────┬──────────────────────────────────────────┬───────────────┘
         │                                          │
@@ -42,20 +37,20 @@
                (S2)      │      (S4)
          -30°     \      │      /     +30°
           (S1)     \     │     /     (S5)
-    -60°            \    │    /            +60°
+    -50°            \    │    /            +50°
   (Sensor 0)             │             (Sensor 6)
      左                   │                   右
 ```
 
 | センサー | チャンネル | 角度 | 役割 |
 |---------|-----------|------|------|
-| Sensor 0 | CH0 | -60° | 左側方 |
+| Sensor 0 | CH0 | -50° | 左側方 |
 | Sensor 1 | CH1 | -30° | 左斜め前 |
 | Sensor 2 | CH2 | -15° | 左前方 |
 | Sensor 3 | CH3 | 0° | 正面 |
 | Sensor 4 | CH4 | +15° | 右前方 |
 | Sensor 5 | CH5 | +30° | 右斜め前 |
-| Sensor 6 | CH6 | +60° | 右側方 |
+| Sensor 6 | CH6 | +50° | 右側方 |
 
 ---
 
@@ -68,8 +63,7 @@ seven/
 ├── SensorReader.cpp/h          # VL53L1Xセンサー読み取り
 ├── GapFinder.cpp/h             # 最遠+隣接センサー方式による目標角度決定
 ├── SteeringController.cpp/h    # Pure Pursuit制御によるステアリング計算
-├── AcceleratorController.cpp/h # 距離連動速度制御
-├── Actuator.cpp/h              # サーボ・ESCへのPWM出力
+├── Actuator.cpp/h              # サーボ・ESCへのPWM出力（定速走行）
 └── Logger.h                    # デバッグ出力（ヘッダーオンリー）
 ```
 
@@ -129,7 +123,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 
 - **L**: ホイールベース（mm）- MF-01X = 210mm
 - **α**: 目標点への角度（ラジアン）- GapFinderのtarget_angle
-- **Ld**: ルックアヘッド距離（mm）- 正面センサー(S3)距離 - 車体長(900mm)、最小50mm
+- **Ld**: ルックアヘッド距離（mm）- 正面センサー(S3)距離 - 車体長(1200mm)、最小50mm
 
 ### 特徴
 
@@ -142,7 +136,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 | パラメータ | 値 | 効果 |
 |-----------|----|----|
 | WHEELBASE_MM | 210 | ホイールベース（大きいほど緩旋回） |
-| BODY_LENGTH_MM | 900 | 車体長（センサー位置〜後輪軸） |
+| BODY_LENGTH_MM | 1200 | 車体長（センサー位置〜後輪軸） |
 
 ---
 
@@ -161,7 +155,6 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
-| `ENABLE_BLUETOOTH_LOGGING` | bool | false | Bluetooth経由のシリアル出力 |
 | `ENABLE_BLUETOOTH_EMERGENCY` | bool | true | Bluetooth経由の緊急停止機能 |
 | `BLUETOOTH_BAUD` | unsigned long | 9600 | HC-06のボーレート |
 
@@ -171,7 +164,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 |------|----|----|------|
 | `TCA9548A_ADDR` | uint8_t | 0x70 | I2Cマルチプレクサアドレス |
 | `NUM_SENSORS` | uint8_t | 7 | センサー数 |
-| `SENSOR_ANGLES` | float[] | {-60,-30,-15,0,15,30,60} | 各センサーの取付角度（度） |
+| `SENSOR_ANGLES` | float[] | {-50,-30,-15,0,15,30,50} | 各センサーの取付角度（度） |
 | `FRONT_SENSOR_INDEX` | uint8_t | 3 | 正面センサーのインデックス（0度） |
 | `SERVO_PIN` | uint8_t | 9 | ステアリングサーボのピン |
 | `ESC_PIN` | uint8_t | 10 | ESCのピン |
@@ -202,7 +195,7 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
 | `WHEELBASE_MM` | float | 210.0 | ホイールベース（mm） |
-| `BODY_LENGTH_MM` | float | 900.0 | 車体長（mm）- センサー位置〜後輪軸 |
+| `BODY_LENGTH_MM` | float | 1200.0 | 車体長（mm）- センサー位置〜後輪軸 |
 
 ### ギャップ検出パラメータ
 
@@ -224,9 +217,9 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
-| `SERVO_CENTER` | uint16_t | 1425 | 中央位置 |
-| `SERVO_MIN` | uint16_t | 1125 | 最小パルス幅（右） |
-| `SERVO_MAX` | uint16_t | 1725 | 最大パルス幅（左） |
+| `SERVO_CENTER` | uint16_t | 1415 | 中央位置 |
+| `SERVO_MIN` | uint16_t | 1115 | 最小パルス幅（右） |
+| `SERVO_MAX` | uint16_t | 1715 | 最大パルス幅（左） |
 
 ### ESC設定（μs単位）
 
@@ -236,20 +229,11 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 | `ESC_MIN_US` | uint16_t | 1000 | 最小パルス幅 |
 | `ESC_MAX_US` | uint16_t | 2000 | 最大パルス幅 |
 
-### 距離連動速度制御
+### 速度設定（定速走行）
 
 | 定数 | 型 | 値 | 説明 |
 |------|----|----|------|
-| `SPEED_DISTANCE_LINK_ENABLED` | bool | false | 速度連動の有効/無効 |
-| `DECEL_START_DISTANCE` | uint16_t | 2000 | 減速開始距離（mm） |
-| `DECEL_CURVE_EXPONENT` | float | 0.5 | 減速カーブ指数（小さいほど急） |
-| `MAX_SPEED_US` | uint16_t | 1690 | 最高速度パルス |
-| `MIN_SPEED_US` | uint16_t | 1670 | 最低速度パルス |
-
-速度制御動作（SPEED_DISTANCE_LINK_ENABLED=true時）:
-- 前方距離 ≥ 2000mm → MAX_SPEED_US（最高速度）
-- 前方距離 ≤ 400mm → MIN_SPEED_US（最低速度）
-- その間は非線形カーブで減速（指数0.5で最初に急減速）
+| `SPEED_US` | uint16_t | 1695 | 走行速度パルス（μs） |
 
 ---
 

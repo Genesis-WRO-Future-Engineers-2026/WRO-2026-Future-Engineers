@@ -21,7 +21,6 @@
  * 4. Arduino Nano R4に書き込み
  */
 
-#include "AcceleratorController.h"
 #include "Actuator.h"
 #include "Config.h"
 #include "GapFinder.h"
@@ -35,7 +34,6 @@
 SensorReader sensorReader;
 GapFinder gapFinder;
 SteeringController steeringController;
-AcceleratorController acceleratorController;
 Actuator actuator;
 
 // ============================================================================
@@ -79,9 +77,6 @@ void setup() {
 
     // ステアリングコントローラー初期化
     steeringController.begin();
-
-    // アクセルコントローラー初期化
-    acceleratorController.begin();
 
     // アクチュエーター初期化
     actuator.begin();
@@ -176,11 +171,9 @@ void loop() {
             actuator.setSteering(0.0);
             actuator.stop();
         } else {
-            // 通常走行：ステアリング角度に応じた可変速度
+            // 通常走行：定速
             actuator.setSteering(steering_angle);
-            uint16_t variable_speed =
-                acceleratorController.calculate(steering_angle, sensorData);
-            actuator.setSpeed(variable_speed);
+            actuator.setSpeed(SPEED_US);
         }
 
         // タイミング計測終了・表示
