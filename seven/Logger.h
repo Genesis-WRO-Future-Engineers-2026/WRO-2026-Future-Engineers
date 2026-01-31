@@ -25,7 +25,7 @@ class Logger {
             delay(10);
         }  // シリアル接続待ち
 #endif
-#if ENABLE_BLUETOOTH_LOGGING || ENABLE_BLUETOOTH_EMERGENCY
+#if ENABLE_BLUETOOTH_EMERGENCY
         Serial1.begin(BLUETOOTH_BAUD);
 #endif
     }
@@ -36,18 +36,12 @@ class Logger {
 #if ENABLE_SERIAL
         Serial.print(value);
 #endif
-#if ENABLE_BLUETOOTH_LOGGING
-        Serial1.print(value);
-#endif
     }
 
     // float出力（小数点以下桁数指定）
     static void print(float value, int decimals) {
 #if ENABLE_SERIAL
         Serial.print(value, decimals);
-#endif
-#if ENABLE_BLUETOOTH_LOGGING
-        Serial1.print(value, decimals);
 #endif
     }
 
@@ -57,18 +51,12 @@ class Logger {
 #if ENABLE_SERIAL
         Serial.println(value);
 #endif
-#if ENABLE_BLUETOOTH_LOGGING
-        Serial1.println(value);
-#endif
     }
 
     // 改行のみ（引数なし版）
     static void println() {
 #if ENABLE_SERIAL
         Serial.println();
-#endif
-#if ENABLE_BLUETOOTH_LOGGING
-        Serial1.println();
 #endif
     }
 
@@ -130,6 +118,22 @@ class Logger {
         print("us(S:");
         print(sensor_us);
         print("us)");
+    }
+
+    // センサー詳細デバッグ出力（ステータス、信号強度）
+    static void printSensorDebug(uint8_t idx, uint8_t status,
+                                 float peak, float ambient) {
+#if ENABLE_SERIAL
+        Serial.print("[");
+        Serial.print(idx);
+        Serial.print(":");
+        Serial.print(status);
+        Serial.print(",");
+        Serial.print(peak);
+        Serial.print(",");
+        Serial.print(ambient);
+        Serial.print("]");
+#endif
     }
 
     // タイミング設定のサマリー表示

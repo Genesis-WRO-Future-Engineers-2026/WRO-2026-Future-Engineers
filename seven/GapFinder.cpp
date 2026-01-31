@@ -87,10 +87,12 @@ float GapFinder::_calculateTargetAngle(const SensorData* data, int farthestIdx,
         float angle_diff_right =
             fabs(SENSOR_ANGLES[right_idx] - SENSOR_ANGLES[farthestIdx]);
 
-        float area_left = data[left_idx].distance * farthestDist *
-                          sin(angle_diff_left * DEG_TO_RAD);
-        float area_right = farthestDist * data[right_idx].distance *
-                           sin(angle_diff_right * DEG_TO_RAD);
+        // sin値は事前計算済み定数を使用（15度または20度）
+        float sin_left = (angle_diff_left < 17.5f) ? SIN_15_DEG : SIN_20_DEG;
+        float sin_right = (angle_diff_right < 17.5f) ? SIN_15_DEG : SIN_20_DEG;
+
+        float area_left = data[left_idx].distance * farthestDist * sin_left;
+        float area_right = farthestDist * data[right_idx].distance * sin_right;
 
         float total_area = area_left + area_right;
         if (total_area < 0.001f) {

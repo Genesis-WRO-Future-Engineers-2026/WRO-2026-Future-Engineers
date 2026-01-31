@@ -28,9 +28,6 @@
 // ============================================================================
 // Bluetooth設定（HC-06モジュール）
 // ============================================================================
-// ログ出力: true でBluetooth経由のシリアル出力を有効化
-#define ENABLE_BLUETOOTH_LOGGING false
-
 // 緊急停止: true でBluetooth経由の緊急停止機能を有効化
 #define ENABLE_BLUETOOTH_EMERGENCY true
 
@@ -45,7 +42,7 @@ const uint8_t TCA9548A_ADDR = 0x70;
 // センサー設定
 const uint8_t NUM_SENSORS = 7;
 const uint8_t SENSOR_CHANNELS[NUM_SENSORS] = {0, 1, 2, 3, 4, 5, 6};
-const float SENSOR_ANGLES[NUM_SENSORS] = {-50.0, -30.0, -15.0, 0.0, 15.0, 30.0, 50.0};
+const float SENSOR_ANGLES[NUM_SENSORS] = {-50.0, -30.0, -15.0, 0.0, 15.0, 30.0, 50.0}; // FIXME: +-60度設置
 const uint8_t FRONT_SENSOR_INDEX = 3;  // 正面センサーのインデックス（0度）
 
 // PWM出力ピン
@@ -87,8 +84,8 @@ const float FARTHEST_HYSTERESIS = 100.0;  // 最遠センサー切り替えの�
 //   α: 目標点への角度（ラジアン）
 //   Ld: ルックアヘッド距離（mm）- 正面センサー距離 - 車体長
 // ============================================================================
-const float WHEELBASE_MM = 210.0;    // ホイールベース（mm）- MF-01X
-const float BODY_LENGTH_MM = 1200.0;  // 車体長（mm）- センサー位置〜後輪軸
+const float WHEELBASE_MM = 210.0;       // ホイールベース（mm）- MF-01X
+const float LOOKAHEAD_OFFSET_MM = 1200.0;  // Ld計算オフセット（mm）- 手動探索で最適化した値
 
 // ============================================================================
 // 安全パラメータ
@@ -107,15 +104,7 @@ const uint16_t SERVO_MAX = 1715;     // 最大パルス幅（μs）= 最も左
 const uint16_t ESC_STOP_US = 1500;   // 停止（μs）
 const uint16_t ESC_MIN_US = 1000;    // ESC最小パルス（μs）
 const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
-
-// ============================================================================
-// 距離連動速度制御パラメータ
-// ============================================================================
-const bool SPEED_DISTANCE_LINK_ENABLED = false;  // true: 有効, false: 固定速度
-const uint16_t DECEL_START_DISTANCE = 2000;     // 減速開始距離（mm）
-const float DECEL_CURVE_EXPONENT = 0.5;         // 減速カーブ指数（0.2〜1.0、小さいほど急）
-const uint16_t MAX_SPEED_US = 1695;             // 最高速度パルス（μs）
-const uint16_t MIN_SPEED_US = 1630;             // 最低速度パルス（μs）
+const uint16_t SPEED_US = 1695;      // 走行速度パルス（μs）
 
 // ============================================================================
 // 数学定数
@@ -127,5 +116,9 @@ const uint16_t MIN_SPEED_US = 1630;             // 最低速度パルス（μs�
 #ifndef RAD_TO_DEG
 #define RAD_TO_DEG 57.29577951308232f  // 180.0 / PI
 #endif
+
+// センサー間角度差のsin値（事前計算）
+const float SIN_15_DEG = 0.2588190451f;  // sin(15° × π/180)
+const float SIN_20_DEG = 0.3420201433f;  // sin(20° × π/180)
 
 #endif  // CONFIG_H

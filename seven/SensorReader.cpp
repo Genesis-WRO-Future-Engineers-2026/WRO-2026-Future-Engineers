@@ -73,18 +73,11 @@ void SensorReader::readAll() {
         // 距離データを取得
         _sensorData[i].distance = _sensors[i].ranging_data.range_mm;
 
-        // デバッグ: 全センサーのステータスを表示
-#if ENABLE_SERIAL
-        Serial.print("[");
-        Serial.print(i);
-        Serial.print(":");
-        Serial.print(_sensors[i].ranging_data.range_status);
-        Serial.print(",");
-        Serial.print(_sensors[i].ranging_data.peak_signal_count_rate_MCPS);
-        Serial.print(",");
-        Serial.print(_sensors[i].ranging_data.ambient_count_rate_MCPS);
-        Serial.print("]");
-#endif
+        // デバッグ: 全センサーのステータスを表示（必要時にコメント解除）
+        // Logger::printSensorDebug(i,
+        //     _sensors[i].ranging_data.range_status,
+        //     _sensors[i].ranging_data.peak_signal_count_rate_MCPS,
+        //     _sensors[i].ranging_data.ambient_count_rate_MCPS);
 
         if(_sensorData[i].distance > RELIABLE_RANGE) {
             // VL53L1Xの信頼できる測定範囲を超えた場合は上限値にクランプ
