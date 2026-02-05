@@ -95,7 +95,26 @@ void setup() {
 // ============================================================================
 void loop() {
     static unsigned long lastMeasurement = 0;
+    static unsigned long startTime = 0;
+    static bool firstRun = true;
     unsigned long currentTime = millis();
+
+    // 初回実行時にスタート時刻を記録
+    if (firstRun) {
+        startTime = currentTime;
+        firstRun = false;
+    }
+
+    // タイムアウト自動停止
+    if (AUTO_STOP_SECONDS > 0 &&
+        (currentTime - startTime) >= (AUTO_STOP_SECONDS * 1000UL)) {
+        actuator.setSteering(0.0);
+        actuator.stop();
+        Logger::println("AUTO STOP: Timeout reached");
+        while (1) {
+            delay(1000);
+        }
+    }
 
 #if ENABLE_BLUETOOTH_EMERGENCY
     // Bluetooth経由で入力があれば緊急停止
