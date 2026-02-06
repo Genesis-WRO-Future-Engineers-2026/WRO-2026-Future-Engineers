@@ -25,9 +25,6 @@ class Logger {
             delay(10);
         }  // シリアル接続待ち
 #endif
-#if ENABLE_BLUETOOTH_EMERGENCY
-        Serial1.begin(BLUETOOTH_BAUD);
-#endif
     }
 
     // 汎用プリント（改行なし）

@@ -116,17 +116,6 @@ void loop() {
         }
     }
 
-#if ENABLE_BLUETOOTH_EMERGENCY
-    // Bluetooth経由で入力があれば緊急停止
-    if (Serial1.available()) {
-        actuator.setSteering(0.0);
-        actuator.stop();
-        while (1) {
-            delay(1000);
-        }  // 終了
-    }
-#endif
-
     // 指定した間隔で測定・制御（固定周期を維持）
     if (currentTime - lastMeasurement >= MEASUREMENT_INTERVAL) {
         lastMeasurement += MEASUREMENT_INTERVAL;
