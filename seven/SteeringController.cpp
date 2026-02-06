@@ -16,8 +16,6 @@
 
 #include <math.h>
 
-#include "SensorReader.h"
-
 SteeringController::SteeringController() {}
 
 void SteeringController::begin() {

@@ -13,9 +13,6 @@
 #include "Config.h"
 #include "GapFinder.h"
 
-// 前方宣言（ポインタ型のみ使用のためフルインクルード不要）
-struct SensorData;
-
 class SteeringController {
    public:
     SteeringController();

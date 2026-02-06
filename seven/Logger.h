@@ -117,22 +117,6 @@ class Logger {
         print("us)");
     }
 
-    // センサー詳細デバッグ出力（ステータス、信号強度）
-    static void printSensorDebug(uint8_t idx, uint8_t status,
-                                 float peak, float ambient) {
-#if ENABLE_SERIAL
-        Serial.print("[");
-        Serial.print(idx);
-        Serial.print(":");
-        Serial.print(status);
-        Serial.print(",");
-        Serial.print(peak);
-        Serial.print(",");
-        Serial.print(ambient);
-        Serial.print("]");
-#endif
-    }
-
     // タイミング設定のサマリー表示
     static void printTimingConfig() {
         println("--- Timing Configuration ---");
