@@ -100,7 +100,7 @@ const uint16_t SERVO_MAX = 1715;     // 最大パルス幅（μs）= 最も左
 const uint16_t ESC_STOP_US = 1500;   // 停止（μs）
 const uint16_t ESC_MIN_US = 1000;    // ESC最小パルス（μs）
 const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
-const uint16_t SPEED_US = 1660;      // 走行速度パルス（μs）
+const uint16_t SPEED_US = 1640;      // 走行速度パルス（μs）
 
 // ============================================================================
 // 数学定数
