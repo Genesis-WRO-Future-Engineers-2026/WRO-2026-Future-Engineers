@@ -151,13 +151,6 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 | `MODE_DEBUG_RUN` | 2 | デバッグ走行（PWMあり、シリアルあり） |
 | `RUN_MODE` | - | 上記から選択 |
 
-### Bluetooth設定
-
-| 定数 | 型 | 値 | 説明 |
-|------|----|----|------|
-| `ENABLE_BLUETOOTH_EMERGENCY` | bool | true | Bluetooth経由の緊急停止機能 |
-| `BLUETOOTH_BAUD` | unsigned long | 9600 | HC-06のボーレート |
-
 ### ハードウェア設定
 
 | 定数 | 型 | 値 | 説明 |
@@ -244,7 +237,6 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 - **I2Cマルチプレクサ**: TCA9548A
 - **ステアリング**: サーボモーター
 - **駆動**: ESC + ブラシレスモーター
-- **通信**: HC-06 Bluetooth（停止用、オプション）
 
 ### 配線
 
@@ -255,7 +247,6 @@ steering_angle = atan2(2 × L × sin(α), Ld)
 | TCA9548A CH0-6 | VL53L1X × 7 |
 | Arduino Pin 9 | サーボ信号線 |
 | Arduino Pin 10 | ESC信号線 |
-| Arduino Serial1 | HC-06（オプション） |
 
 ---
 
@@ -277,10 +268,6 @@ Arduino IDEで以下をインストール:
 ### 3. 書き込み
 
 Arduino IDEでArduino Nano R4に書き込み
-
-### 4. 停止方法
-
-ENABLE_BLUETOOTH_EMERGENCY=trueの場合、HC-06 Bluetooth経由で任意のデータを送信すると停止
 
 ---
 
@@ -306,4 +293,3 @@ S0:1234 | S1:567 | S2:890 | S3:456 | S4:789 | S5:321 | S6:654 | T:15.0° Ld:600 
 ## 安全機能
 
 1. **緊急停止**: 前方センサー < 400mm で自動停止
-2. **Bluetooth停止**: Serial1への入力で即時停止（ENABLE_BLUETOOTH_EMERGENCY=true時）

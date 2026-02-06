@@ -62,7 +62,6 @@ minicar-battle/
 - **センサー**: VL53L1X ToFセンサー × 7
 - **I2Cマルチプレクサ**: TCA9548A（アドレス: 0x70）
 - **アクチュエーター**: サーボモーター（ステアリング）、ESC（速度制御）
-- **通信**: HC-06 Bluetooth（緊急停止用、オプション）
 
 ### Sensor Layout
 
@@ -153,10 +152,6 @@ arduino-cli compile --fqbn arduino:renesas_uno:unor4wifi seven
 arduino-cli upload -p /dev/cu.usbmodem* --fqbn arduino:renesas_uno:unor4wifi seven
 ```
 
-### 4. 停止方法
-
-`ENABLE_BLUETOOTH_EMERGENCY=true` の場合、HC-06 Bluetooth経由で任意のデータを送信すると緊急停止
-
 ---
 
 ## Key Configuration Parameters
@@ -207,7 +202,6 @@ S0:1234 | S1:567 | S2:890 | S3:456 | S4:789 | S5:321 | S6:654 | T:15.0° Ld:600 
 ## Safety Features
 
 1. **緊急停止**: 前方センサー < 400mm で自動停止
-2. **Bluetooth停止**: Serial1への入力で即時停止（`ENABLE_BLUETOOTH_EMERGENCY=true`時）
 
 ---
 
