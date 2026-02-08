@@ -19,7 +19,7 @@
 #define MODE_PRODUCTION 1
 #define MODE_DEBUG_RUN 2
 
-#define RUN_MODE MODE_PRODUCTION // ← ここで動作モードを選択
+#define RUN_MODE MODE_DEBUG // ← ここで動作モードを選択
 
 // 各機能の有効/無効を自動設定
 #define ENABLE_SERIAL (RUN_MODE == MODE_DEBUG || RUN_MODE == MODE_DEBUG_RUN)
@@ -77,7 +77,7 @@ const float FARTHEST_HYSTERESIS = 100.0;  // 最遠センサー切り替えの�
 //   Ld: ルックアヘッド距離（mm）- 正面センサー距離 - 車体長
 // ============================================================================
 const float WHEELBASE_MM = 210.0;       // ホイールベース（mm）- MF-01X
-const float LOOKAHEAD_OFFSET_MM = 900.0;  // Ld計算オフセット（mm）- 手動探索で最適化した値. 1640で900にし, 1660以降は1200とする
+const float LOOKAHEAD_OFFSET_MM = 1200.0;  // Ld計算オフセット（mm）- 手動探索で最適化した値. 1640で900にし, 1660以降は1200とする
 
 // ============================================================================
 // 安全パラメータ
@@ -100,7 +100,7 @@ const uint16_t SERVO_MAX = 1715;     // 最大パルス幅（μs）= 最も左
 const uint16_t ESC_STOP_US = 1500;   // 停止（μs）
 const uint16_t ESC_MIN_US = 1000;    // ESC最小パルス（μs）
 const uint16_t ESC_MAX_US = 2000;    // ESC最大パルス（μs）
-const uint16_t SPEED_US = 1640;      // 走行速度パルス（μs）
+const uint16_t SPEED_US = 1660;      // 走行速度パルス（μs）
 
 // ============================================================================
 // 数学定数
