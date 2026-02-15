@@ -12,9 +12,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **タイムトライアル**: 9秒以下のラップタイムを目指す
 - **エンデュランス**: 6分間の連続周回レース（壁衝突なし、チェックポイント順番通過）
 
-### 現在の記録
-- **3周**: 24.11秒（1周平均8.04秒）
-- **1周最速**: 8.3秒
+### 競技結果
+- **決勝**: 3周17.5秒（優勝）
 
 ## Repository Structure
 
@@ -29,7 +28,8 @@ minicar-battle/
 │   ├── Actuator.cpp/h              # サーボ・ESCへのPWM出力
 │   └── Logger.h                    # デバッグ出力（ヘッダーオンリー）
 ├── CLAUDE.md                       # 本ドキュメント
-└── README.md                       # プロジェクト詳細ドキュメント
+├── README.md                       # プロジェクト詳細ドキュメント
+└── LICENSE                         # MITライセンス
 ```
 
 ---
