@@ -72,20 +72,20 @@ minicar-battle/
                (S2)      │      (S4)
          -30°     \      │      /     +30°
           (S1)     \     │     /     (S5)
-    -50°            \    │    /            +50°
+    -60°            \    │    /            +60°
   (Sensor 0)             │             (Sensor 6)
      左                   │                   右
 ```
 
 | センサー | チャンネル | 角度 | 役割 |
 |---------|-----------|------|------|
-| Sensor 0 | CH0 | -50° | 左側方 |
+| Sensor 0 | CH0 | -60° | 左側方 |
 | Sensor 1 | CH1 | -30° | 左斜め前 |
 | Sensor 2 | CH2 | -15° | 左前方 |
 | Sensor 3 | CH3 | 0° | 正面 |
 | Sensor 4 | CH4 | +15° | 右前方 |
 | Sensor 5 | CH5 | +30° | 右斜め前 |
-| Sensor 6 | CH6 | +50° | 右側方 |
+| Sensor 6 | CH6 | +60° | 右側方 |
 
 ---
 
@@ -170,7 +170,7 @@ const float LOOKAHEAD_OFFSET_MM = 1200.0;    // 車体長（mm）- センサー�
 const uint16_t EMERGENCY_FRONT_THRESHOLD = 400;  // 前方緊急閾値（mm）
 
 // 速度設定（定速走行）
-const uint16_t SPEED_US = 1695;  // 走行速度パルス（μs）
+const uint16_t SPEED_US = 1680;  // 走行速度パルス（μs）
 
 // サーボ設定（μs単位）
 const uint16_t SERVO_CENTER = 1415;  // 中央位置

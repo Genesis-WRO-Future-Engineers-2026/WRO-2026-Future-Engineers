@@ -34,7 +34,7 @@ const uint8_t TCA9548A_ADDR = 0x70;
 // センサー設定
 const uint8_t NUM_SENSORS = 7;
 const uint8_t SENSOR_CHANNELS[NUM_SENSORS] = {0, 1, 2, 3, 4, 5, 6};
-const float SENSOR_ANGLES[NUM_SENSORS] = {-50.0, -30.0, -15.0, 0.0, 15.0, 30.0, 50.0}; // FIXME: +-60度設置
+const float SENSOR_ANGLES[NUM_SENSORS] = {-50.0, -30.0, -15.0, 0.0, 15.0, 30.0, 50.0}; // 実設置は±60°だが、この値で決勝17.5秒（優勝）を達成
 const uint8_t FRONT_SENSOR_INDEX = 3;  // 正面センサーのインデックス（0度）
 
 // PWM出力ピン
