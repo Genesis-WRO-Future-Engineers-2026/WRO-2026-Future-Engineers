@@ -1,5 +1,7 @@
 # Seven - autonomous driver based on the farthest-sensor + neighbors method
 
+[![Watch the race on YouTube](https://img.youtube.com/vi/8IbiEOltWWM/maxresdefault.jpg)](https://youtu.be/8IbiEOltWWM)
+
 An autonomous driving control system for the Arduino Nano R4, built on seven VL53L1X ToF sensors and the farthest-sensor + neighbors method.
 
 **Race result: 3 laps in 17.5s in the final (1st place).**
