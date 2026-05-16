@@ -1,23 +1,13 @@
-# ¡Hola! Somos el equipo Génesis.
-![Equipo Génesis](t-photos/DOC-20250524-WA0036_20260515_201733_0000.jpg)
+# Hello! We are the Genesis team.
+<img width="903" height="675" alt="2afa2ad2-66f1-48aa-bc96-628adb1001fa" src="https://github.com/user-attachments/assets/f253592e-f094-4885-bef9-549df2e346e6" />
 
+# WRO - Future Engineers - Robotics Project Documentation
 
-
-# WRO-2026-Futuros-Ingenieros
-Este es el repositorio de WRO 2026 en la categoría de Futuros Ingenieros. 
-Engineering materials
-
-# Engineering materials
+## Team Members
+- **Johelis Acosta**
+- **Miguel Mejías**
+- **Wilber Pacheco**
 
 This repository contains engineering materials of a self-driven vehicle's model participating in the WRO Future Engineers competition in the season 2026.
 
-## Content
 
-* `t-photos` contains 2 photos of the team (an official one and one funny photo with all team members)
-* `v-photos` contains 6 photos of the vehicle (from every side, from top and bottom)
-* `video` contains the video.md file with the link to a video where driving demonstration exists
-* `schemes` contains one or several schematic diagrams in form of JPEG, PNG or PDF of the electromechanical components illustrating all the elements (electronic components and motors) used in the vehicle and how they connect to each other.
-* `src` contains code of control software for all components which were programmed to participate in the competition
-* `models` is for the files for models used by 3D printers, laser cutting machines and CNC machines to produce the vehicle elements. If there is nothing to add to this location, the directory can be removed.
-* `other` is for other files which can be used to understand how to prepare the vehicle for the competition. It may include documentation how to connect to a SBC/SBM and upload files there, datasets, hardware specifications, communication protocols descriptions etc. If there is nothing to add to this location, the directory can be removed.
-  
