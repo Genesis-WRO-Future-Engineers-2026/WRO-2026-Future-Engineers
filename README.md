@@ -1,5 +1,6 @@
 # ¡Hola! Somos el equipo Génesis.
-![Equipo Génesis](t-photos/DOC-20250524-WA0036._20260515_201733_0000.jpg
+![Equipo Génesis](t-photos/DOC-20250524-WA0036_20260515_201733_0000.jpg)
+
 
 
 # WRO-2026-Futuros-Ingenieros
