@@ -19,40 +19,40 @@ Welcome to our repository. We are a student group dedicated to robotics and inno
 
 <a name="top"></a>
 
-## Table of Contents
+## 🔍Table of Contents
 
 <!-- toc -->
 
-- [1. Overview](#1-overview)
+- [1. 📚Overview](#1-overview)
   - [1.1 About the Project](#11-about-the-project)
   - [1.2 Robot Images](#12-robot-images)
   - [1.3 Performance Video](#13-performance-video)
-- [2. Mobility and mechanical design](#2-mobility-and-mechanical-design)
+- [2. 🔩Mobility and mechanical design](#2-mobility-and-mechanical-design)
   - [2.1 Drive System](#21-drive-system)
   - [2.2 Steering](#22-steering)
   - [2.3 Chassis Design](#23-chassis-design)
--  [3. Power architecture and sensors](#3-Power-architecture-and-sensors)
+-  [3. 🔋Power architecture and sensors](#3-Power-architecture-and-sensors)
    - [3.1 Power Source](#31-power-source)
    - [3.2 Sensor and Camera](#32-sensor-and-camera)
    - [3.3 Processing Units](#33-processing-units)
    - [3.4 Circuit Diagram](#34-circuit-diagram)
    - [3.5 Power Consumption](#35-power-consumption)
-- [4. Software architecture and obstacle strategy](#4-Software-architecture-and-obstacle-strategy)
+- [4. 📐Software architecture and obstacle strategy](#4-Software-architecture-and-obstacle-strategy)
   - [4.1 Open Challenge](#41-open-challenge)
   - [4.2 Obstacle Challenge](#42-obstacle-challenge)
   - [4.3 Parallel Parking](#43-parallel-parking)
-- [5. Systems thinking and engineering decisions](#5-Systems-thinking-and-engineering-decisions)
+- [5. ⚙Systems thinking and engineering decisions](#5-Systems-thinking-and-engineering-decisions)
   - [5.1 Code Structure](#52-code-structure)
   - [5.2 Compilation / Upload Instructions](#53-compilation--upload-instructions)
-- [6. List of Components](#6-list-of-components)
-- [7. 3D Model Files](#7-3d-model-files)
+- [6. 📝List of Components](#6-list-of-components)
+- [7. 💎3D Model Files](#7-3d-model-files)
   - [7.1 STL Files](#72-stl-files)
   - [7.2 Modified Files](#73-slicer-files)
-- [8. Building Instructions](#8-building-instructions)
+- [8. 🛠️Building Instructions](#8-building-instructions)
   
     <!-- tocstop -->
 
-## 1. Overview
+## 1. 📚Overview
 
 ### 1.1 About the Project
 
@@ -79,7 +79,7 @@ This entire development has been supported by detailed documentation that not on
   <a href="#top">Back To Top</a>
 </p>
 
-## 2. Mobility and mechanical design
+## 2. 🔩Mobility and mechanical design
 
 ### 2.1 Drive System
 
@@ -91,7 +91,7 @@ This entire development has been supported by detailed documentation that not on
   <a href="#top">Back To Top</a>
 </p>
 
-## 3. Power architecture and sensors
+## 3. 🔋Power architecture and sensors
 
 ### 3.1 Power Source
 
@@ -107,7 +107,7 @@ This entire development has been supported by detailed documentation that not on
   <a href="#top">Back To Top</a>
 </p>
 
-## 4. Software architecture and obstacle strategy
+## 4. 📐Software architecture and obstacle strategy
 
 ### 4.1 Open Challenge
 
@@ -119,7 +119,7 @@ This entire development has been supported by detailed documentation that not on
   <a href="#top">Back To Top</a>
 </p>
 
-## 5. Systems thinking and engineering decisions
+## 5. ⚙Systems thinking and engineering decisions
    
 ### 5.1 Code Structure
 
@@ -129,13 +129,13 @@ This entire development has been supported by detailed documentation that not on
   <a href="#top">Back To Top</a>
 </p>
 
-## 6. List of Components
+## 6. 📝List of Components
 
 <p align="right">
   <a href="#top">Back To Top</a>
 </p>
 
-## 7. 3D Model Files
+## 7. 💎3D Model Files
 
 ### 7.1 STL Files
 
@@ -145,7 +145,7 @@ This entire development has been supported by detailed documentation that not on
   <a href="#top">Back To Top</a>
 </p>
 
-## 8. Building Instructions
+## 8. 🛠️Building Instructions
 
 <p align="right">
   <a href="#top">Back To Top</a>
