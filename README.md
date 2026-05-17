@@ -3,7 +3,7 @@
 
 # WRO - Future Engineers - Robotics Project Documentation
 
-## Team Members
+## 👥Team Members
 - **Johelis Acosta**
   *Role*: Electronics and Mechanics
 - **Miguel Mejías**
