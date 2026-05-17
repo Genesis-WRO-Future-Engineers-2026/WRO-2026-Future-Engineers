@@ -5,8 +5,16 @@
 
 ## Team Members
 - **Johelis Acosta**
+  *Role*: Electronics and Mechanics
 - **Miguel Mejías**
+  *Role*: Programmer
 - **Wilber Pacheco**
+*Role*: Design
+
+## Coach
+- **Oswal Melean**
+  *Mechanical Engineer*
+
 
 This repository contains engineering materials of a self-driven vehicle's model participating in the WRO Future Engineers competition in the season 2026.
 
