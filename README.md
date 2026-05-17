@@ -27,7 +27,7 @@ Welcome to our repository. We are a student group dedicated to robotics and inno
   - [1.1 About the Project](#11-about-the-project)
   - [1.2 Robot Images](#12-robot-images)
   - [1.3 Performance Video](#13-performance-video)
- - [2. Mobility and mechanical design](#2-mobility-and-mechanical-design)
+- [2. Mobility and mechanical design](#2-mobility-and-mechanical-design)
   - [2.1 Drive System](#21-drive-system)
   - [2.2 Steering](#22-steering)
   - [2.3 Chassis Design](#23-chassis-design)
@@ -49,7 +49,7 @@ Welcome to our repository. We are a student group dedicated to robotics and inno
   - [7.1 STL Files](#72-stl-files)
   - [7.2 Modified Files](#73-slicer-files)
 - [8. Building Instructions](#8-building-instructions)
-- 
+  
     <!-- tocstop -->
 
 ## 1. Overview
