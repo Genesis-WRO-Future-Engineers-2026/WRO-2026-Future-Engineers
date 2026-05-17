@@ -11,7 +11,7 @@
 - **Wilber Pacheco**
 *Role*: Design
 
-## Coach
+## 🧑🏻‍🔧Coach
 - **Oswal Melean**
   *Mechanical Engineer*
 
