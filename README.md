@@ -9,7 +9,7 @@
 - **Miguel Mejías**
   *Role*: Programmer
 - **Wilber Pacheco**
-*Role*: Design
+*Role*: Designer
 
 ## 🧑🏻‍🔧Coach
 - **Oswal Melean**
