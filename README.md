@@ -48,7 +48,9 @@ Welcome to our repository. We are a student group dedicated to robotics and inno
 - [7. 💎3D Model Files](#7-3d-model-files)
   - [7.1 STL Files](#72-stl-files)
   - [7.2 Modified Files](#73-slicer-files)
-- [8. 🛠️Building Instructions](#8-building-instructions)
+- [8. ⭐️Design process](#8-design-process)
+- [9. 🛠️Building Instructions](#8-building-instructions)
+
   
     <!-- tocstop -->
 
@@ -145,7 +147,13 @@ This entire development has been supported by detailed documentation that not on
   <a href="#top">Back To Top</a>
 </p>
 
-## 8. 🛠️Building Instructions
+## 8. ⭐️Design process
+
+<p align="right">
+  <a href="#top">Back To Top</a>
+</p>
+
+## 9. 🛠️Building Instructions
 
 <p align="right">
   <a href="#top">Back To Top</a>
