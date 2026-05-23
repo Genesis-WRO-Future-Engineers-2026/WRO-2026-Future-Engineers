@@ -1,4 +1,7 @@
 
+## 1. ⭐️Design process
+
+### 1.2 Chassis Optimization
 
 The first modification in the development of the "minicat-battle" chassis involved redesigning the model in Fusion 360 to adapt the fasteners to components more readily available in our local market. To achieve this, the holes in the original .stl file were modified to replace the M3 bolts and nuts with M4s.
 
