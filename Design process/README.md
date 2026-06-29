@@ -13,4 +13,5 @@ The part limiting the steering mechanism's travel was modified. This improvement
 
 A key change in this process was replacing the drive axle included in the original "zcar" .stl file with a metal one.
 
-<img width="757" height="800" alt="5048967179142892672" src="https://github.com/user-attachments/assets/bee75a77-60ad-4846-be3a-1c0d7420caea" />
+<img width="1273" height="1278" alt="5048967179142892673" src="https://github.com/user-attachments/assets/d3d72d92-35cd-4e85-ae31-f3a42bcf580a" />
+
