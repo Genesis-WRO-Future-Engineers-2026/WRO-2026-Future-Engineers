@@ -57,15 +57,15 @@ Welcome to our repository. We are a student group dedicated to robotics and inno
 
 ### 1.1 About the Project
 
-This project focuses on the design, construction, and programming of an autonomous vehicle capable of accurately and quickly overcoming the complex challenges and obstacles of the WRO Future Engineers competition.
+This project focuses on the design, construction, and programming of an autonomous vehicle capable of overcoming the complex challenges and obstacles of the WRO Future Engineers competition with precision and speed.
 
-For Team Genesis, this challenge represents the perfect opportunity to put theory into practice, merging a passion for technological innovation with creative problem-solving through a systematic process of research, prototyping, and constant iteration.
+For Team Genesis, this challenge represents the perfect opportunity to put theory into practice, combining a passion for technological innovation with creative problem-solving through a systematic process of research, prototyping, and constant iteration.
 
-The structure of our robot is based on a solid foundation inspired by the open-source hardware of minicar-battle (https://github.com/ichis-lab/minicar-battle/tree/main), which we subjected to extensive re-engineering in Fusion 360 and Blender to optimize the size of the screw and nut housings and customize the parts for a perfect fit of our components.
+Our robot’s structure is based on a robust architecture inspired by the *zcar* hardware (https://github.com/alexyu132/zcar). We subjected this design to an extensive re-engineering process using Fusion 360 and Blender to optimize screw and nut housing dimensions, as well as to customize parts for a perfect fit of our components.
 
-The core of the system is controlled by an ESP32 that manages the main logic, supported by an ESP-CAM for visual processing of the environment. To achieve pinpoint navigation and efficient obstacle avoidance, the robot integrates time-of-flight (ToF) sensors along with an accelerometer and gyroscope system for stabilization and orientation on the track.
+The system's core is controlled by a Raspberry Pi 3 B+ that manages the main logic, supported by an ESP32 S2 Mini module to control the sensors and motors. To achieve precise navigation and efficient obstacle avoidance, the robot integrates Time-of-Flight (ToF) sensors alongside a gyroscope for stabilization and track orientation.
 
-This entire development has been supported by detailed documentation that not only optimizes our workflow but also demonstrates our technical and collaborative skills, as well as our commitment to hands-on learning.
+This entire development process has been backed by detailed documentation that not only optimizes our workflow but also demonstrates our technical and collaborative skills, as well as our commitment to hands-on learning.
 
 ### 1.2 Robot Images
 
