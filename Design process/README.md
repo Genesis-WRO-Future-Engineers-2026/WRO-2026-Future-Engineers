@@ -12,3 +12,5 @@ To resolve this issue without sacrificing the advantage of using locally availab
 The part limiting the steering mechanism's travel was modified. This improvement proved crucial, as it allowed for an increase in the robot's maximum turning angle, significantly optimizing its performance and maneuverability on the track.
 
 A key change in this process was replacing the drive axle included in the original "zcar" .stl file with a metal one.
+
+<img width="757" height="800" alt="5048967179142892672" src="https://github.com/user-attachments/assets/bee75a77-60ad-4846-be3a-1c0d7420caea" />
