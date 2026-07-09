@@ -103,9 +103,9 @@ This entire development process has been backed by detailed documentation that n
 The VL53L0X is a small, popular distance sensor that uses Time-of-Flight (ToF) technology to measure the distance to an object by emitting a pulse of invisible infrared laser light and calculating the time it takes to return.
 
 We selected it for this project due to three key advantages:
-* ##### Ultra-compact size: Its small footprint allows for easy integration into tight spaces without compromising the prototype's design.
-* ##### Easy integration: It offers excellent compatibility and ready-to-use libraries, drastically simplifying programming.
-* ##### High speed: It is capable of performing laser-based distance measurements in record time, ensuring fast, accurate, real-time readings.
+*  Ultra-compact size: Its small footprint allows for easy integration into tight spaces without compromising the prototype's design.
+*  Easy integration: It offers excellent compatibility and ready-to-use libraries, drastically simplifying programming.
+*  High speed: It is capable of performing laser-based distance measurements in record time, ensuring fast, accurate, real-time readings.
   
   <img width="800" height="800" alt="GY-53VL53L0XLaserToFFlightTimeRangeSensorfront_1" src="https://github.com/user-attachments/assets/66a3e217-320e-4afe-9cc8-b6d77926fc41" />
 
@@ -122,9 +122,9 @@ We selected it for this project due to three key advantages:
 The MPU-6050 is a widely used Inertial Measurement Unit (IMU) that integrates a 3-axis gyroscope and a 3-axis accelerometer onto a single chip. It uses this combination to accurately measure linear acceleration and angular velocity, enabling the determination of the prototype's orientation, tilt, and movement in space.
 
 Key advantages of the device:
-* ##### Ultra-compact size: By integrating the accelerometer and gyroscope onto a tiny board, it maximizes space efficiency within our circuit.
-* ##### Easy integration: Thanks to I2C protocol communication and a vast array of available libraries, setup and data reading are extremely straightforward.
-* ##### High speed: It features an internal Digital Motion Processor (DMP) that rapidly executes complex algorithms, delivering stable, real-time data without overloading the main microcontroller.
+*  Ultra-compact size: By integrating the accelerometer and gyroscope onto a tiny board, it maximizes space efficiency within our circuit.
+*  Easy integration: Thanks to I2C protocol communication and a vast array of available libraries, setup and data reading are extremely straightforward.
+*  High speed: It features an internal Digital Motion Processor (DMP) that rapidly executes complex algorithms, delivering stable, real-time data without overloading the main microcontroller.
 
 <img width="1200" height="1200" alt="modulo-mpu6050-acelerometro-giroscopio-i2c" src="https://github.com/user-attachments/assets/da02f10c-e98b-41c9-a799-f0f82457208e" />
 
@@ -136,6 +136,29 @@ Key advantages of the device:
 | Alto       | 3.3 mm    |
 | Peso       | 2.1 g     |
 
+#### Computer Vision Camera (Modified 1080p FHD Webcam)
+
+To equip the vehicle with a computer vision system, we integrated a high-definition (1080p FHD) webcam. However, because the original commercial unit—including its casing and mount—was too large and heavy (80 mm x 33 mm x 40 mm), we performed a hardware modification by removing the entire external plastic structure. This allowed us to extract the internal camera module, resulting in a functional circuit board measuring just **25 mm x 28.5 mm**.
+
+Key advantages of the modified device:
+* **Ultra-compact size (post-modification):** By drastically reducing its dimensions to just 25 mm x 28.5 mm, we were able to mount it on the front of the vehicle without compromising aerodynamics or the chassis design.
+* **Easy integration and stability:** Despite being disassembled, it retains native USB connectivity and direct compatibility with computer vision algorithms (such as OpenCV), simplifying programming.
+* **High speed and resolution:** It maintains 1080p FHD capture, processing sharp images in real-time—a critical factor for decision-making while the vehicle is in motion.
+
+<img width="1024" height="1024" alt="productos34_25510" src="https://github.com/user-attachments/assets/64d0bc72-e8c2-4080-8f3f-c7b37652012b" />
+*Before*
+
+### Dimensions Comparison (Webcam)
+
+|          **State**           |**Long** |**Broad**|**High**|
+|..............................|.........|.........|........|
+| **With Housing (Original)**   |  80 mm  |  40 mm  |  33 mm |
+
+  <img width="1702" height="1599" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
+  *After*
+|          **State**           |**Long** |**Broad**|**High**|
+|..............................|.........|.........|........|
+| **Without Casing (Modified)**|  25 mm  | 28.5 mm |   2mm  |
 
 ### 3.3 Processing Units 
 
