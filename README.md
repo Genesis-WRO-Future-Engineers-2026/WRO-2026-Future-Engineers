@@ -98,6 +98,17 @@ This entire development process has been backed by detailed documentation that n
 
 ### 3.2 Sensor and Camera
 
+<img width="461" height="500" alt="D_NQ_NP_864803-MLV96890987952_112025-O (1)" src="https://github.com/user-attachments/assets/4efda80d-3582-41ca-b3bc-08b254ad4229" />
+*Sensor VL53L0X*
+
+## VL53L0X Distance Sensor
+
+For this project, we selected the **VL53L0X** sensor due to three key advantages:
+
+* **Ultra-compact size:** Its small footprint allows for easy integration into tight spaces without compromising the prototype's design.
+* **Easy integration:** It offers excellent compatibility and ready-to-use libraries, drastically simplifying programming.
+* **High speed:** It is capable of performing laser-based distance measurements in record time, ensuring fast, accurate, real-time readings.
+
 ### 3.3 Processing Units 
 
 ### 3.4 Circuit Diagram 
