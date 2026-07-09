@@ -147,15 +147,17 @@ Key advantages of the modified device:
 
 #### Dimensions Comparison (Webcam)
 
+**Before**
 <img width="1024" height="1024" alt="productos34_25510" src="https://github.com/user-attachments/assets/64d0bc72-e8c2-4080-8f3f-c7b37652012b" />
-*Before*
 
 |          **State**           |**Long** |**Broad**|**High**|
 |------------------------------|---------|---------|--------|
-| **With Housing (Original)**  |  80 mm  |  40 mm  |  33 mm |
+| **With Casing (Original)**   |  80 mm  |  40 mm  |  33 mm |
 
+
+ **After**
   <img width="1702" height="1599" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
-  *After*
+ 
 |          **State**           |**Long** |**Broad**|**High**|
 |------------------------------|---------|---------|--------|
 | **Without Casing (Modified)**|  25 mm  | 28.5 mm |   2mm  |
