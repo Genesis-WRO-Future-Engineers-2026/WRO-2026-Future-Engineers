@@ -105,7 +105,16 @@ For this project, we selected the **VL53L0X** sensor due to three key advantages
 * **Ultra-compact size:** Its small footprint allows for easy integration into tight spaces without compromising the prototype's design.
 * **Easy integration:** It offers excellent compatibility and ready-to-use libraries, drastically simplifying programming.
 * **High speed:** It is capable of performing laser-based distance measurements in record time, ensuring fast, accurate, real-time readings.
-  <img width="461" height="500" alt="D_NQ_NP_864803-MLV96890987952_112025-O (1)" src="https://github.com/user-attachments/assets/4efda80d-3582-41ca-b3bc-08b254ad4229" />
+  
+  <img width="800" height="800" alt="GY-53VL53L0XLaserToFFlightTimeRangeSensorfront_1" src="https://github.com/user-attachments/assets/66a3e217-320e-4afe-9cc8-b6d77926fc41" />
+
+
+| **Medida** | **Valor** |
+|------------|-----------|
+| Largo      | 25 mm     |
+| Alto       | 1 mm      |
+| Ancho      | 10.7 mm   |
+| Peso       | 0.8 g     |
 
 
 ### 3.3 Processing Units 
