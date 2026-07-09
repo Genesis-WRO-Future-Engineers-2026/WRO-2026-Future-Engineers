@@ -33,7 +33,7 @@ Welcome to our repository. We are a student group dedicated to robotics and inno
   - [2.3 Chassis Design](#23-chassis-design)
 -  [3. 🔋Power architecture and sensors](#3-Power-architecture-and-sensors)
    - [3.1 Power Source](#31-power-source)
-   - [3.2 Sensor and Camera](#32-sensor-and-camera)
+   - [3.2 Sensors and Camera](#32-sensors-and-camera)
    - [3.3 Processing Units](#33-processing-units)
    - [3.4 Circuit Diagram](#34-circuit-diagram)
    - [3.5 Power Consumption](#35-power-consumption)
