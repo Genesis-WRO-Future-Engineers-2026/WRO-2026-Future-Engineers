@@ -110,7 +110,7 @@ We selected it for this project due to three key advantages:
   <img width="800" height="800" alt="GY-53VL53L0XLaserToFFlightTimeRangeSensorfront_1" src="https://github.com/user-attachments/assets/66a3e217-320e-4afe-9cc8-b6d77926fc41" />
 
 
-| **Extent** | **Worth** |
+| **Extent** | **Value** |
 |------------|-----------|
 | Largo      | 25 mm     |
 | Alto       | 1 mm      |
@@ -129,7 +129,7 @@ Key advantages of the device:
 <img width="1200" height="1200" alt="modulo-mpu6050-acelerometro-giroscopio-i2c" src="https://github.com/user-attachments/assets/da02f10c-e98b-41c9-a799-f0f82457208e" />
 
 
-| **Extent** | **Worth** |
+| **Extent** | **Value** |
 |------------|-----------|
 | Largo      | 21.2 mm   |
 | Ancho      | 16.4 mm   |
@@ -145,19 +145,19 @@ Key advantages of the modified device:
 * **Easy integration and stability:** Despite being disassembled, it retains native USB connectivity and direct compatibility with computer vision algorithms (such as OpenCV), simplifying programming.
 * **High speed and resolution:** It maintains 1080p FHD capture, processing sharp images in real-time—a critical factor for decision-making while the vehicle is in motion.
 
+#### Dimensions Comparison (Webcam)
+
 <img width="1024" height="1024" alt="productos34_25510" src="https://github.com/user-attachments/assets/64d0bc72-e8c2-4080-8f3f-c7b37652012b" />
 *Before*
 
-### Dimensions Comparison (Webcam)
-
 |          **State**           |**Long** |**Broad**|**High**|
-|..............................|.........|.........|........|
-| **With Housing (Original)**   |  80 mm  |  40 mm  |  33 mm |
+|------------------------------|---------|---------|--------|
+| **With Housing (Original)**  |  80 mm  |  40 mm  |  33 mm |
 
   <img width="1702" height="1599" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
   *After*
 |          **State**           |**Long** |**Broad**|**High**|
-|..............................|.........|.........|........|
+|------------------------------|---------|---------|--------|
 | **Without Casing (Modified)**|  25 mm  | 28.5 mm |   2mm  |
 
 ### 3.3 Processing Units 
