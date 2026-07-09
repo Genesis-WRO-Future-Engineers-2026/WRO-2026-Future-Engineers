@@ -100,21 +100,41 @@ This entire development process has been backed by detailed documentation that n
 
 #### VL53L0X Distance Sensor
 
-For this project, we selected the **VL53L0X** sensor due to three key advantages:
+The VL53L0X is a small, popular distance sensor that uses Time-of-Flight (ToF) technology to measure the distance to an object by emitting a pulse of invisible infrared laser light and calculating the time it takes to return.
 
-* **Ultra-compact size:** Its small footprint allows for easy integration into tight spaces without compromising the prototype's design.
-* **Easy integration:** It offers excellent compatibility and ready-to-use libraries, drastically simplifying programming.
-* **High speed:** It is capable of performing laser-based distance measurements in record time, ensuring fast, accurate, real-time readings.
+We selected it for this project due to three key advantages:
+* Ultra-compact size: Its small footprint allows for easy integration into tight spaces without compromising the prototype's design.
+* Easy integration: It offers excellent compatibility and ready-to-use libraries, drastically simplifying programming.
+* High speed: It is capable of performing laser-based distance measurements in record time, ensuring fast, accurate, real-time readings.
   
   <img width="800" height="800" alt="GY-53VL53L0XLaserToFFlightTimeRangeSensorfront_1" src="https://github.com/user-attachments/assets/66a3e217-320e-4afe-9cc8-b6d77926fc41" />
 
 
-| **Medida** | **Valor** |
+| **Extent** | **Worth** |
 |------------|-----------|
 | Largo      | 25 mm     |
 | Alto       | 1 mm      |
 | Ancho      | 10.7 mm   |
 | Peso       | 0.8 g     |
+
+#### Inertial Measurement Unit (IMU MPU-6050) Sensor
+
+The MPU-6050 is a widely used Inertial Measurement Unit (IMU) that integrates a 3-axis gyroscope and a 3-axis accelerometer onto a single chip. It uses this combination to accurately measure linear acceleration and angular velocity, enabling the determination of the prototype's orientation, tilt, and movement in space.
+
+Key advantages of the device:
+* Ultra-compact size: By integrating the accelerometer and gyroscope onto a tiny board, it maximizes space efficiency within our circuit.
+* Easy integration: Thanks to I2C protocol communication and a vast array of available libraries, setup and data reading are extremely straightforward.
+* High speed: It features an internal Digital Motion Processor (DMP) that rapidly executes complex algorithms, delivering stable, real-time data without overloading the main microcontroller.
+
+<img width="1200" height="1200" alt="modulo-mpu6050-acelerometro-giroscopio-i2c" src="https://github.com/user-attachments/assets/da02f10c-e98b-41c9-a799-f0f82457208e" />
+
+
+| **Extent** | **Worth** |
+|------------|-----------|
+| Largo      | 21.2 mm   |
+| Ancho      | 16.4 mm   |
+| Alto       | 3.3 mm    |
+| Peso       | 2.1 g     |
 
 
 ### 3.3 Processing Units 
