@@ -98,7 +98,7 @@ This entire development process has been backed by detailed documentation that n
 
 ### 3.2 Sensor and Camera
 
-## VL53L0X Distance Sensor
+#### VL53L0X Distance Sensor
 
 For this project, we selected the **VL53L0X** sensor due to three key advantages:
 
