@@ -156,18 +156,17 @@ Key advantages of the modified device:
 
 #### Dimensions Comparison (Webcam)
 
+
 <div align="center">
   <i>Before</i>
   <br>
  <img width="1024" height="1024" alt="productos34_25510" src="https://github.com/user-attachments/assets/64d0bc72-e8c2-4080-8f3f-c7b37652012b" />
 </div> 
 
-Aquí tu texto normal que volverá a estar alineado a la izquierda...
-
 
 |          **State**           |**Long** |**Broad**|**High**|
 |------------------------------|---------|---------|--------|
-| **With Casing (Original)**   |  80 mm  |  40 mm  |  33 mm |
+| With Casing (Original)       | 80 mm   | 40 mm   | 33 mm  |
 
 
 <div align="center">
@@ -179,7 +178,7 @@ Aquí tu texto normal que volverá a estar alineado a la izquierda...
  
 |          **State**           |**Long** |**Broad**|**High**|
 |------------------------------|---------|---------|--------|
-| **Without Casing (Modified)**|  25 mm  | 28.5 mm |   2mm  |
+| Without Casing (Modified)    | 25 mm   | 28.5 mm | 2mm    |
 
 
 ### 3.3 Processing Units 
@@ -192,18 +191,19 @@ Equipped with a 1.4 GHz 64-bit ARM Cortex-A53 processor, the Raspberry Pi 3 B+ i
   
 - **Portability**: The Raspberry Pi 3 B+ stands out among controllers; weighing just 45 g, it is lightweight, making it a practical and reliable choice for integration into the Eva 01.
 
+
 <div align="center">
  <i>Raspberry Pi 3 B+</i>
  <img width="1200" height="1200" alt="raspberry-pi-3-b-plus" src="https://github.com/user-attachments/assets/fb22d270-ab59-46c8-af45-43ecbb1fe371" />
  <br>
 </div>
 
-| Dimension | Value |
-|-----------|-------|
-| Length    | 85 mm |
-| Height    | 17 mm |
-| Width     | 56 mm |
-| Weight    | 45 g  |
+|**Dimension**|**Value**|
+|-------------|---------|
+| Length      | 85 mm   |
+| Height      | 17 mm   |
+| Width       | 56 mm   |
+| Weight      | 45 g    |
 
 ### 3.4 Circuit Diagram 
 
