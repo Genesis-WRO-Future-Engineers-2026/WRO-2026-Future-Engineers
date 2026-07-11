@@ -155,11 +155,14 @@ Key advantages of the modified device:
 - **High speed and resolution**: It maintains 1080p FHD capture, processing sharp images in real-time—a critical factor for decision-making while the vehicle is in motion.
 
 #### Dimensions Comparison (Webcam)
+
 <div align="center">
- <i>Before</i>
+  <i>Before</i>
+  <br>
  <img width="1024" height="1024" alt="productos34_25510" src="https://github.com/user-attachments/assets/64d0bc72-e8c2-4080-8f3f-c7b37652012b" />
- <br>
-</p> 
+</div> 
+
+Aquí tu texto normal que volverá a estar alineado a la izquierda...
 
 
 |          **State**           |**Long** |**Broad**|**High**|
@@ -171,7 +174,7 @@ Key advantages of the modified device:
  <i>After</i>
  <img width="1702" height="1599" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
  <br>
-</p>
+</div>
   
  
 |          **State**           |**Long** |**Broad**|**High**|
@@ -188,6 +191,12 @@ Equipped with a 1.4 GHz 64-bit ARM Cortex-A53 processor, the Raspberry Pi 3 B+ i
 - **Power**: The Raspberry Pi 3 B+ offers efficient, balanced performance; thanks to this, demanding tasks—such as real-time image processing—are easily handled by the device.
   
 - **Portability**: The Raspberry Pi 3 B+ stands out among controllers; weighing just 45 g, it is lightweight, making it a practical and reliable choice for integration into the Eva 01.
+
+<div align="center">
+ <i>Raspberry Pi 3 B+</i>
+ <img width="1200" height="1200" alt="raspberry-pi-3-b-plus" src="https://github.com/user-attachments/assets/fb22d270-ab59-46c8-af45-43ecbb1fe371" />
+ <br>
+</div>
 
 | Dimension | Value |
 |-----------|-------|
