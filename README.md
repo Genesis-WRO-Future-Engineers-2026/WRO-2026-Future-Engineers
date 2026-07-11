@@ -169,6 +169,7 @@ Key advantages of the modified device:
 | With Casing (Original)       | 80 mm   | 40 mm   | 33 mm  |
 
 
+
 <div align="center">
  <i>After</i>
  <img width="1702" height="1599" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
@@ -179,6 +180,7 @@ Key advantages of the modified device:
 |          **State**           |**Long** |**Broad**|**High**|
 |------------------------------|---------|---------|--------|
 | Without Casing (Modified)    | 25 mm   | 28.5 mm | 2mm    |
+
 
 
 ### 3.3 Processing Units 
@@ -204,6 +206,15 @@ Equipped with a 1.4 GHz 64-bit ARM Cortex-A53 processor, the Raspberry Pi 3 B+ i
 | Height      | 17 mm   |
 | Width       | 56 mm   |
 | Weight      | 45 g    |
+
+While the Raspberry Pi 3 B+ is capable of real-time image processing, we recognized that it needed some assistance to avoid being overloaded by the sensors; consequently, we decided to incorporate an ESP32-S2 Mini to control the sensors and their actuators in order to achieve the necessary level of processing.
+
+|**Dimension**|**Value**|
+|-------------|---------|
+| Length      | 34,3 mm |
+| Height      | 17 mm   |
+| Width       | 25,4 mm |
+| Weight      | 5,31 g  |
 
 ### 3.4 Circuit Diagram 
 
