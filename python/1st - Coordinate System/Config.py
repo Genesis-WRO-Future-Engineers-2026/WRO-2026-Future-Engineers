@@ -72,3 +72,16 @@ FARTHEST_HYSTERESIS = 150.0   # Histéresis en mm para evitar vibraciones del se
 DEG_TO_RAD = math.pi / 180.0
 RAD_TO_DEG = 180.0 / math.pi
 SIN_45_DEG = 0.7071067811     # Factor trigonométrico fijo para áreas
+
+# --- Parámetros de Pure Pursuit por Coordenadas ---
+LOOKAHEAD_PURE_PURSUIT = 150.0  # Ld en mm
+
+
+# --- Trayectoria Predefinida en Boxes (Waypoints en mm) ---
+TRAYECTORIA = [
+    {"x": 0.0,    "y": 0.0},
+    {"x": 600.0,  "y": 0.0},    # Avanzar 60 cm recto
+    {"x": 900.0,  "y": 400.0},  # Curva abierta diagonal
+    {"x": 600.0,  "y": 800.0},  # Retorno
+    {"x": 0.0,    "y": 0.0}     # Volver al inicio
+]

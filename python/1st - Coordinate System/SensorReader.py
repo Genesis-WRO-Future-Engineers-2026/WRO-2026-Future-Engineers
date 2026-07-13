@@ -3,8 +3,10 @@ import time
 from machine import Pin, I2C
 from vl53l0x import VL53L0X
 import Config
+from Kalman import KalmanFilter1D  # Filtro Kalman 1D
 
 class SensorData:
+
     def __init__(self):
         self.distance = 0
         self.valid = False
@@ -15,6 +17,9 @@ class SensorReader:
         self._sensor_data = [SensorData() for _ in range(Config.NUM_SENSORS)]
         self._sensors = []
         self._i2c = None
+        self.historial_sensores = [[] for _ in range(Config.NUM_SENSORS)]
+        self.kalman = KalmanFilter1D()
+        self.VENTANA_FILTRO = 4 #Hacer variable de Config o variable de clase.
 
     def begin(self):
         # Inicializa I2C a 400 kHz (Wire.setClock(400000))
@@ -88,3 +93,28 @@ class SensorReader:
     def get_all_data(self):
         # Equivalente al const SensorData* getAllData()
         return self._sensor_data
+    
+    def get_filtered_data(self):
+        """
+        Recorre sensor a sensor usando un ciclo for interno.
+        Devuelve una lista limpia de 5 elementos con distancias promediadas.
+        """
+        distancias_filtradas = []
+        for i in range(Config.NUM_SENSORS):
+            lectura_cruda = self._sensor_data[i].distance
+            
+            # Descarte de picos erróneos (Outliers)
+            if lectura_cruda > 4000 or lectura_cruda < 0:
+                if len(self.historial_sensores[i]) > 0:
+                    lectura_cruda = self.historial_sensores[i][-1]
+                else:
+                    lectura_cruda = 0
+            
+            self.historial_sensores[i].append(lectura_cruda)
+            if len(self.historial_sensores[i]) > self.VENTANA_FILTRO:
+                self.historial_sensores[i].pop(0)
+                
+            promedio = sum(self.historial_sensores[i]) / len(self.historial_sensores[i])
+            distancias_filtradas.append(promedio)
+            
+        return distancias_filtradas
