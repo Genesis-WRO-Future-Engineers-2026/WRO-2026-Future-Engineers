@@ -24,7 +24,7 @@ Bienvenidos a nuestro repositorio. Somos un grupo estudiantil dedicado a la rob�
 
 <!-- toc -->
 
-- [1. 📚Descripción general](#1-descripcion-general)
+- [1. 📚Descripción general](#1-descripción-general)
   - [1.1 Sobre el proyecto](#11-sobre-el-proyecto)
   - [1.2 Imagenes robot](#12-imagenes-robot)
   - [1.3 Video demostrativo](#13-video-demostrativo)
@@ -139,11 +139,11 @@ Ventajas clave del dispositivo:
 
 
 |**Dimensiones**|**Valor**|
-|-------------|-----------|
-| Largo       | 21.2 mm   |
-| Ancho       | 16.4 mm   |
-| Alto        | 3.3 mm    |
-| Peso        | 2.1 g     |
+|---------------|---------|
+| Largo         | 21.2 mm |
+| Ancho         | 16.4 mm |
+| Alto          | 3.3 mm  |
+| Peso          | 2.1 g   |
 
 #### Cámara de visión artificial (cámara web FHD de 1080p modificada)
 
@@ -222,54 +222,53 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 
 
 
-### 3.4 Circuit Diagram 
+### 3.4 Diagrama eléctrico 
 
-### 3.5 Power Consumption
-
-<p align="right">
-  <a href="#top">Back To Top</a>
-</p>
-
-## 4. 📐Software architecture and obstacle strategy
-
-### 4.1 Open Challenge
-
-### 4.2 Obstacle Challenge
-
-### 4.3 Parallel Parking
+### 3.5 Consumo de energía
 
 <p align="right">
   <a href="#top">Back To Top</a>
 </p>
 
-## 5. ⚙Systems thinking and engineering decisions
+## 4. 📐Arquitectura de software y estrategia para obstáculos
+
+### 4.1 Reto abierto
+
+### 4.2 Reto de osbtáculos
+
+### 4.3 Estacionamiento en paralelo
+
+<p align="right">
+  <a href="#top">Back To Top</a>
+</p>
+
+## 5. ⚙Pensamiento sistémico y decisiones de ingeniería
    
-### 5.1 Code Structure
+### 5.1 Estructura del código
 
-### 5.2 Compilation / Upload Instructions
 
 <p align="right">
   <a href="#top">Back To Top</a>
 </p>
 
-## 6. 📝List of Components
+## 6. 📝Lista de componentes
 
 <p align="right">
   <a href="#top">Back To Top</a>
 </p>
 
-## 7. 💎3D Model Files
+## 7. 💎Archivos de modelos 3D
 
-### 7.1 STL Files
+### 7.1 Archivos STL
 
-### 7.2 Modified Files
+### 7.2 Aarchivos modificados
 
 <p align="right">
   <a href="#top">Back To Top</a>
 </p>
 
 
-## 8. 🛠️Building Instructions
+## 8. 🛠️Instrucciones de montaje
 
 <p align="right">
   <a href="#top">Back To Top</a>
