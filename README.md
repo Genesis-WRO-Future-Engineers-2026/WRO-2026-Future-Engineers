@@ -211,7 +211,14 @@ Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, la Raspberry Pi 
 | Anchura     | 56 mm   |
 | Peso        | 45 g    |
 
-Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos dimos cuenta de que necesitaba algo de ayuda para evitar que se sobrecargara de información; por ello, decidimos incorporar un ESP32-S2 Mini para controlar los sensores y sus actuadores con el fin de alcanzar el nivel de procesamiento necesario.
+Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos dimos cuenta de que necesitaba algo de ayuda para evitar que se sobrecargara de información; por ello, decidimos incorporar un ESP32-S2 Mini para controlar los sensores y sus actuadores con el fin de alcanzar el nivel de procesamiento necesario. Asimismo, aprovechamos la conectividad Wi-Fi integrada de este microcontrolador para transmitir y visualizar en tiempo real (únicamente  durante las prácticas) las lecturas de los sensores a traves de una app realizada en Firebase.
+
+
+<div align="center">
+ <i>Raspberry Pi 3 B+</i>
+ <img width="447" height="447" alt="1783780004798" src="https://github.com/user-attachments/assets/cfa1950d-ffea-486f-afad-d26f989b30ea" />
+ <br>
+</div>
 
 |**Dimensión**|**Valor**|
 |-------------|---------|
