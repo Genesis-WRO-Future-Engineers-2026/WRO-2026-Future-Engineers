@@ -1,197 +1,201 @@
-# Hello! We are the Génesis team from Venezuela.
+# ¡Hola! Somos el equipo Génesis de Venezuela.
 <img width="903" height="675" alt="2afa2ad2-66f1-48aa-bc96-628adb1001fa" src="https://github.com/user-attachments/assets/f253592e-f094-4885-bef9-549df2e346e6" />
 
-# WRO - Future Engineers - Robotics Project Documentation
+# WRO - Future Engineers - Documentación del proyecto de robótica
 
-## 👥Team Members
+## 👥Miembros del equipo
 - **Johelis Acosta**
-  *Role*: Electronics and Mechanics
+ *Rol*: Electrónica y mecánica
 - **Miguel Mejías**
-  *Role*: Programmer
+ *Rol*: Programador
 - **Wilber Pacheco**
-*Role*: Designer
+ *Rol*: Diseñador
 
-## 🧑🏻‍🔧Coach
+## 🧑🏻‍🔧Entrenador
 - **Oswal Melean**
-  *Mechanical Engineer*
+  *Ingeniero mecánico*
 
-Welcome to our repository. We are a student group dedicated to robotics and innovation, and in this space we document our design process: hardware architecture, code development, parts selection, and the robot's testing history.
+
+Bienvenidos a nuestro repositorio. Somos un grupo estudiantil dedicado a la robótica y la innovación, y en este espacio documentamos nuestro proceso de diseño: arquitectura de hardware, desarrollo de código, selección de componentes y el historial de pruebas del robot.
 
 <a name="top"></a>
 
-## 🔍Table of Contents
+## 🔍Tabla de contenido
 
 <!-- toc -->
 
-- [1. 📚Overview](#1-overview)
-  - [1.1 About the Project](#11-about-the-project)
-  - [1.2 Robot Images](#12-robot-images)
-  - [1.3 Performance Video](#13-performance-video)
-- [2. 🔩Mobility and mechanical design](#2-mobility-and-mechanical-design)
-  - [2.1 Drive System](#21-drive-system)
-  - [2.2 Steering](#22-steering)
-  - [2.3 Chassis Design](#23-chassis-design)
--  [3. 🔋Power architecture and sensors](#3-Power-architecture-and-sensors)
-   - [3.1 Power Source](#31-power-source)
-   - [3.2 Sensors and Camera](#32-sensors-and-camera)
-   - [3.3 Processing Units](#33-processing-units)
-   - [3.4 Circuit Diagram](#34-circuit-diagram)
-   - [3.5 Power Consumption](#35-power-consumption)
-- [4. 📐Software architecture and obstacle strategy](#4-Software-architecture-and-obstacle-strategy)
-  - [4.1 Open Challenge](#41-open-challenge)
-  - [4.2 Obstacle Challenge](#42-obstacle-challenge)
-  - [4.3 Parallel Parking](#43-parallel-parking)
-- [5. ⚙Systems thinking and engineering decisions](#5-Systems-thinking-and-engineering-decisions)
-  - [5.1 Code Structure](#52-code-structure)
-  - [5.2 Compilation / Upload Instructions](#53-compilation--upload-instructions)
-- [6. 📝List of Components](#6-list-of-components)
-- [7. 💎3D Model Files](#7-3d-model-files)
-  - [7.1 STL Files](#72-stl-files)
-  - [7.2 Modified Files](#73-slicer-files)
-- [8. 🛠️Building Instructions](#8-building-instructions)
+- [1. 📚Descripción general](#1-descripcion-general)
+  - [1.1 Sobre el proyecto](#11-sobre-el-proyecto)
+  - [1.2 Imagenes robot](#12-imagenes-robot)
+  - [1.3 Video demostrativo](#13-video-demostrativo)
+- [2. 🔩Movilidad y diseño mecánico](#2-movilidad-y-diseño-mecánico)
+  - [2.1 Sistema de tracción](#21-sistema-de-tracción)
+  - [2.2 Dirección](#22-direccion)
+  - [2.3 Diseño del chasis](#23-diseño-del-chasis)
+-  [3. 🔋Arquitectura de potencia y sensores](#3-arquitectura-de-potencia-y-sensores)
+   - [3.1 Fuente de alimentación](#31-fuente-de-alimentación)
+   - [3.2 Sensores y cámara](#32-sensores-y-cámara)
+   - [3.3 Unidades de procesamiento](#33-unidades-de-procesamiento)
+   - [3.4 Diagrama eléctrico](#34-diagrama-eléctrico)
+   - [3.5 Consumo de energía](#35-consumo-de-energía)
+- [4. 📐Arquitectura de software y estrategia para obstáculos](#4-arquitectura-de-software-y-estrategia-para-sortear-obstáculos)
+  - [4.1 Reto abierto](#41-reto-abierto)
+  - [4.2 Reto de obstáculos](#42-reto-de-obstáculos)
+  - [4.3 Estacionamiento en paralelo](#43-estacionamiento-en-paralelo)
+- [5. ⚙Pensamiento sistémico y decisiones de ingeniería](#5-pensamiento-sistémico-y-decisiones-de-ingeniería)
+  - [5.1 Estructura del código](#52-estructura-del-código)
+- [6. 📝Lista de componentes](#6-lista-de-componentes)
+- [7. 💎Archivos de modelos 3D](#7-archivos-de-modelos-3d)
+  - [7.1 Archivos STL](#72-archivos-stl)
+  - [7.2 Archivos modificados](#73-archivos-de-slicer)
+- [8. 🛠️Instrucciones de montaje](#8-instrucciones-de-montaje)
+
 
   
     <!-- tocstop -->
 
-## 1. 📚Overview
+## 1. 📚Descripción general
 
-### 1.1 About the Project
+### 1.1 Sobre el proyecto
 
-This project focuses on the design, construction, and programming of an autonomous vehicle capable of overcoming the complex challenges and obstacles of the WRO Future Engineers competition with precision and speed.
+Este proyecto se centra en el diseño, la construcción y la programación de un vehículo autónomo capaz de superar con precisión y rapidez los retos y obstáculos de la competición «WRO Future Engineers».
 
-For Team Genesis, this challenge represents the perfect opportunity to put theory into practice, combining a passion for technological innovation with creative problem-solving through a systematic process of research, prototyping, and constant iteration.
+Para el equipo Genesis, este reto representa la oportunidad perfecta para poner en práctica la teoría, combinando la pasión por la innovación tecnológica con la resolución creativa de problemas a través de un proceso sistemático de investigación, creación de prototipos e iteración constante.
 
-Our robot’s structure is based on a robust architecture inspired by the *zcar* hardware (https://github.com/alexyu132/zcar). We subjected this design to an extensive re-engineering process using Fusion 360 and Blender to optimize screw and nut housing dimensions, as well as to customize parts for a perfect fit of our components.
+La estructura de nuestro robot se basa en una arquitectura robusta inspirada en el hardware *zcar* (https://github.com/alexyu132/zcar). Hemos sometido este diseño a un exhaustivo proceso de reingeniería utilizando Fusion 360 y Blender para optimizar las dimensiones de los alojamientos de tornillos y tuercas, así como para personalizar las piezas y lograr un ajuste perfecto de nuestros componentes.
 
-The system's core is controlled by a Raspberry Pi 3 B+ that manages the main logic, supported by an ESP32 S2 Mini module to control the sensors and motors. To achieve precise navigation and efficient obstacle avoidance, the robot integrates Time-of-Flight (ToF) sensors alongside a gyroscope for stabilization and track orientation.
+El núcleo del sistema está controlado por una Raspberry Pi 3 B+, que gestiona la lógica principal, con el apoyo de un módulo ESP32 S2 Mini para controlar los sensores y actuadores. Para lograr una navegación precisa y una evitación eficiente de obstáculos, el robot integra sensores de tiempo de vuelo (ToF) junto con un giroscopio para la estabilización y la orientación de la trayectoria.
 
-This entire development process has been backed by detailed documentation that not only optimizes our workflow but also demonstrates our technical and collaborative skills, as well as our commitment to hands-on learning.
-
-### 1.2 Robot Images
-
-### 1.3 Performance Video
-
-[Part 1: Open Challenge Video]()
-
-[Part 2: Obstacle Challenge Video]()
+Todo este proceso de desarrollo ha estado respaldado por una documentación detallada que no solo optimiza nuestro flujo de trabajo, sino que también demuestra nuestras habilidades técnicas y de colaboración, así como nuestro compromiso con el aprendizaje práctico.
 
 
-<p align="right">
-  <a href="#top">Back To Top</a>
-</p>
+### 1.2 Imagenes robot
 
-## 2. 🔩Mobility and mechanical design
+### 1.3 Video demostrativo
 
-### 2.1 Drive System
+[Parte 1: Vídeo del reto abierto]()
 
-### 2.2 Steering
+[Parte 2: Vídeo del reto de obstáculos]()
 
-### 2.3 Chassis Design
+
 
 <p align="right">
   <a href="#top">Back To Top</a>
 </p>
 
-## 3. 🔋Power architecture and sensors
+## 2. 🔩Movilidad y diseño mecánico
 
-### 3.1 Power Source
+### 2.1 Sistema de tracción
 
-### 3.2 Sensor and Camera
+### 2.2 Dirección
 
-#### VL53L0X Distance Sensor
+### 2.3 Diseño del chasis
 
-The VL53L0X is a small, popular distance sensor that uses Time-of-Flight (ToF) technology to measure the distance to an object by emitting a pulse of invisible infrared laser light and calculating the time it takes to return.
+<p align="right">
+  <a href="#top">Back To Top</a>
+</p>
 
-We selected it for this project due to three key advantages:
+## 3. 🔋Arquitectura de potencia y sensores
 
--  **Ultra-compact size**: Its small footprint allows for easy integration into tight spaces without compromising the prototype's design.
+### 3.1 Fuente de alimentación
+
+### 3.2 Sensores y cámara
+
+#### Sensor de distancia VL53L0X
+
+El VL53L0X es un sensor de distancia pequeño y muy utilizado que emplea la tecnología de tiempo de vuelo (ToF) para medir la distancia a un objeto mediante la emisión de un pulso de luz láser infrarroja invisible y el cálculo del tiempo que tarda en regresar.
+
+Lo hemos elegido para este proyecto debido a tres ventajas clave:
+
+-  **Tamaño ultracompacto**: su reducido tamaño permite integrarlo fácilmente en espacios reducidos sin comprometer el diseño del prototipo.
   
--  **Easy integration**: It offers excellent compatibility and ready-to-use libraries, drastically simplifying programming.
+-  **Fácil integración**: ofrece una excelente compatibilidad y bibliotecas listas para usar, lo que simplifica enormemente la programación.
   
--  **High speed**: It is capable of performing laser-based distance measurements in record time, ensuring fast, accurate, real-time readings.
-  
+-  **Alta velocidad**: es capaz de realizar mediciones de distancia por láser en un tiempo récord, lo que garantiza lecturas rápidas, precisas y en tiempo real.
+
   <img width="800" height="800" alt="GY-53VL53L0XLaserToFFlightTimeRangeSensorfront_1" src="https://github.com/user-attachments/assets/66a3e217-320e-4afe-9cc8-b6d77926fc41" />
 
 
-| **Extent** | **Value** |
-|------------|-----------|
-| Largo      | 25 mm     |
-| Alto       | 1 mm      |
-| Ancho      | 10.7 mm   |
-| Peso       | 0.8 g     |
-
-#### Inertial Measurement Unit (IMU MPU-6050) Sensor
-
-The MPU-6050 is a widely used Inertial Measurement Unit (IMU) that integrates a 3-axis gyroscope and a 3-axis accelerometer onto a single chip. It uses this combination to accurately measure linear acceleration and angular velocity, enabling the determination of the prototype's orientation, tilt, and movement in space.
-
-Key advantages of the device:
-
-- **Ultra-compact size**: By integrating the accelerometer and gyroscope onto a tiny board, it maximizes space efficiency within our circuit.
+|**Dimensiones**|**Valor**|
+|---------------|---------|
+| Largo         | 25 mm   |
+| Alto          | 1 mm    |
+| Ancho         | 10,7 mm |
+| Peso          | 0,8 g   |
   
-- **Easy integration**: Thanks to I2C protocol communication and a vast array of available libraries, setup and data reading are extremely straightforward.
+#### Sensor de unidad de medición inercial (IMU MPU-6050)
+
+El MPU-6050 es una unidad de medición inercial (IMU) muy utilizada que integra un giroscopio de 3 ejes y un acelerómetro de 3 ejes en un único chip. Utiliza esta combinación para medir con precisión la aceleración lineal y la velocidad angular, lo que permite determinar la orientación, la inclinación y el movimiento del prototipo en el espacio.
+
+Ventajas clave del dispositivo:
+
+- **Tamaño ultracompacto**: al integrar el acelerómetro y el giroscopio en una placa minúscula, maximiza la eficiencia del espacio dentro de nuestro circuito.
   
-- **High speed**: It features an internal Digital Motion Processor (DMP) that rapidly executes complex algorithms, delivering stable, real-time data without overloading the main microcontroller.
+- **Fácil integración**: gracias a la comunicación mediante el protocolo I2C y a una amplia gama de bibliotecas disponibles, la configuración y la lectura de datos son extremadamente sencillas.
+  
+- **Alta velocidad**: cuenta con un procesador de movimiento digital (DMP) interno que ejecuta rápidamente algoritmos complejos, proporcionando datos estables en tiempo real sin sobrecargar el microcontrolador principal.
 
 <img width="1200" height="1200" alt="modulo-mpu6050-acelerometro-giroscopio-i2c" src="https://github.com/user-attachments/assets/da02f10c-e98b-41c9-a799-f0f82457208e" />
 
 
-| **Extent** | **Value** |
-|------------|-----------|
-| Largo      | 21.2 mm   |
-| Ancho      | 16.4 mm   |
-| Alto       | 3.3 mm    |
-| Peso       | 2.1 g     |
+|**Dimensiones**|**Valor**|
+|-------------|-----------|
+| Largo       | 21.2 mm   |
+| Ancho       | 16.4 mm   |
+| Alto        | 3.3 mm    |
+| Peso        | 2.1 g     |
 
-#### Computer Vision Camera (Modified 1080p FHD Webcam)
+#### Cámara de visión artificial (cámara web FHD de 1080p modificada)
 
-To equip the vehicle with a computer vision system, we integrated a high-definition (1080p FHD) webcam. However, because the original commercial unit—including its casing and mount—was too large and heavy (80 mm x 33 mm x 40 mm), we performed a hardware modification by removing the entire external plastic structure. This allowed us to extract the internal camera module, resulting in a functional circuit board measuring just **25 mm x 28.5 mm**.
+Para equipar el vehículo con un sistema de visión artificial, integramos una cámara web de alta definición (FHD de 1080p). Sin embargo, dado que la unidad comercial original (incluidas su carcasa y su soporte) era demasiado grande y pesada (80 mm x 33 mm x 40 mm), llevamos a cabo una modificación del hardware eliminando toda la estructura plástica externa. Esto nos permitió extraer el módulo interno de la cámara, lo que dio como resultado una placa de circuito funcional que mide tan solo **25 mm x 28,5 mm**.
 
-Key advantages of the modified device:
+Ventajas clave del dispositivo modificado:
 
-- **Ultra-compact size (post-modification)**: By drastically reducing its dimensions to just 25 mm x 28.5 mm, we were able to mount it on the front of the vehicle without compromising aerodynamics or the chassis design.
+- **Tamaño ultracompacto (tras la modificación)**: al reducir drásticamente sus dimensiones a tan solo 25 mm x 28,5 mm, pudimos montarlo en la parte delantera del vehículo sin comprometer la aerodinámica ni el diseño del chasis.
   
-- **Easy integration and stability**: Despite being disassembled, it retains native USB connectivity and direct compatibility with computer vision algorithms (such as OpenCV), simplifying programming.
+- **Fácil integración y estabilidad**: A pesar de estar desmontado, conserva la conectividad USB nativa y la compatibilidad directa con algoritmos de visión por ordenador (como OpenCV), lo que simplifica la programación.
   
-- **High speed and resolution**: It maintains 1080p FHD capture, processing sharp images in real-time—a critical factor for decision-making while the vehicle is in motion.
+- **Alta velocidad y resolución**: Mantiene la captura en 1080p FHD, procesando imágenes nítidas en tiempo real, un factor crítico para la toma de decisiones mientras el vehículo está en movimiento.
 
-#### Dimensions Comparison (Webcam)
+#### Comparación de dimensiones (cámara web)
 
 
 <div align="center">
-  <i>Before</i>
+  <i>Antes</i>
   <br>
  <img width="1024" height="1024" alt="productos34_25510" src="https://github.com/user-attachments/assets/64d0bc72-e8c2-4080-8f3f-c7b37652012b" />
 </div> 
 
 
-|          **State**           |**Long** |**Broad**|**High**|
-|------------------------------|---------|---------|--------|
-| With Casing (Original)       | 80 mm   | 40 mm   | 33 mm  |
+|          **Estado**          |**Largo** |**Ancho**|**Alto**|
+|------------------------------|----------|---------|--------|
+| Con carcasa (original)       | 80 mm    | 40 mm   | 33 mm  |
+
 
 
 
 <div align="center">
- <i>After</i>
+ <i>Después</i>
  <img width="1702" height="1599" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
  <br>
 </div>
   
  
-|          **State**           |**Long** |**Broad**|**High**|
-|------------------------------|---------|---------|--------|
-| Without Casing (Modified)    | 25 mm   | 28.5 mm | 2mm    |
+|          **Estado**          |**Largo** |**Ancho**|**Alto**|
+|------------------------------|----------|---------|--------|
+| Sin carcasa (modificado)     | 25 mm    | 28,5 mm | 2 mm   |
 
 
 
-### 3.3 Processing Units 
+### 3.3 Unidades de procesamiento 
 
-Equipped with a 1.4 GHz 64-bit ARM Cortex-A53 processor, the Raspberry Pi 3 B+ is our primary controller of choice. We decided to use the Raspberry Pi 3 B+ for several reasons, including:
+Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, la Raspberry Pi 3 B+ es nuestro controlador principal. Decidimos utilizar la Raspberry Pi 3 B+ por varias razones, entre ellas:
 
-- **Compatibility**: There are many components (such as standard USB webcams) that are easy to implement with the Raspberry Pi 3 B+.
+- **Compatibilidad**: hay muchos componentes (como las cámaras web USB estándar) que son fáciles de integrar con la Raspberry Pi 3 B+.
   
-- **Power**: The Raspberry Pi 3 B+ offers efficient, balanced performance; thanks to this, demanding tasks—such as real-time image processing—are easily handled by the device.
+- **Potencia**: la Raspberry Pi 3 B+ ofrece un rendimiento eficiente y equilibrado; gracias a ello, el dispositivo gestiona con facilidad tareas exigentes, como el procesamiento de imágenes en tiempo real.
   
-- **Portability**: The Raspberry Pi 3 B+ stands out among controllers; weighing just 45 g, it is lightweight, making it a practical and reliable choice for integration into the Eva 01.
+- **Portabilidad**: La Raspberry Pi 3 B+ destaca entre los controladores; con un peso de tan solo 45 g, es ligera, lo que la convierte en una opción práctica y fiable para su integración en el Eva 01.
 
 
 <div align="center">
@@ -200,21 +204,23 @@ Equipped with a 1.4 GHz 64-bit ARM Cortex-A53 processor, the Raspberry Pi 3 B+ i
  <br>
 </div>
 
-|**Dimension**|**Value**|
+|**Dimensión**|**Valor**|
 |-------------|---------|
-| Length      | 85 mm   |
-| Height      | 17 mm   |
-| Width       | 56 mm   |
-| Weight      | 45 g    |
+| Longitud    | 85 mm   |
+| Altura      | 17 mm   |
+| Anchura     | 56 mm   |
+| Peso        | 45 g    |
 
-While the Raspberry Pi 3 B+ is capable of real-time image processing, we recognized that it needed some assistance to avoid being overloaded by the sensors; consequently, we decided to incorporate an ESP32-S2 Mini to control the sensors and their actuators in order to achieve the necessary level of processing.
+Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos dimos cuenta de que necesitaba algo de ayuda para evitar que se sobrecargara de información; por ello, decidimos incorporar un ESP32-S2 Mini para controlar los sensores y sus actuadores con el fin de alcanzar el nivel de procesamiento necesario.
 
-|**Dimension**|**Value**|
+|**Dimensión**|**Valor**|
 |-------------|---------|
-| Length      | 34,3 mm |
-| Height      | 17 mm   |
-| Width       | 25,4 mm |
-| Weight      | 5,31 g  |
+| Longitud    | 34.3 mm |
+| Altura      | 25.4 mm |
+| Anchura     | 25.4 mm |
+| Peso        | 5.3 g   |
+
+
 
 ### 3.4 Circuit Diagram 
 
