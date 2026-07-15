@@ -215,7 +215,7 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 
 
 <div align="center">
- <i>Raspberry Pi 3 B+</i>
+ <i>ESP32-S2 Mini</i>
  <img width="447" height="447" alt="1783780004798" src="https://github.com/user-attachments/assets/cfa1950d-ffea-486f-afad-d26f989b30ea" />
  <br>
 </div>
