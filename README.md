@@ -231,6 +231,9 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 
 ### 3.4 Diagrama eléctrico 
 
+**Diagrama General:**
+
+
 ### 3.5 Consumo de energía
 
 <p align="right">
