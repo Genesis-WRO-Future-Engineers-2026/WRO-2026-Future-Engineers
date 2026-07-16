@@ -99,6 +99,8 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
 
 ### 3.1 Fuente de alimentación
 
+**Batería high performance**
+
 <table>
   <tr>
     <td align="center" width="300" >
@@ -110,12 +112,14 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
           <li>Capacidad: 1000 mAh</li>
           <li>Tensión nominal: 7.4 V 2S</li>
           <li>Corriente de descarga estándar: 75 C </li>
+          <li>Tiempo de carga: 1.25 Horas </li>
           <li>Peso: 84 g</li>
       </ul>
     </td>
   </tr>
 </table>
 
+Decidimos utilizar esta batería debido a su gran potencia
 
 ### 3.2 Sensores y cámara
 
