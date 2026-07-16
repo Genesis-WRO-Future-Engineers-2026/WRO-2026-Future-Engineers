@@ -99,6 +99,24 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
 
 ### 3.1 Fuente de alimentación
 
+<table>
+  <tr>
+    <td align="center" width="300" >
+    <img width="400" height="400" alt="baeria 7 4v" src="https://github.com/user-attachments/assets/86bdc3d4-b1c2-4ccb-b713-f20bda4fbcf7" />
+    </td>
+    <td>
+      <h3>Específicacones:</h3>
+      <ul>
+          <li>Capacidad: 1000 mAh</li>
+          <li>Tensión nominal: 7.4V 2S</li>
+          <li>Corriente de descarga estándar:75C </li>
+          <li>Peso: 84g</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+
 ### 3.2 Sensores y cámara
 
 #### Sensor de distancia VL53L0X
