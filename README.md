@@ -125,15 +125,12 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
 
 Para el Eva 01, diseñamos un sistema de distribución de energía centralizado a partir de una única batería, priorizando la estabilidad de la lógica de control frente al consumo de los motores.
 
-## ¿Por qué decidimos utilizar esta batería?
-Seleccionamos la batería **Turnigy Graphene Panther de 2 celdas (2S)** principalmente por su alta capacidad de entrega de corriente constante. Al trabajar con motores de tracción y un servomotor de dirección que se activan de forma simultánea, el sistema demanda picos de corriente muy elevados. La tecnología de esta batería nos garantiza que el flujo de energía sea masivo y constante, evitando caídas de tensión bruscas que podrían reiniciar o desestabilizar la Raspberry Pi o la ESP32-S2. Además, su excelente relación peso-potencia nos permite mantener el chasis ligero sin sacrificar la autonomía.
-
-
-## Flujo de Distribución y Aislamiento de Ruido
+Seleccionamos esta batería principalmente por su alta capacidad de entrega de corriente constante. Al trabajar con motores con tracción y un servomotor de dirección que se activan de forma simultánea, el sistema demanda picos de corriente muy elevados. La tecnología de esta batería nos garantiza que el flujo de energía sea masivo y constante, evitando caídas de tensión bruscas que podrían reiniciar o desestabilizar la Raspberry Pi 3 b+ o la ESP32-S2. Además, su excelente relación peso-potencia nos permite mantener el chasis ligero sin sacrificar la autonomía.
 
 Para evitar que el ruido inductivo de los motores interfiriera con los procesadores, decidimos dividir la alimentación en tres ramificaciones independientes:
 
 
+```text
                   ┌──► [Conversor Step-Down USB 5V] ──────► Raspberry Pi 3 B+ (Procesamiento)
                   │
 [Batería LiPo 2S]─┼──► [Regulador Lineal L7805] ────────► Servomotor (Dirección)
@@ -142,6 +139,7 @@ Para evitar que el ruido inductivo de los motores interfiriera con los procesado
                   │         └─► [ESP32-S2] (Lógica)
                   │
                   └──► [Divisor de Tensión] ────────────► Pin 14 ESP32-S2 (Monitoreo)
+```
 
 ### 3.2 Sensores y cámara
 
