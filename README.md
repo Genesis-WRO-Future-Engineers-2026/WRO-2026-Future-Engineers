@@ -108,9 +108,9 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
       <h3>Específicacones:</h3>
       <ul>
           <li>Capacidad: 1000 mAh</li>
-          <li>Tensión nominal: 7.4V 2S</li>
-          <li>Corriente de descarga estándar:75C </li>
-          <li>Peso: 84g</li>
+          <li>Tensión nominal: 7.4 V 2S</li>
+          <li>Corriente de descarga estándar: 75 C </li>
+          <li>Peso: 84 g</li>
       </ul>
     </td>
   </tr>
