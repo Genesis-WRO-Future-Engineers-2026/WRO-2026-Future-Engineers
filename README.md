@@ -15,6 +15,7 @@
 - **Oswal Melean**
   *Ingeniero mecánico*
 
+---
 
 Bienvenidos a nuestro repositorio. Somos un grupo estudiantil dedicado a la robótica y la innovación, y en este espacio documentamos nuestro proceso de diseño: arquitectura de hardware, desarrollo de código, selección de componentes y el historial de pruebas del robot.
 
@@ -104,22 +105,43 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
 <table>
   <tr>
     <td align="center" width="300" >
-    <img width="400" height="400" alt="baeria 7 4v" src="https://github.com/user-attachments/assets/86bdc3d4-b1c2-4ccb-b713-f20bda4fbcf7" />
+   <img width="566" height="415" alt="bateria" src="https://github.com/user-attachments/assets/8a0b91f3-49cc-489a-985d-708b72915a56" />
     </td>
     <td>
       <h3>Específicacones:</h3>
       <ul>
-          <li>Capacidad: 1000 mAh</li>
-          <li>Tensión nominal: 7.4 V 2S</li>
-          <li>Corriente de descarga estándar: 75 C </li>
-          <li>Tiempo de carga: 1.25 Horas </li>
-          <li>Peso: 84 g</li>
+          <li>Modelo: Turnigy Graphene Panther</li>
+          <li>Voltaje nominal: 7.4 V 2S</li>
+          <li>Voltaje Máximo: 8.4 V (4.2 V por celda)</li>
+          <li>Voltaje de Corte Seguro: 6.4 V - 6.6 V (3.2 V - 3.3 V por celda)</li>
+          <li>Capacidad: 1000 mAh (1.0 Ah)</li>
+          <li> Tasa de Descarga: 75C constante</li>
+          <li>Tiempo de carga: 1.25 Horas</li>
       </ul>
     </td>
   </tr>
 </table>
 
-Decidimos utilizar esta batería debido a su gran potencia
+
+Para el Eva 01, diseñamos un sistema de distribución de energía centralizado a partir de una única batería, priorizando la estabilidad de la lógica de control frente al consumo de los motores.
+
+## ¿Por qué decidimos utilizar esta batería?
+Seleccionamos la batería **Turnigy Graphene Panther de 2 celdas (2S)** principalmente por su alta capacidad de entrega de corriente constante. Al trabajar con motores de tracción y un servomotor de dirección que se activan de forma simultánea, el sistema demanda picos de corriente muy elevados. La tecnología de esta batería nos garantiza que el flujo de energía sea masivo y constante, evitando caídas de tensión bruscas que podrían reiniciar o desestabilizar la Raspberry Pi o la ESP32-S2. Además, su excelente relación peso-potencia nos permite mantener el chasis ligero sin sacrificar la autonomía.
+
+
+## Flujo de Distribución y Aislamiento de Ruido
+
+Para evitar que el ruido inductivo de los motores interfiriera con los procesadores, decidimos dividir la alimentación en tres ramificaciones independientes:
+
+
+                  ┌──► [Conversor Step-Down USB 5V] ──────► Raspberry Pi 3 B+ (Procesamiento)
+                  │
+[Batería LiPo 2S]─┼──► [Regulador Lineal L7805] ────────► Servomotor (Dirección)
+                  │
+                  ├──► [Puente H TB6612FNG (Paralelo)] ──► Motor DC 6V (Tracción)
+                  │         └─► [ESP32-S2] (Lógica)
+                  │
+                  └──► [Divisor de Tensión] ────────────► Pin 14 ESP32-S2 (Monitoreo)
 
 ### 3.2 Sensores y cámara
 
