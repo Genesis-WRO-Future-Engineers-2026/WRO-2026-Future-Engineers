@@ -141,6 +141,19 @@ Para evitar que el ruido inductivo de los motores interfiriera con los procesado
                   └──► [Divisor de Tensión] ────────────► Pin 14 ESP32-S2 (Monitoreo)
 ```
 
+#### Alimentación de la Raspberry Pi 3 B+
+Utiliza un **conversor reductor (Step-Down) USB** conectado directo a la batería, garantizando el suministro estable y el amperaje continuo que requiere la Pi para procesar datos sin caídas de voltaje.
+
+#### Incremento de Torque (Puente H en Paralelo)
+Para maximizar la fuerza del motor de tracción de 6V, **conectamos en paralelo ambos canales del puente H TB6612FNG** (puenteando señales de control y salidas de potencia). Esto duplica la capacidad de corriente, evitando sobrecalentamientos ante altas exigencias mecánicas. La ESP32-S2 toma su alimentación lógica de esta etapa.
+
+#### Aislamiento del Servomotor de Dirección
+Alimentamos el servomotor de forma exclusiva con un regulador lineal **L7805** para aislar por completo el ruido que generan sus movimientos rápidos, protegiendo la estabilidad de los microcontroladores.
+
+#### Monitoreo y Protección de la Batería
+Implementamos un **divisor de tensión** conectado a un pin 14 de la ESP32-S2 para medir el voltaje de la batería de forma segura. Si el nivel de carga desciende de su límite crítico, el sistema activa un **LED de advertencia** para evitar la degradación de las celdas.
+
+
 ### 3.2 Sensores y cámara
 
 #### Sensor de distancia VL53L0X
