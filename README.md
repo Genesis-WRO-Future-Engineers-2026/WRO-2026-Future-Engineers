@@ -168,7 +168,7 @@ Lo hemos elegido para este proyecto debido a tres ventajas clave:
   
 -  **Alta velocidad**: es capaz de realizar mediciones de distancia por láser en un tiempo récord, lo que garantiza lecturas rápidas, precisas y en tiempo real.
 
-  <img width="800" height="800" alt="GY-53VL53L0XLaserToFFlightTimeRangeSensorfront_1" src="https://github.com/user-attachments/assets/66a3e217-320e-4afe-9cc8-b6d77926fc41" />
+  <img width="300" height="800" alt="GY-53VL53L0XLaserToFFlightTimeRangeSensorfront_1" src="https://github.com/user-attachments/assets/66a3e217-320e-4afe-9cc8-b6d77926fc41" />
 
 
 |**Dimensiones**|**Valor**|
@@ -190,7 +190,7 @@ Ventajas clave del dispositivo:
   
 - **Alta velocidad**: cuenta con un procesador de movimiento digital (DMP) interno que ejecuta rápidamente algoritmos complejos, proporcionando datos estables en tiempo real sin sobrecargar el microcontrolador principal.
 
-<img width="1200" height="1200" alt="modulo-mpu6050-acelerometro-giroscopio-i2c" src="https://github.com/user-attachments/assets/da02f10c-e98b-41c9-a799-f0f82457208e" />
+<img width="300" height="800" alt="modulo-mpu6050-acelerometro-giroscopio-i2c" src="https://github.com/user-attachments/assets/da02f10c-e98b-41c9-a799-f0f82457208e" />
 
 
 |**Dimensiones**|**Valor**|
@@ -218,7 +218,7 @@ Ventajas clave del dispositivo modificado:
 <div align="center">
   <i>Antes</i>
   <br>
- <img width="1024" height="1024" alt="productos34_25510" src="https://github.com/user-attachments/assets/64d0bc72-e8c2-4080-8f3f-c7b37652012b" />
+ <img width="300" height="800" alt="productos34_25510" src="https://github.com/user-attachments/assets/64d0bc72-e8c2-4080-8f3f-c7b37652012b" />
 </div> 
 
 
@@ -231,7 +231,7 @@ Ventajas clave del dispositivo modificado:
 
 <div align="center">
  <i>Después</i>
- <img width="1702" height="1599" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
+ <img width="300" height="800" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
  <br>
 </div>
   
@@ -255,7 +255,7 @@ Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, la Raspberry Pi 
 
 <div align="center">
  <i>Raspberry Pi 3 B+</i>
- <img width="1200" height="1200" alt="raspberry-pi-3-b-plus" src="https://github.com/user-attachments/assets/fb22d270-ab59-46c8-af45-43ecbb1fe371" />
+ <img width="300" height="800" alt="raspberry-pi-3-b-plus" src="https://github.com/user-attachments/assets/fb22d270-ab59-46c8-af45-43ecbb1fe371" />
  <br>
 </div>
 
@@ -271,7 +271,7 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 
 <div align="center">
  <i>ESP32-S2 Mini</i>
- <img width="447" height="447" alt="1783780004798" src="https://github.com/user-attachments/assets/cfa1950d-ffea-486f-afad-d26f989b30ea" />
+ <img width="300" height="800" alt="1783780004798" src="https://github.com/user-attachments/assets/cfa1950d-ffea-486f-afad-d26f989b30ea" />
  <br>
 </div>
 
