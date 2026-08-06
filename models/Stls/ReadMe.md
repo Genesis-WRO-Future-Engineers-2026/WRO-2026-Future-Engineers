@@ -1,1 +1,1 @@
-
+En esta carpeta están todos los stls que hemos diseñado para el prototipo, algunos de estos diseños fueron descartados en el prototipo final, por ello está la carpeta "Main Prototype" en la cuál están todos los diseños que si están en la fase final del prototipo.
