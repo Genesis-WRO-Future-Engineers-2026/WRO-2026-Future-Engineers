@@ -1,4 +1,4 @@
-# actuator.py
+#Actuator.py
 from machine import Pin, PWM
 
 import Config
