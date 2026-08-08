@@ -84,4 +84,4 @@ TRAYECTORIA = [
     {"x": 900.0,  "y": 400.0},  # Curva abierta diagonal
     {"x": 600.0,  "y": 800.0},  # Retorno
     {"x": 0.0,    "y": 0.0}     # Volver al inicio
-]
+] 	
