@@ -135,7 +135,7 @@ Para evitar que el ruido inductivo de los motores interfiriera con los procesado
 ```text
                   ┌──► [Conversor Step-Down USB 5V] ──────► Raspberry Pi 3 B+ (Procesamiento)
                   │
-[Batería LiPo 2S]─┼──► [Regulador Lineal L7805] ────────► Servomotor (Dirección)
+[Batería LiPo 2S]─┼──► [Regulador Lineal LM7805] ────────► Servomotor (Dirección)
                   │
                   ├──► [Puente H TB6612FNG (Paralelo)] ──► Motor DC 6V (Tracción)
                   │         └─► [ESP32-S2] (Lógica)
@@ -143,16 +143,16 @@ Para evitar que el ruido inductivo de los motores interfiriera con los procesado
                   └──► [Divisor de Tensión] ────────────► Pin 14 ESP32-S2 (Monitoreo)
 ```
 
-#### Alimentación de la Raspberry Pi 3 B+
+- **Alimentación de la Raspberry Pi 3 B+**
 Utiliza un **conversor reductor (Step-Down) USB** conectado directo a la batería, garantizando el suministro estable y el amperaje continuo que requiere la Pi para procesar datos sin caídas de voltaje.
 
-#### Incremento de Torque (Puente H en Paralelo)
+- **Incremento de Torque (Puente H en Paralelo)**
 Para maximizar la fuerza del motor de tracción de 6V, **conectamos en paralelo ambos canales del puente H TB6612FNG** (puenteando señales de control y salidas de potencia). Esto duplica la capacidad de corriente, evitando sobrecalentamientos ante altas exigencias mecánicas. La ESP32-S2 toma su alimentación lógica de esta etapa.
 
-#### Aislamiento del Servomotor de Dirección
-Alimentamos el servomotor de forma exclusiva con un regulador lineal **L7805** para aislar por completo el ruido que generan sus movimientos rápidos, protegiendo la estabilidad de los microcontroladores.
+- **Aislamiento del Servomotor de Dirección**
+Alimentamos el servomotor de forma exclusiva con un regulador lineal **LM7805** para aislar por completo el ruido que generan sus movimientos rápidos, protegiendo la estabilidad de los microcontroladores.
 
-#### Monitoreo y Protección de la Batería
+- **Monitoreo y Protección de la Batería**
 Implementamos un **divisor de tensión** conectado a un pin 14 de la ESP32-S2 para medir el voltaje de la batería de forma segura. Si el nivel de carga desciende de su límite crítico, el sistema activa un **LED de advertencia** para evitar la degradación de las celdas.
 
 
@@ -233,8 +233,8 @@ Ventajas clave del dispositivo modificado:
 
 <div align="center">
  <i>Después</i>
- <img width="300" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
  <br>
+ <img width="300" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
 </div>
   
  
