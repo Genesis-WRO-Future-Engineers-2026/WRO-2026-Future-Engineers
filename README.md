@@ -44,7 +44,9 @@ Bienvenidos a nuestro repositorio. Somos un grupo estudiantil dedicado a la rob�
   - [4.2 Reto de obstáculos](#42-reto-de-obstáculos)
   - [4.3 Estacionamiento en paralelo](#43-estacionamiento-en-paralelo)
 - [5. ⚙Pensamiento sistémico y decisiones de ingeniería](#5-pensamiento-sistémico-y-decisiones-de-ingeniería)
-  - [5.1 Estructura del código](#52-estructura-del-código)
+  - [5.1 Lenguajes de programación](#86-Lenguajes-de-programación)
+  - [5.2 Estructura del código](#52-estructura-del-código)
+  - [5.3 Librerías](#51-librerías)
 - [6. 📝Lista de componentes](#6-lista-de-componentes)
 - [7. 💎Archivos de modelos 3D](#7-archivos-de-modelos-3d)
   - [7.1 Archivos STL](#72-archivos-stl)
@@ -168,7 +170,7 @@ Lo hemos elegido para este proyecto debido a tres ventajas clave:
   
 -  **Alta velocidad**: es capaz de realizar mediciones de distancia por láser en un tiempo récord, lo que garantiza lecturas rápidas, precisas y en tiempo real.
 
-  <img width="300" height="800" alt="GY-53VL53L0XLaserToFFlightTimeRangeSensorfront_1" src="https://github.com/user-attachments/assets/66a3e217-320e-4afe-9cc8-b6d77926fc41" />
+  <img width="300" alt="GY-53VL53L0XLaserToFFlightTimeRangeSensorfront_1" src="https://github.com/user-attachments/assets/66a3e217-320e-4afe-9cc8-b6d77926fc41" />
 
 
 |**Dimensiones**|**Valor**|
@@ -190,7 +192,7 @@ Ventajas clave del dispositivo:
   
 - **Alta velocidad**: cuenta con un procesador de movimiento digital (DMP) interno que ejecuta rápidamente algoritmos complejos, proporcionando datos estables en tiempo real sin sobrecargar el microcontrolador principal.
 
-<img width="300" height="800" alt="modulo-mpu6050-acelerometro-giroscopio-i2c" src="https://github.com/user-attachments/assets/da02f10c-e98b-41c9-a799-f0f82457208e" />
+<img width="300" alt="modulo-mpu6050-acelerometro-giroscopio-i2c" src="https://github.com/user-attachments/assets/da02f10c-e98b-41c9-a799-f0f82457208e" />
 
 
 |**Dimensiones**|**Valor**|
@@ -218,7 +220,7 @@ Ventajas clave del dispositivo modificado:
 <div align="center">
   <i>Antes</i>
   <br>
- <img width="300" height="800" alt="productos34_25510" src="https://github.com/user-attachments/assets/64d0bc72-e8c2-4080-8f3f-c7b37652012b" />
+ <img width="300" alt="productos34_25510" src="https://github.com/user-attachments/assets/64d0bc72-e8c2-4080-8f3f-c7b37652012b" />
 </div> 
 
 
@@ -231,7 +233,7 @@ Ventajas clave del dispositivo modificado:
 
 <div align="center">
  <i>Después</i>
- <img width="300" height="800" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
+ <img width="300" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
  <br>
 </div>
   
@@ -239,8 +241,6 @@ Ventajas clave del dispositivo modificado:
 |          **Estado**          |**Largo** |**Ancho**|**Alto**|
 |------------------------------|----------|---------|--------|
 | Sin carcasa (modificado)     | 25 mm    | 28,5 mm | 2 mm   |
-
-
 
 ### 3.3 Unidades de procesamiento 
 
@@ -308,9 +308,10 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 </p>
 
 ## 5. ⚙Pensamiento sistémico y decisiones de ingeniería
-   
-### 5.1 Estructura del código
 
+### 5.1 Lenguajes de programación
+### 5.2 Estructura del código
+### 5.3 Librerías
 
 <p align="right">
   <a href="#top">Back To Top</a>
