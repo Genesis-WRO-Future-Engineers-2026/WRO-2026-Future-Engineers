@@ -218,8 +218,8 @@ Ventajas clave del dispositivo modificado:
 
 
 <div align="center">
-  <i>Antes</i>
-  <br>
+ <i>Antes</i>
+ <br>
  <img width="300" alt="productos34_25510" src="https://github.com/user-attachments/assets/64d0bc72-e8c2-4080-8f3f-c7b37652012b" />
 </div> 
 
@@ -242,6 +242,7 @@ Ventajas clave del dispositivo modificado:
 |------------------------------|----------|---------|--------|
 | Sin carcasa (modificado)     | 25 mm    | 28,5 mm | 2 mm   |
 
+
 ### 3.3 Unidades de procesamiento 
 
 Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, la Raspberry Pi 3 B+ es nuestro controlador principal. Decidimos utilizar la Raspberry Pi 3 B+ por varias razones, entre ellas:
@@ -255,7 +256,7 @@ Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, la Raspberry Pi 
 
 <div align="center">
  <i>Raspberry Pi 3 B+</i>
- <img width="300" height="800" alt="raspberry-pi-3-b-plus" src="https://github.com/user-attachments/assets/fb22d270-ab59-46c8-af45-43ecbb1fe371" />
+ <img width="300" alt="raspberry-pi-3-b-plus" src="https://github.com/user-attachments/assets/fb22d270-ab59-46c8-af45-43ecbb1fe371" />
  <br>
 </div>
 
@@ -266,12 +267,12 @@ Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, la Raspberry Pi 
 | Anchura     | 56 mm   |
 | Peso        | 45 g    |
 
-Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos dimos cuenta de que necesitaba algo de ayuda para evitar que se sobrecargara de información; por ello, decidimos incorporar un ESP32-S2 Mini para controlar los sensores y sus actuadores con el fin de alcanzar el nivel de procesamiento necesario. Asimismo, aprovechamos la conectividad Wi-Fi integrada de este microcontrolador para transmitir y visualizar en tiempo real (únicamente  durante las prácticas) las lecturas de los sensores a traves de una app realizada en Firebase.
+Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos dimos cuenta de que necesitaba algo de ayuda para evitar que se sobrecargara de información; por ello, decidimos incorporar un ESP32-S2 Mini para controlar los sensores y sus actuadores con el fin de alcanzar el nivel de procesamiento necesario. Asimismo, aprovechamos la conectividad Wi-Fi integrada de este microcontrolador para transmitir y visualizar en tiempo real (únicamente  durante las prácticas) las lecturas de los sensores a través de una app realizada en Firebase.
 
 
 <div align="center">
  <i>ESP32-S2 Mini</i>
- <img width="300" height="800" alt="1783780004798" src="https://github.com/user-attachments/assets/cfa1950d-ffea-486f-afad-d26f989b30ea" />
+ <img width="300" alt="1783780004798" src="https://github.com/user-attachments/assets/cfa1950d-ffea-486f-afad-d26f989b30ea" />
  <br>
 </div>
 
@@ -281,7 +282,6 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 | Altura      | 25.4 mm |
 | Anchura     | 25.4 mm |
 | Peso        | 5.3 g   |
-
 
 
 ### 3.4 Diagrama eléctrico 
