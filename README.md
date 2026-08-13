@@ -1,12 +1,16 @@
-# Génesis
+# Team Génesis
 <p align="center">
-<img width="400" alt="image" src="https://github.com/user-attachments/assets/186434e5-9674-4b2e-beba-e56628f5f638" />
+<img width="200" alt="image" src="https://github.com/user-attachments/assets/186434e5-9674-4b2e-beba-e56628f5f638" />
     <br>
     <i>Logo del Equipo</i>
 </p>
 
-# ¡Hola! Somos el equipo Génesis de Venezuela.
-<img width="903" height="675" alt="2afa2ad2-66f1-48aa-bc96-628adb1001fa" src="https://github.com/user-attachments/assets/f253592e-f094-4885-bef9-549df2e346e6" />
+<p align="center">
+<img width="300" alt="2afa2ad2-66f1-48aa-bc96-628adb1001fa" src="https://github.com/user-attachments/assets/f253592e-f094-4885-bef9-549df2e346e6" />
+    <br>
+    <i>Foto del Equipo</i>
+</p>
+
 
 # WRO - Future Engineers - Documentación del proyecto de robótica
 
@@ -78,6 +82,7 @@ El núcleo del sistema está controlado por una Raspberry Pi 3 B+, que gestiona 
 
 Todo este proceso de desarrollo ha estado respaldado por una documentación detallada que no solo optimiza nuestro flujo de trabajo, sino que también demuestra nuestras habilidades técnicas y de colaboración, así como nuestro compromiso con el aprendizaje práctico.
 
+---
 
 ### 1.2 Imagenes robot
 
@@ -162,6 +167,7 @@ Alimentamos el servomotor de forma exclusiva con un regulador lineal **LM7805** 
 - **Monitoreo y Protección de la Batería**
 Implementamos un **divisor de tensión** conectado a un pin 14 de la ESP32-S2 para medir el voltaje de la batería de forma segura. Si el nivel de carga desciende de su límite crítico, el sistema activa un **LED de advertencia** para evitar la degradación de las celdas.
 
+---
 
 ### 3.2 Sensores y cámara
 
@@ -249,6 +255,7 @@ Ventajas clave del dispositivo modificado:
 |------------------------------|----------|---------|--------|
 | Sin carcasa (modificado)     | 25 mm    | 28,5 mm | 2 mm   |
 
+---
 
 ### 3.3 Unidades de procesamiento 
 
@@ -295,12 +302,13 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 
 **Diagrama General:**
 
-
 ### 3.5 Consumo de energía
 
 <p align="right">
   <a href="#top">Back To Top</a>
 </p>
+
+--- 
 
 ## 4. 📐Arquitectura de software y estrategia para obstáculos
 
@@ -314,6 +322,8 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
   <a href="#top">Back To Top</a>
 </p>
 
+---
+
 ## 5. ⚙Pensamiento sistémico y decisiones de ingeniería
 
 ### 5.1 Lenguajes de programación
@@ -324,11 +334,15 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
   <a href="#top">Back To Top</a>
 </p>
 
+---
+
 ## 6. 📝Lista de componentes
 
 <p align="right">
   <a href="#top">Back To Top</a>
 </p>
+
+---
 
 ## 7. 💎Archivos de modelos 3D
 
@@ -340,6 +354,7 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
   <a href="#top">Back To Top</a>
 </p>
 
+---
 
 ## 8. 🛠️Instrucciones de montaje
 
