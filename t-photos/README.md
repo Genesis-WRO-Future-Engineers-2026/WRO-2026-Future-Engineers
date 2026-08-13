@@ -1,4 +1,4 @@
-<img width="1552" height="2560" alt="photo_4940677567413423082_w (1)" src="https://github.com/user-attachments/assets/289ad836-ff6c-4846-bb53-f41550717d1e" />
+<img width="810" height="1080" alt="WhatsApp Image 2026-08-12 at 8 35 38 PM" src="https://github.com/user-attachments/assets/0e1b0084-8e26-49db-a32c-392400135d6e" />
 
 **Edad:** 18 años
 
