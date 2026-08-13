@@ -1,4 +1,4 @@
-## The Team <a class="anchor" id="team"></a>
+## Equipo <a class="anchor" id="team"></a>
 
 ### Johelis Margarita Acosta
 <p align="center">
