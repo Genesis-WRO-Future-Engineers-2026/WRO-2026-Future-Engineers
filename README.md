@@ -1,3 +1,10 @@
+# Génesis
+<p align="center">
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/186434e5-9674-4b2e-beba-e56628f5f638" />
+    <br>
+    <i>Logo del Equipo</i>
+</p>
+
 # ¡Hola! Somos el equipo Génesis de Venezuela.
 <img width="903" height="675" alt="2afa2ad2-66f1-48aa-bc96-628adb1001fa" src="https://github.com/user-attachments/assets/f253592e-f094-4885-bef9-549df2e346e6" />
 
