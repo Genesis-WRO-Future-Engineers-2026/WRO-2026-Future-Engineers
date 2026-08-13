@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-<img width="300" alt="2afa2ad2-66f1-48aa-bc96-628adb1001fa" src="https://github.com/user-attachments/assets/f253592e-f094-4885-bef9-549df2e346e6" />
+<img width="500" alt="2afa2ad2-66f1-48aa-bc96-628adb1001fa" src="https://github.com/user-attachments/assets/f253592e-f094-4885-bef9-549df2e346e6" />
     <br>
     <i>Foto del Equipo</i>
 </p>
@@ -48,7 +48,7 @@ Bienvenidos a nuestro repositorio. Somos un grupo estudiantil dedicado a la rob�
    - [3.1 Fuente de alimentación](#31-fuente-de-alimentación)
    - [3.2 Sensores y cámara](#32-sensores-y-cámara)
    - [3.3 Unidades de procesamiento](#33-unidades-de-procesamiento)
-   - [3.4 Diagrama eléctrico](#34-diagrama-eléctrico)
+   - [3.4 Diagramas eléctricos](#34-diagramas-eléctricos)
    - [3.5 Consumo de energía](#35-consumo-de-energía)
 - [4. 📐Arquitectura de software y estrategia para obstáculos](#4-arquitectura-de-software-y-estrategia-para-sortear-obstáculos)
   - [4.1 Reto abierto](#41-reto-abierto)
@@ -98,6 +98,8 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
   <a href="#top">Back To Top</a>
 </p>
 
+---
+
 ## 2. 🔩Movilidad y diseño mecánico
 
 ### 2.1 Sistema de tracción
@@ -109,6 +111,8 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
 <p align="right">
   <a href="#top">Back To Top</a>
 </p>
+
+---
 
 ## 3. 🔋Arquitectura de potencia y sensores
 
@@ -298,9 +302,29 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 | Peso        | 5.3 g   |
 
 
-### 3.4 Diagrama eléctrico 
+### 3.4 Diagramas eléctricos
 
-**Diagrama General:**
+**Diagrama de Bloques del Sistema**
+<img width="759" height="497" alt="Screenshot 2026-08-13 171255" src="https://github.com/user-attachments/assets/0428b92b-efa9-4f69-9827-80dbb46955d8" />
+
+---
+
+**Diagrama sensores:**
+<img width="1831" height="800" alt="image" src="https://github.com/user-attachments/assets/f7d0c7e4-b720-42d1-a718-2b7bd4b22f5e" />
+
+---
+
+**Diagrama motores:**
+<img width="709" height="513" alt="Screenshot 2026-08-13 160948" src="https://github.com/user-attachments/assets/73f97e40-9a62-4a9d-83cd-e918896ecf00" />
+
+---
+
+**Diagrama divisor de voltaje:**
+<img width="494" height="194" alt="Screenshot 2026-08-13 161127" src="https://github.com/user-attachments/assets/70a9d07c-2ad4-43f9-81b9-58db1c98088c" />
+
+Tuvimos que decidir cómo integrar todo el circuito. Si dejábamos los componentes separados y conectados solo con cables sueltos, el sistema ocupaba demasiado espacio y resultaba muy desordenado. Por ello, optamos por diseñar y ensamblar nuestra propia placa soldando todo sobre una baquelita perforada. Esto nos permitió compactar considerablemente el circuito, mantener las conexiones ordenadas y fijas, y al mismo tiempo conservar la flexibilidad para corregir fallas o reemplazar componentes sin tener que rediseñar una PCB industrial.
+
+---
 
 ### 3.5 Consumo de energía
 
@@ -311,6 +335,21 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 --- 
 
 ## 4. 📐Arquitectura de software y estrategia para obstáculos
+
+En esta competición hay dos retos:
+
+- El **Desafío abierto** consiste en que el robot complete tres vueltas completas al circuito sin tocar la pared. Las dimensiones de cada lado del circuito y la dirección en la que circula el coche se determinan al azar.
+- El **Desafío con obstáculos** exige que el robot complete tres vueltas evitando las señales de tráfico. Si la señal es roja, el robot debe circular por el lado derecho; si es verde, debe circular por el lado izquierdo. La dirección en la que circula el carrito y la ubicación de las señales se determinan al azar. Tras la tercera vuelta, el carrito debe encontrar la zona del estacionamiento y estacionarse en ella sin tocar las barreras que la rodean.
+
+Nuestra implementación se basa en gran parte en los sensores y cámara para realizar un escaneo continuo del entorno, lo que ayuda al algoritmo a determinar el movimiento del robot.
+
+Dividimos la estrategia en tres fases:
+
+- Desafío abierto
+- Desafío de obstáculos
+- Maniobra de estacionamiento en paralelo
+
+---
 
 ### 4.1 Reto abierto
 
