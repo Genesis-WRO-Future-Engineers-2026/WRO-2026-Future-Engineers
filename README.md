@@ -1,6 +1,6 @@
 # Génesis
 <p align="center">
-<img width="400" height="400" alt="image" src="https://github.com/user-attachments/assets/186434e5-9674-4b2e-beba-e56628f5f638" />
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/186434e5-9674-4b2e-beba-e56628f5f638" />
     <br>
     <i>Logo del Equipo</i>
 </p>
