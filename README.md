@@ -310,7 +310,8 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 ---
 
 **Diagrama sensores:**
-<img width="1831" height="800" alt="image" src="https://github.com/user-attachments/assets/f7d0c7e4-b720-42d1-a718-2b7bd4b22f5e" />
+<img width="1360" height="930" alt="Screenshot 2026-08-13 185953" src="https://github.com/user-attachments/assets/8964bf4d-31b7-4cde-aa6c-380c50d4a4d6" />
+
 
 ---
 
@@ -322,7 +323,9 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 **Diagrama divisor de voltaje:**
 <img width="494" height="194" alt="Screenshot 2026-08-13 161127" src="https://github.com/user-attachments/assets/70a9d07c-2ad4-43f9-81b9-58db1c98088c" />
 
-Tuvimos que decidir cómo integrar todo el circuito. Si dejábamos los componentes separados y conectados solo con cables sueltos, el sistema ocupaba demasiado espacio y resultaba muy desordenado. Por ello, optamos por diseñar y ensamblar nuestra propia placa soldando todo sobre una baquelita perforada. Esto nos permitió compactar considerablemente el circuito, mantener las conexiones ordenadas y fijas, y al mismo tiempo conservar la flexibilidad para corregir fallas o reemplazar componentes sin tener que rediseñar una PCB industrial.
+---
+
+Tuvimos que decidir cómo integrar todo el circuito. Si dejábamos los componentes separados y conectados solo con cables sueltos, el sistema ocupaba demasiado espacio y resultaba muy desordenado. Por ello, optamos por diseñar y ensamblar nuestra propia placa soldando todo sobre una perfboard. Esto nos permitió compactar considerablemente el circuito, mantener las conexiones ordenadas y fijas, y al mismo tiempo conservar la flexibilidad para corregir fallas o reemplazar componentes sin tener que rediseñar una PCB industrial.
 
 ---
 
@@ -376,6 +379,45 @@ Dividimos la estrategia en tres fases:
 ---
 
 ## 6. 📝Lista de componentes
+
+|             Componente          | Cantidad  |
+|---------------------------------|-----------|
+| Raspberry Pi 3 B+               |     1     | 
+| Esp32 S2 Mini                   |     1     |
+| Sensores VL53L0X                |     5     |
+| MPU 6050                        |     1     |
+| Batería LiPo 7.4V 75C           |     1     |
+| Conversor Step Down 5v          |     1     |
+| Puente H tb6612fng              |     1     |
+| Switch                          |     1     |
+| Cables unifilares               |   varios  |
+| Conectores JST diferentes pines |   varios  |
+| Rodamientos 608                 |     2     |
+| Rodamientos 605                 |     2     |
+| Servo MG90S                     |     1     |
+| Motores DC 3V - 6V              |     1     |
+| PerfBoard                       |     1     |
+| Resistencias 1KΩ                |     3     |
+| Resistencias 1KΩ                |     1     |
+| Led                             |     1     |
+| Regulador Lineal LM7805         |     1     |
+| Capacitor 40 105 c              |     1     |
+| Capacitor cerámico 10uf         |     1     |
+| Conector xt60                   |     1     |
+| Conector DC Plug                |     1     |
+| Tornillos y tuercas M3,M4       |   varios  |
+| Borneras                        |     4     |
+| Terminales                      |     4     |
+| Espadines hembra/macho          |   varios  |
+| Eje 5mm                         |     1     |
+| Cámara 720p                     |     1     |
+| Filamento PETG                  |     1     |
+| Filamento TPU                   |     1     |
+
+**Impresoras utilizadas:**
+
+- Creality Ender 3 V3 SE
+
 
 <p align="right">
   <a href="#top">Back To Top</a>
