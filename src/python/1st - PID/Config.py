@@ -1,10 +1,11 @@
 # Config.py
 import math
+from Pista import Pista
 
 # ============================================================================
 # --- CONFIGURACIÓN DE RED Y FIREBASE ---
 # ============================================================================
-WIFI_SSID = "Fundacite_2.4G S.C"                                       
+WIFI_SSID = "Fundacite_Robotica"                                       
 WIFI_PASSWORD = "Fundacite.1234"                                       
 FIREBASE_URL = "https://wro-fe-default-rtdb.firebaseio.com/.json"  
 
@@ -30,13 +31,14 @@ SENSOR_ADDRESSES = [0x30, 0x32, 0x34, 0x36, 0x38] # Direcciones consecutivas rea
 
 # Distribución y orientación física real de tus 5 sensores (Izquierda a Derecha)
 SENSOR_ANGLES = [-90.0, -45.0, 0.0, 45.0, 90.0]
+SENSOR_OFFSETS = [197, 170, 256, 259, 178]
 FRONT_SENSOR_INDEX = 2                        # El sensor central (0.0°) está en el índice 2
 
 # Thresholds de los sensores
 RELIABLE_RANGE = 2300         # Max trusted distance (mm)
 MIN_VALID_DISTANCE = 40       # Min trusted distance (mm)
-CRITICAL_STOP_THRESHOLD = 300 # Front emergency-stop threshold (mm)
-AUTO_STOP_SECONDS = 20        # Tiempo de parada automática en segundos
+CRITICAL_STOP_THRESHOLD = 150 # Front emergency-stop threshold (mm)
+AUTO_STOP_SECONDS = 20       # Tiempo de parada automática en segundos
 
 # ============================================================================
 # ACTUADORES (Pines y Calibración en Grados)
@@ -46,7 +48,7 @@ SERVO_PIN = 40
 SERVO_CENTER_DEG = 60         # Ángulo para ir totalmente recto
 SERVO_RIGHT_MAX_DEG = 0       # Ángulo máximo físico a la derecha
 SERVO_LEFT_MAX_DEG = 120      # Ángulo máximo físico a la izquierda
-MAX_STEERING_ANGLE = 45    # Límite de cálculo por software (Pure Pursuit)
+MAX_STEERING_ANGLE = 20    # Límite de cálculo por software (Pure Pursuit)
 
 # --- Motor de Tracción (TB6612FNG) ---
 MOTOR_IN1_PIN = 34
@@ -54,7 +56,7 @@ MOTOR_IN2_PIN = 21
 MOTOR_PWMA_PIN = 17
 
 PWM_FREQ = 20000              # 20kHz inaudible para el motor
-CRUISE_SPEED = 180            # Velocidad base de crucero (0-255)
+CRUISE_SPEED = 145            # Velocidad base de crucero (0-255)
 
 # ============================================================================
 # PARÁMETROS DE LOS ALGORITMOS
@@ -79,9 +81,13 @@ LOOKAHEAD_PURE_PURSUIT = 150.0  # Ld en mm
 
 # --- Trayectoria Predefinida en Boxes (Waypoints en mm) ---
 TRAYECTORIA = [
-    {"x": 0.0,    "y": 0.0},
-    {"x": 600.0,  "y": 0.0},    # Avanzar 60 cm recto
-    {"x": 900.0,  "y": 400.0},  # Curva abierta diagonal
-    {"x": 600.0,  "y": 800.0},  # Retorno
-    {"x": 0.0,    "y": 0.0}     # Volver al inicio
-]
+    {'x': 600, 'y': 200},
+    {'x': 200, 'y': 600},
+    {'x': 200, 'y': 2600},
+    {'x': 600, 'y': 3000},
+    {'x': 2600, 'y': 3000},
+    {'x': 3000, 'y': 2600},
+    {'x': 3000, 'y': 600},
+    {'x': 2600, 'y': 200},
+    {'x': 600, 'y': 200}
+    ]

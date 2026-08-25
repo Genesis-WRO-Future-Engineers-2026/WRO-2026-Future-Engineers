@@ -132,6 +132,7 @@ class VL53L0X:
                          "final_range_us": 0
                          }
         self.vcsel_period_type = ["VcselPeriodPreRange", "VcselPeriodFinalRange"]
+       
 
     def _registers(self, register, values=None, struct='B'):
         if values is None:

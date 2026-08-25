@@ -19,7 +19,7 @@
  *Rol*: Electrónica y mecánica
 - **Miguel Mejías**
  *Rol*: Programador
-- **Wilber Pacheco**
+- **Guillermo Fernández**
  *Rol*: Diseñador
 
 ## 🧑🏻‍🔧Entrenador
@@ -234,7 +234,7 @@ Ventajas clave del dispositivo modificado:
 #### Comparación de dimensiones (cámara web)
 
 
-<div align="center">
+<div align="left">
  <i>Antes</i>
  <br>
  <img width="300" alt="productos34_25510" src="https://github.com/user-attachments/assets/64d0bc72-e8c2-4080-8f3f-c7b37652012b" />
@@ -248,7 +248,7 @@ Ventajas clave del dispositivo modificado:
 
 
 
-<div align="center">
+<div align="left">
  <i>Después</i>
  <br>
  <img width="300" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
@@ -263,7 +263,7 @@ Ventajas clave del dispositivo modificado:
 
 ### 3.3 Unidades de procesamiento 
 
-Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, la Raspberry Pi 3 B+ es nuestro controlador principal. Decidimos utilizar la Raspberry Pi 3 B+ por varias razones, entre ellas:
+Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, **la Raspberry Pi 3 B+** es nuestro controlador principal. Decidimos utilizar la Raspberry Pi 3 B+ por varias razones, entre ellas:
 
 - **Compatibilidad**: hay muchos componentes (como las cámaras web USB estándar) que son fáciles de integrar con la Raspberry Pi 3 B+.
   
@@ -272,7 +272,7 @@ Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, la Raspberry Pi 
 - **Portabilidad**: La Raspberry Pi 3 B+ destaca entre los controladores; con un peso de tan solo 45 g, es ligera, lo que la convierte en una opción práctica y fiable para su integración en el Eva 01.
 
 
-<div align="center">
+<div align="left">
  <i>Raspberry Pi 3 B+</i>
  <img width="300" alt="raspberry-pi-3-b-plus" src="https://github.com/user-attachments/assets/fb22d270-ab59-46c8-af45-43ecbb1fe371" />
  <br>
@@ -285,10 +285,10 @@ Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, la Raspberry Pi 
 | Anchura     | 56 mm   |
 | Peso        | 45 g    |
 
-Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos dimos cuenta de que necesitaba algo de ayuda para evitar que se sobrecargara de información; por ello, decidimos incorporar un ESP32-S2 Mini para controlar los sensores y sus actuadores con el fin de alcanzar el nivel de procesamiento necesario. Asimismo, aprovechamos la conectividad Wi-Fi integrada de este microcontrolador para transmitir y visualizar en tiempo real (únicamente  durante las prácticas) las lecturas de los sensores a través de una app realizada en Firebase.
+Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos dimos cuenta de que necesitaba algo de ayuda para evitar que se sobrecargara de información; por ello, decidimos incorporar un **ESP32-S2 Mini** para controlar los sensores y sus actuadores con el fin de alcanzar el nivel de procesamiento necesario. Asimismo, aprovechamos la conectividad Wi-Fi integrada de este microcontrolador para transmitir y visualizar en tiempo real (únicamente  durante las prácticas) las lecturas de los sensores a través de una app realizada en Firebase.
 
 
-<div align="center">
+<div align="left">
  <i>ESP32-S2 Mini</i>
  <img width="300" alt="1783780004798" src="https://github.com/user-attachments/assets/cfa1950d-ffea-486f-afad-d26f989b30ea" />
  <br>
@@ -321,8 +321,7 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 ---
 
 **Diagrama divisor de voltaje:**
-<img width="494" height="194" alt="Screenshot 2026-08-13 161127" src="https://github.com/user-attachments/assets/70a9d07c-2ad4-43f9-81b9-58db1c98088c" />
-
+<img width="1344" height="793" alt="Screenshot 2026-08-20 203835" src="https://github.com/user-attachments/assets/99be02d9-5bb5-467b-a3d5-138c1b464f3a" />
 ---
 
 Tuvimos que decidir cómo integrar todo el circuito. Si dejábamos los componentes separados y conectados solo con cables sueltos, el sistema ocupaba demasiado espacio y resultaba muy desordenado. Por ello, optamos por diseñar y ensamblar nuestra propia placa soldando todo sobre una perfboard. Esto nos permitió compactar considerablemente el circuito, mantener las conexiones ordenadas y fijas, y al mismo tiempo conservar la flexibilidad para corregir fallas o reemplazar componentes sin tener que rediseñar una PCB industrial.
@@ -356,6 +355,12 @@ Dividimos la estrategia en tres fases:
 
 ### 4.1 Reto abierto
 
+El Desafío Abierto requiere que el robot complete tres vueltas alrededor de la arena sin tocar las paredes. La dirección de conducción es aleatoria al inicio, por lo que no es factible depender de movimientos preprogramados.
+
+El robot determina en qué dirección girar analizando las paredes detectadas a su alrededor, el algoritmo funciona de la siguiente manera:
+
+
+
 ### 4.2 Reto de osbtáculos
 
 ### 4.3 Estacionamiento en paralelo
@@ -369,7 +374,33 @@ Dividimos la estrategia en tres fases:
 ## 5. ⚙Pensamiento sistémico y decisiones de ingeniería
 
 ### 5.1 Lenguajes de programación
+
+#### Arduino IDE
+
+c:\Users\johel\OneDrive\Imágenes\Arduino_IDE_logo.svg.webp
+
+Al principio utilizamos Arduino IDE para programar la ESP32-S2 Mini de Eva 01 durante el primer desafío. Sin embargo, no tomamos en cuenta que la comunicación serie y la integración con la Raspberry Pi 3 Model B+ resultaría compleja bajo este enfoque.
+
+La Raspberry Pi 3 B+ ejecuta un sistema operativo completo (Raspberry Pi OS) y trabaja principalmente en Python, mientras que el código compilar con Arduino IDE está escrito en C/C++ (C++ simplificado). Esta disparidad exigía implementar protocolos de comunicación serie (UART o USB-CDC) con librerías adicionales como pyserial para parsear, estructurar y sincronizar constantemente las tramas de datos entre ambos entornos.
+
+Además, la arquitectura nativa en C/C++ generaba barreras al intentar modificar o depurar algoritmos al vuelo durante las pruebas del robot. El cambio hacia un entorno unificado basado en Python / MicroPython facilitó la interacción, ya que ambos sistemas pueden compartir lógica, estructuras de datos y protocolos sin la necesidad de traducir el flujo entre dos lenguajes de programación distintos.
+
+[Toca aquí para ver el código del primer desafío en Arduino](<src/Arduino IDE>)
+
+
+#### Thonny 
+
+c:\Users\johel\OneDrive\Imágenes\Thonny_logo.png
+
+Thonny es un Entorno de Desarrollo Integrado (IDE) gratuito y de código abierto diseñado específicamente para programar en Python y MicroPython de manera sencilla. Viene preinstalado de fábrica en el sistema operativo Raspberry Pi OS, por lo que es la herramienta que estamos utilizando actualmente en la Raspberry Pi 3 Model B+ y la ESP32 S2 Mini.
+
+Su principal ventaja es que cuenta con un soporte integrado para gestionar una amplia variedad de librerías y conectarse directamente con microcontroladores. Esto nos permite redactar, ejecutar y depurar código en tiempo real dentro de un entorno nativo en Python, simplificando la comunicación entre la Raspberry Pi y la ESP32 S2 Mini sin las complicaciones de compatibilidad que teníamos con Arduino IDE.
+
+[Toca aquí para ver el código del primer desafío en MicroPython](src/python)
+
 ### 5.2 Estructura del código
+
+
 ### 5.3 Librerías
 
 <p align="right">

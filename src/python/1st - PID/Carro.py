@@ -1,17 +1,17 @@
 #Carro.py
 from Actuator import Actuator
-from SteeringController import SteeringController
 from SensorReader import SensorReader
 from Pista import Pista
 import Config
 from Logger import Logger
 import time #Chequear envio del tiempo
+from SteeringPIDController import SteeringPIDController
 
 class Carro():
     def __init__(self):
         self.actuadores = Actuator()
-        self.volante = SteeringController()
         self.sensores = SensorReader()
+        self.controlador_volante = SteeringPIDController()
         self.__x_coordinate = -1
         self.__y_coordinate = -1
         if (Config.ENABLE_SERIAL):
@@ -21,7 +21,6 @@ class Carro():
         
     def begin(self):
         self.actuadores.begin()
-        self.volante.begin()
         self.sensores.begin()
         
     def get_x_coordinate(self):
@@ -36,18 +35,28 @@ class Carro():
     def set_y_coordinate(self, y):
         self.__y_coordinate = y
         
+    def recta_PID(self):
+        
+        self.sensores.read_all()
+        distancias = [self.sensores.get_all_data()[sensor].distance for sensor in range(Config.NUM_SENSORS)]
+        angulo_objetivo = self.controlador_volante.compute(distancias)
+        self.actuadores.set_angle_dg(angulo_objetivo)
+        if(Config.ENABLE_SERIAL):
+            self.logger.send_data(emergency=False, pwm=200,sensors=distancias, steering=0, x=0, y=0, sentido=0)
+        
+        
+        
     def resolver_pista(self, pista):
         while not pista.esta_resuelta():
             self.sensores.read_all()
             datos_sensores = self.sensores.get_filtered_data()
-        
-            # 3. CAPA DE ACTUADORES: Aplicar movimiento físico al coche
-            self.actuadores.set_angle_dg(Config.SERVO_CENTER_DEG)
             
-            # Asignación de índices según tu lógica corregida
-            dist_derecha = datos_sensores[4]   
-            dist_frontal = datos_sensores[Config.FRONT_SENSOR_INDEX] 
+            self.recta_PID()
+            
+            dist_derecha = datos_sensores[4]
             dist_izquierda = datos_sensores[0]
+        
+            dist_frontal = datos_sensores[Config.FRONT_SENSOR_INDEX] 
             
             parada = dist_frontal < Config.CRITICAL_STOP_THRESHOLD        
         

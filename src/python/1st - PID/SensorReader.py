@@ -12,6 +12,8 @@ class SensorData:
         self.valid = False
 
 class SensorReader:
+    
+    
     def __init__(self):
         # Creamos el array de datos estáticos (como el _sensorData[NUM_SENSORS])
         self._sensor_data = [SensorData() for _ in range(Config.NUM_SENSORS)]
@@ -52,6 +54,11 @@ class SensorReader:
                 # Cambiamos su dirección inmediatamente a su dirección única definitiva
                 sensor_instancia.set_address(Config.SENSOR_ADDRESSES[i])
                 
+                if Config.ENABLE_SERIAL:
+                    print(f"Desfase sensor {i} {Config.SENSOR_OFFSETS[i]}")
+                
+                sensor_instancia.set_offset(Config.SENSOR_OFFSETS[i])
+                
                 self._sensors.append(sensor_instancia)
                 
                 if Config.ENABLE_SERIAL:
@@ -65,31 +72,32 @@ class SensorReader:
         return True
 
     def read_all(self):
-        for i in range(Config.NUM_SENSORS):
-            try:
-                # Llama a la lectura del sensor
-                distance_mm = self._sensors[i].read()
+    for i in range(Config.NUM_SENSORS):
+        try:
+            distance_raw = self._sensors[i].read()
 
-                # Comprobamos si la lectura es válida
-                # El driver devuelve 0 si hay error de fase o de lectura (Equivalente al RangeStatus != 4)
-                if distance_mm > 0:
-                    
-                    # Filtro de seguridad cap (RELIABLE_RANGE)
-                    if distance_mm > Config.RELIABLE_RANGE:
-                        distance_mm = Config.RELIABLE_RANGE
-                    
-                    self._sensor_data[i].distance = distance_mm
-                    self._sensor_data[i].valid = (distance_mm >= Config.MIN_VALID_DISTANCE)
-                else:
-                    # Lectura inválida (Status de error)
-                    self._sensor_data[i].distance = 0
-                    self._sensor_data[i].valid = False
-                    
-            except Exception:
-                # Protección si falla la línea física I2C en pleno bucle
+            if distance_raw > 0:
+                # Aplicamos el offset configurado en Config.py
+                distance_mm = distance_raw - Config.SENSOR_OFFSETS[i]
+                
+                # Evitar valores negativos tras la calibración
+                if distance_mm < 0:
+                    distance_mm = 0
+
+                # Filtro cap
+                if distance_mm > Config.RELIABLE_RANGE:
+                    distance_mm = Config.RELIABLE_RANGE
+                
+                self._sensor_data[i].distance = distance_mm
+                self._sensor_data[i].valid = (distance_mm >= Config.MIN_VALID_DISTANCE)
+            else:
                 self._sensor_data[i].distance = 0
                 self._sensor_data[i].valid = False
-
+                
+        except Exception:
+            self._sensor_data[i].distance = 0
+            self._sensor_data[i].valid = False
+            
     def get_all_data(self):
         # Equivalente al const SensorData* getAllData()
         return self._sensor_data
