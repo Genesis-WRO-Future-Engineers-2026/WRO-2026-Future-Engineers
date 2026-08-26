@@ -20,7 +20,7 @@
 - **Miguel Mejías**
  *Rol*: Programador
 - **Guillermo Fernández**
- *Rol*: Diseñador
+ *Rol*: Programador y diseñador
 
 ## 🧑🏻‍🔧Entrenador
 - **Oswal Melean**
@@ -28,7 +28,7 @@
 
 ---
 
-Bienvenidos a nuestro repositorio. Somos un grupo estudiantil dedicado a la robótica y la innovación, y en este espacio documentamos nuestro proceso de diseño: arquitectura de hardware, desarrollo de código, selección de componentes y el historial de pruebas del robot.
+Bienvenidos a nuestro repositorio. Somos un grupo estudiantil dedicado a la robótica y la innovación, y en este espacio documentamos nuestro proceso de diseño: arquitectura de hardware, desarrollo de código, selección de componentes y el historial de pruebas de nuestro robot Eva01.
 
 <a name="top"></a>
 
@@ -38,7 +38,7 @@ Bienvenidos a nuestro repositorio. Somos un grupo estudiantil dedicado a la rob�
 
 - [1. 📚Descripción general](#1-descripción-general)
   - [1.1 Sobre el proyecto](#11-sobre-el-proyecto)
-  - [1.2 Imagenes robot](#12-imagenes-robot)
+  - [1.2 Imagenes de Eva01](#12-imagenes-de-eva01)
   - [1.3 Video demostrativo](#13-video-demostrativo)
 - [2. 🔩Movilidad y diseño mecánico](#2-movilidad-y-diseño-mecánico)
   - [2.1 Sistema de tracción](#21-sistema-de-tracción)
@@ -55,7 +55,7 @@ Bienvenidos a nuestro repositorio. Somos un grupo estudiantil dedicado a la rob�
   - [4.2 Reto de obstáculos](#42-reto-de-obstáculos)
   - [4.3 Estacionamiento en paralelo](#43-estacionamiento-en-paralelo)
 - [5. ⚙Pensamiento sistémico y decisiones de ingeniería](#5-pensamiento-sistémico-y-decisiones-de-ingeniería)
-  - [5.1 Lenguajes de programación](#86-Lenguajes-de-programación)
+  - [5.1 Lenguajes de programación](#86-lenguajes-de-programación)
   - [5.2 Estructura del código](#52-estructura-del-código)
   - [5.3 Librerías](#51-librerías)
 - [6. 📝Lista de componentes](#6-lista-de-componentes)
@@ -76,15 +76,15 @@ Este proyecto se centra en el diseño, la construcción y la programación de un
 
 Para el equipo Genesis, este reto representa la oportunidad perfecta para poner en práctica la teoría, combinando la pasión por la innovación tecnológica con la resolución creativa de problemas a través de un proceso sistemático de investigación, creación de prototipos e iteración constante.
 
-La estructura de nuestro robot se basa en una arquitectura robusta inspirada en el hardware *zcar* (https://github.com/alexyu132/zcar). Hemos sometido este diseño a un exhaustivo proceso de reingeniería utilizando Fusion 360 y Blender para optimizar las dimensiones de los alojamientos de tornillos y tuercas, así como para personalizar las piezas y lograr un ajuste perfecto de nuestros componentes.
+La estructura de nuestro robot **Eva01** se basa en una arquitectura robusta inspirada en el hardware *zcar* (https://github.com/alexyu132/zcar). Hemos sometido este diseño a un exhaustivo proceso de reingeniería utilizando Fusion 360 y Blender para optimizar las dimensiones de los alojamientos de tornillos y tuercas, así como para personalizar las piezas y lograr un ajuste perfecto de nuestros componentes.
 
-El núcleo del sistema está controlado por una Raspberry Pi 3 B+, que gestiona la lógica principal, con el apoyo de un módulo ESP32 S2 Mini para controlar los sensores y actuadores. Para lograr una navegación precisa y una evitación eficiente de obstáculos, el robot integra sensores de tiempo de vuelo (ToF) junto con un giroscopio para la estabilización y la orientación de la trayectoria.
+El núcleo del sistema está controlado por una Raspberry Pi 3 B+, que gestiona la lógica principal, con el apoyo de un módulo ESP32 S2 Mini para controlar los sensores y actuadores. Para lograr una navegación precisa y una evitación eficiente de obstáculos, el robot integra sensores de tiempo de vuelo VL53L0X (ToF) junto con un giroscopio MPU-6050 para la estabilización y la orientación de la trayectoria.
 
 Todo este proceso de desarrollo ha estado respaldado por una documentación detallada que no solo optimiza nuestro flujo de trabajo, sino que también demuestra nuestras habilidades técnicas y de colaboración, así como nuestro compromiso con el aprendizaje práctico.
 
 ---
 
-### 1.2 Imagenes robot
+### 1.2 Imagenes de Eva01
 
 ### 1.3 Video demostrativo
 
@@ -102,9 +102,55 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
 
 ## 2. 🔩Movilidad y diseño mecánico
 
+- **Sistema de tracción:** tracción diferencial en 2 ruedas (ruedas traseras).
+- **Dirección:** dirección en las ruedas delanteras mediante el servomotor Sg90.
+
 ### 2.1 Sistema de tracción
 
+<video src="other/recursos/gif_traccion-1.mp4" autoplay loop muted playsinline width="500"></video>
+
+**Motor: Micro motor dc 130**
+
+<table>
+  <tr>
+    <td align="center" width="300" >
+      img src="other/recursos/Motor_dc.webp" width="300">
+    </td>
+    <td>
+      <h3>Especificaciones:</h3>
+      <ul>
+        <li>Voltaje nominal: 3V - 6V DC </li>
+        <li>Velocidad nominal: 5000 - 10000 RPM </li>
+        <li>Corriente sin carga: 70 mA a 200 mA (aprox.) </li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+**Motivo de la selección:**
+
+**Diseño ultra compacto y liviano:** Permite optimizar al máximo el peso del chasis, manteniendo el centro de gravedad bajo y reduciendo la demanda sobre la batería durante las rondas de competencia.
+
+**Respuesta y aceleración rápida:** Presenta una baja inercia mecánica, facilitando aceleraciones inmediatas y cambios de velocidad según las órdenes del controlador.
+
+**Opción de fácil integración:** Es una alternativa sumamente accesible, fácil de montar y rápida de reemplazar si se requiere mantenimiento durante las pruebas.
+
+**Sistema de Tracción y Trabajo Futuro:**
+
+El motor acciona las ruedas traseras a través de un eje metálico continuo de transmisión directa. Esta configuración garantiza que ambas ruedas reciban el mismo par y mantengan una velocidad sincronizada al 100%, eliminando descompensaciones en el avance en línea recta y evitando pérdidas por fricción de mecanismos complejos.
+
+Aunque el eje rígido requiere compensar el radio de giro a través de la dirección delantera con el servomotor Sg90, la navegación actual depende completamente del control por sensores externos (VL53L0X y MPU6050). Si bien esta solución es económica y funcional para la etapa actual del prototipo, la falta de retroalimentación interna limita la precisión en el control de distancia recorrida. Por ello, nuestra visión a futuro es reemplazar este conjunto por un motore con encoder integrado, lo que simplificará la programación y nos permitirá implementar un control en bucle cerrado mucho más preciso en pista.
+
+**Montaje:**
+
+Se instala mediante abrazaderas de motor impresas en 3D atornilladas al chasis. Esto permitirá futuras modificaciones para el mejoramiento de la tracción. [Abrazadera del motor](<models/Stls/Soporte motor.stl>)
+---
+
 ### 2.2 Dirección
+
+<video src="other/recursos/git_direccion-1.mp4" autoplay loop muted playsinline width="500"></video>
+
+
 
 ### 2.3 Diseño del chasis
 
@@ -175,7 +221,7 @@ Implementamos un **divisor de tensión** conectado a un pin 14 de la ESP32-S2 pa
 
 ### 3.2 Sensores y cámara
 
-#### Sensor de distancia VL53L0X
+#### Sensor tiempo de vuelo VL53L0X
 
 El VL53L0X es un sensor de distancia pequeño y muy utilizado que emplea la tecnología de tiempo de vuelo (ToF) para medir la distancia a un objeto mediante la emisión de un pulso de luz láser infrarroja invisible y el cálculo del tiempo que tarda en regresar.
 
@@ -377,7 +423,7 @@ El robot determina en qué dirección girar analizando las paredes detectadas a 
 
 #### Arduino IDE
 
-c:\Users\johel\OneDrive\Imágenes\Arduino_IDE_logo.svg.webp
+<img src="other/recursos/Arduino_IDE_logo.webp" width="300">
 
 Al principio utilizamos Arduino IDE para programar la ESP32-S2 Mini de Eva 01 durante el primer desafío. Sin embargo, no tomamos en cuenta que la comunicación serie y la integración con la Raspberry Pi 3 Model B+ resultaría compleja bajo este enfoque.
 
@@ -390,7 +436,7 @@ Además, la arquitectura nativa en C/C++ generaba barreras al intentar modificar
 
 #### Thonny 
 
-c:\Users\johel\OneDrive\Imágenes\Thonny_logo.png
+<img src="other/recursos/Thonny_logo.png" width="300">
 
 Thonny es un Entorno de Desarrollo Integrado (IDE) gratuito y de código abierto diseñado específicamente para programar en Python y MicroPython de manera sencilla. Viene preinstalado de fábrica en el sistema operativo Raspberry Pi OS, por lo que es la herramienta que estamos utilizando actualmente en la Raspberry Pi 3 Model B+ y la ESP32 S2 Mini.
 
@@ -469,6 +515,8 @@ Su principal ventaja es que cuenta con un soporte integrado para gestionar una a
 ---
 
 ## 8. 🛠️Instrucciones de montaje
+
+Pronto
 
 <p align="right">
   <a href="#top">Back To Top</a>

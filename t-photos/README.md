@@ -2,7 +2,7 @@
 
 ### Johelis Margarita Acosta
 <p align="center">
- <img width="400" alt="WhatsApp Image 2026-08-12 at 8 35 38 PM" src="https://github.com/user-attachments/assets/0e1b0084-8e26-49db-a32c-392400135d6e" />
+<img src="other/recursos/johe_foto.jpeg" width="400">
 </p>
 
 <b>Edad:</b> 18 
@@ -15,7 +15,7 @@
 
 ### Miguel Alexander Mejías
 <p align="center">
-<img width="400" alt="WhatsApp Image 2026-08-12 at 7 03 14 PM" src="https://github.com/user-attachments/assets/34ef4f74-6ac5-4203-9d00-43c219cbcdeb" />
+<img src="other/recursos/miguel_foto.jpeg" width="400">
 </p>
 
 <b>Edad:</b> 17
@@ -28,14 +28,12 @@ SAERY
 
 ---
 
-### Wilber Pacheco
+### Guillermo Jesús Fernández
 <p align="center">
-<img width="400" alt="WhatsApp Image 2026-08-12 at 6 27 13 PM" src="https://github.com/user-attachments/assets/4551d3b7-be45-4557-a96d-3debe3ddc007" />
+<img src="other/recursos/guillermo_foto.jpeg" width="400">
 </p>
+<b>edad:</b> 19
 
-<b>Edad:</b> 17
+<b>Institución educativa:</b> U.N.C.Dr.Humberto Fernández Morán 
 
-<b>Institución educativa:</b> U.E.P Maristas Chiquinquirá
-
-<b>Descripción:</b>¡Buenas! Soy Wilber y me apasiona el modelado en 3D, el hardware y los juegos de estrategia como el ajedrez. Soy fanático del universo de Star Wars y de la astronomía, así que me encanta aplicar esa vibra futurista a los prototipos que construimos en el taller. Orgulloso de formar parte de este proyecto 🚀🔧.
-
+<b>Descripción:</b> Soy Guillermo Fernández, apasionado por el modelado 3D, la programación, los juegos de estrategia como el ajedrez y los videojuegos online. Me fascina la construcción y la innovación pensada para facilitar la vida diaria y ser parte de esa solución, por lo que me encanta aplicar esa vibra futurista a los prototipos que construimos en el taller. Orgulloso de formar parte de este proyecto.
