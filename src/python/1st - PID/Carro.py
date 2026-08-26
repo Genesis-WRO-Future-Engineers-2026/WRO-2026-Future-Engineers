@@ -85,4 +85,3 @@ class Carro():
             
             # Pequeña pausa de estabilidad (50ms)
             time.sleep_ms(50)
-            
