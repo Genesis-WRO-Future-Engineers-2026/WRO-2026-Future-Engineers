@@ -1,12 +1,12 @@
 # Team Génesis
 <p align="center">
-<img src="other/recursos/LOGO GENESIS.png" width="500">
+<img src="other/recursos/LOGO GENESIS.png" width="300">
     <br>
     <i>Logo del Equipo</i>
 </p>
 
 <p align="center">
-<img width="500" alt="2afa2ad2-66f1-48aa-bc96-628adb1001fa" src="https://github.com/user-attachments/assets/f253592e-f094-4885-bef9-549df2e346e6" />
+<img width="400" alt="2afa2ad2-66f1-48aa-bc96-628adb1001fa" src="https://github.com/user-attachments/assets/f253592e-f094-4885-bef9-549df2e346e6" />
     <br>
     <i>Foto del Equipo</i>
 </p>
@@ -55,13 +55,13 @@ Bienvenidos a nuestro repositorio. Somos un grupo estudiantil dedicado a la rob�
   - [4.2 Reto de obstáculos](#42-reto-de-obstáculos)
   - [4.3 Estacionamiento en paralelo](#43-estacionamiento-en-paralelo)
 - [5. ⚙Pensamiento sistémico y decisiones de ingeniería](#5-pensamiento-sistémico-y-decisiones-de-ingeniería)
-  - [5.1 Lenguajes de programación](#50-lenguajes-de-programación)
-  - [5.2 Estructura del código](#3-estructura-del-código)
-  - [5.3 Librerías](#51-librerías)
+  - [5.1 Lenguajes de programación](#51-lenguajes-de-programación)
+  - [5.2 Estructura del código](#52-estructura-del-código)
+  - [5.3 Librerías](#53-librerías)
 - [6. 📝Lista de componentes](#6-lista-de-componentes)
 - [7. 💎Archivos de modelos 3D](#7-archivos-de-modelos-3d)
-  - [7.1 Archivos STL](#72-archivos-stl)
-  - [7.2 Archivos modificados](#73-archivos-de-slicer)
+  - [7.1 Archivos STL](#71-archivos-stl)
+  - [7.2 Archivos modificados](#72-archivos-de-slicer)
 - [8. 🛠️Instrucciones de montaje](#8-instrucciones-de-montaje)
 
 
@@ -163,7 +163,7 @@ Se instala mediante una abrazadera de motor impresa en 3D atornilladas al chasis
 <table>
   <tr>
     <td align="center" width="300" >
-   <img src="other/recursos/Motor_dc.webp" width="300">
+   <img src="other/recursos/mg90s.jpg" width="300">
     </td>
     <td>
       <h3>Especificaciones:</h3>
@@ -197,7 +197,7 @@ En nuestro diseño, el servomotor desplaza un pin central guiado por una ranura 
 
  *Imagen creada a partir de referencias de la web*
  
-<img src="other/recursos/ackerman.png" width="400">
+<img src="other/recursos/ackerman.png" width="600">
 
 
 Si bien esta geometría de dirección es compleja de implementar, creemos que las ventajas que ofrece son importantes, especialmente en la navegación con obstáculos y el estacionamiento, donde el control preciso y un radio de giro mínimo son esenciales. Permite maniobras más suaves y una alineación precisa en espacios reducidos.
@@ -483,23 +483,24 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 ### 3.4 Diagramas eléctricos
 
 **Diagrama de Bloques del Sistema**
-<img src="other/recursos/diagrama de bloques.png" width="300">
+<img src="other/recursos/diagrama de bloques.png" width="600">
 
 ---
 
 **Diagrama sensores:**
-<img src="other/recursos/diagrama sensores.png" width="300">
+<img src="other/recursos/diagrama sensores.png" width="600">
 
 
 ---
 
 **Diagrama motores:**
-<img src="other/recursos/diagrama de motores.png" width="300">
+<img src="other/recursos/diagrama de motores.png" width="600">
 
 ---
 
 **Diagrama divisor de voltaje:**
-<img src="other/recursos/diagrama divisor de voltaje.png" width="300">
+<img src="other/recursos/diagrama divisor de voltaje.png" width="600">
+
 ---
 
 Tuvimos que decidir cómo integrar todo el circuito. Si dejábamos los componentes separados y conectados solo con cables sueltos, el sistema ocupaba demasiado espacio y resultaba muy desordenado. Por ello, optamos por diseñar y ensamblar nuestra propia placa soldando todo sobre una perfboard. Esto nos permitió compactar considerablemente el circuito, mantener las conexiones ordenadas y fijas, y al mismo tiempo conservar la flexibilidad para corregir fallas o reemplazar componentes sin tener que rediseñar una PCB industrial.
@@ -507,21 +508,22 @@ Tuvimos que decidir cómo integrar todo el circuito. Si dejábamos los component
 ---
 
 ### 3.5 Consumo de energía
+### ⚡ Análisis de Consumo Eléctrico y Potencia
 
-| Componente              | Alimentación (V) | Corriente típica (A) | Corriente pico (A) | Potencia típica (W) |
-|-------------------------|------------------|----------------------|--------------------|---------------------|
-| Raspberry Pi 3 B+       | 5.0              | 0.50 – 1.00          | 2.50               | 2.50 – 5.00         |
-| Esp32 S2 Mini           | 3.3 / 5.0        | 0.07 – 0.10          | 0.31               | 0.23 – 0.50         |
-| Sensor VL53L0X          | 3.0 – 5.0        | 0.019                | 0.040              | 0.06                |
-| Conversor Step Down 5v  | 6.0 – 32.0       | 0.01 – 0.02          | 3.00 (por puerto)  | η ≈ 90% – 95%       |
-| MPU 6050                | 3.3 – 5.0        | 0.0038               | 0.005              | 0.012               |
-| Puente H tb6612fng      | 2.7 – 5.5 / 15.0 | 0.003                | (1.20 por canal)   | Variable            |
-| Servo MG90S             | 4.8 – 6.0        | 0.10 – 0.30          | 0.70 – 0.80        | 0.50 – 1.50         |
-| Micro motor dc 130      | 3.0 – 6.0        | 0.15 – 0.25          | 0.80 – 1.20        | 0.75 – 1.50         |
-| Regulador Lineal LM7805 | 7.0 – 25.0       | 0.005                | 1.50               | Variable            |
-| Cámara 1080p            | 5.0              | 0.10 – 0.25          | 0.30               | 0.50 – 1.25         |
-| Capacitor 47uF 105°C    | N/A              | N/A                  | N/A                | N/A                 |
-| Capacitor cerámico 10uf | N/A              | N/A                  | N/A                | N/A                 |
+| Componente                    | Alimentación (V)  | Corriente Típica         | Corriente Pico    | Potencia Típica (W) |
+|-------------------------------|-------------------|--------------------------|-------------------|---------------------|
+| Raspberry Pi 3 Model B+       | 5.0 V             | 500 – 1000 mA            | 2.50 A            | 2.50 – 5.00 W       |
+| ESP32-S2 Mini                 | 3.3 V / 5.0 V     | 70 – 100 mA              | 310 mA            | 0.23 – 0.50 W       |
+| Cámara USB (1080p)            | 5.0 V             | 100 – 250 mA             | 300 mA            | 0.50 – 1.25 W       |
+| Sensor ToF VL53L0X            | 3.0 – 5.0 V       | 19 mA                    | 40 mA             | 0.06 W              |
+| IMU MPU-6050                  | 3.3 – 5.0 V       | 3.8 mA                   | 5 mA              | 0.012 W             |
+| Servomotor MG90S              | 4.8 – 6.0 V       | 100 – 300 mA             | 700 – 800 mA      | 0.50 – 1.50 W       |
+| Micromotor DC 130             | 3.0 – 6.0 V       | 150 – 250 mA             | 0.80 – 1.20 A     | 0.75 – 1.50 W       |
+| Driver Puente H TB6612FNG     | 2.7–5.5 V / 15.0 V| 3 mA                     | 1.20 A (por canal)| Variable            |
+| Conversor Buck Step-Down 5V   | 6.0 – 32.0 V      | 10 – 20 mA *(quiescente) | 3.00 A (máx.)     |η ≈ 90% – 95%        |
+| Regulador Lineal LM7805       | 7.0 – 25.0 V      | 5 mA *(quiescente)*      | 1.50 A            | Variable            |
+| Capacitores (47 µF / 10 µF)   | N/A *(filtrado)*  | Pasivo (0 A)             | Pasivo            | N/A                 |
+
 
 <p align="right">
   <a href="#top">Back To Top</a>
