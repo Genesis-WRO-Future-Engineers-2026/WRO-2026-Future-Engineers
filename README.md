@@ -1,6 +1,6 @@
 # Team Génesis
 <p align="center">
-<img width="200" alt="image" src="https://github.com/user-attachments/assets/186434e5-9674-4b2e-beba-e56628f5f638" />
+<img src="other/recursos/LOGO GENESIS.png" width="500">
     <br>
     <i>Logo del Equipo</i>
 </p>
@@ -55,8 +55,8 @@ Bienvenidos a nuestro repositorio. Somos un grupo estudiantil dedicado a la rob�
   - [4.2 Reto de obstáculos](#42-reto-de-obstáculos)
   - [4.3 Estacionamiento en paralelo](#43-estacionamiento-en-paralelo)
 - [5. ⚙Pensamiento sistémico y decisiones de ingeniería](#5-pensamiento-sistémico-y-decisiones-de-ingeniería)
-  - [5.1 Lenguajes de programación](#86-lenguajes-de-programación)
-  - [5.2 Estructura del código](#52-estructura-del-código)
+  - [5.1 Lenguajes de programación](#50-lenguajes-de-programación)
+  - [5.2 Estructura del código](#3-estructura-del-código)
   - [5.3 Librerías](#51-librerías)
 - [6. 📝Lista de componentes](#6-lista-de-componentes)
 - [7. 💎Archivos de modelos 3D](#7-archivos-de-modelos-3d)
@@ -103,25 +103,27 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
 ## 2. 🔩Movilidad y diseño mecánico
 
 - **Sistema de tracción:** tracción diferencial en 2 ruedas (ruedas traseras).
-- **Dirección:** dirección en las ruedas delanteras mediante el servomotor Sg90.
+- **Dirección:** dirección en las ruedas delanteras mediante el servomotor MG90S.
 
 ### 2.1 Sistema de tracción
 
-<video src="other/recursos/gif_traccion-1.mp4" autoplay loop muted playsinline width="500"></video>
+![alt text](traccion.gif)
 
 **Motor: Micro motor dc 130**
 
 <table>
   <tr>
     <td align="center" width="300" >
-      img src="other/recursos/Motor_dc.webp" width="300">
+   <img src="other/recursos/Motor_dc.webp" width="300">
     </td>
     <td>
       <h3>Especificaciones:</h3>
       <ul>
-        <li>Voltaje nominal: 3V - 6V DC </li>
-        <li>Velocidad nominal: 5000 - 10000 RPM </li>
-        <li>Corriente sin carga: 70 mA a 200 mA (aprox.) </li>
+          <li><b>Voltaje:3 V – 6 V</li>
+          <li><b>Velocidad sin carga:12500 – 15000 RPM (a 6V)</li>
+          <li><b>Stall torque:0,15 – 0,20 kg-cm</li>
+          <li><b>Corriente sin carga:0,07 A – 0,15 A</li>
+          <li><b>Relación de transmisión:1:1 (sin reductora)</li>
       </ul>
     </td>
   </tr>
@@ -129,28 +131,98 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
 
 **Motivo de la selección:**
 
-**Diseño ultra compacto y liviano:** Permite optimizar al máximo el peso del chasis, manteniendo el centro de gravedad bajo y reduciendo la demanda sobre la batería durante las rondas de competencia.
+- **Diseño compacto y liviano:** Permite optimizar al máximo el peso del chasis, manteniendo el centro de gravedad bajo y reduciendo la demanda sobre la batería durante las rondas de competencia.
 
-**Respuesta y aceleración rápida:** Presenta una baja inercia mecánica, facilitando aceleraciones inmediatas y cambios de velocidad según las órdenes del controlador.
+- **Respuesta y aceleración rápida:** Presenta una baja inercia mecánica, facilitando aceleraciones inmediatas y cambios de velocidad.
 
-**Opción de fácil integración:** Es una alternativa sumamente accesible, fácil de montar y rápida de reemplazar si se requiere mantenimiento durante las pruebas.
+- **Fácil integración:** Es una alternativa sumamente accesible, fácil de montar y rápida de reemplazar si se requiere mantenimiento durante las pruebas.
 
 **Sistema de Tracción y Trabajo Futuro:**
 
 El motor acciona las ruedas traseras a través de un eje metálico continuo de transmisión directa. Esta configuración garantiza que ambas ruedas reciban el mismo par y mantengan una velocidad sincronizada al 100%, eliminando descompensaciones en el avance en línea recta y evitando pérdidas por fricción de mecanismos complejos.
 
-Aunque el eje rígido requiere compensar el radio de giro a través de la dirección delantera con el servomotor Sg90, la navegación actual depende completamente del control por sensores externos (VL53L0X y MPU6050). Si bien esta solución es económica y funcional para la etapa actual del prototipo, la falta de retroalimentación interna limita la precisión en el control de distancia recorrida. Por ello, nuestra visión a futuro es reemplazar este conjunto por un motore con encoder integrado, lo que simplificará la programación y nos permitirá implementar un control en bucle cerrado mucho más preciso en pista.
+Aunque el eje rígido requiere compensar el radio de giro a través de la dirección delantera con el servomotor MG90S, la navegación actual depende completamente del control por sensores externos (VL53L0X y MPU6050). Si bien esta solución es económica y funcional para la etapa actual del prototipo, la falta de retroalimentación interna limita la precisión en el control de la distancia recorrida. Por ello, nuestra visión a futuro es reemplazar este por un motor con encoder integrado, lo que simplificará la programación y nos permitirá implementar un control mucho más preciso en pista.
 
 **Montaje:**
 
-Se instala mediante abrazaderas de motor impresas en 3D atornilladas al chasis. Esto permitirá futuras modificaciones para el mejoramiento de la tracción. [Abrazadera del motor](<models/Stls/Soporte motor.stl>)
+Se instala mediante una abrazadera de motor impresa en 3D atornilladas al chasis. Esto permitirá futuras modificaciones para el mejoramiento de la tracción. 
+
+[Abrazadera del motor](<models/Stls/Soporte motor.stl>)
+
+- Cables del motor conectados directamente al puente h TB6612FNG.
+- Ruedas conectadas a su tren de rodaje impreso en 3D con filamento TPU.
+
 ---
 
 ### 2.2 Dirección
 
-<video src="other/recursos/git_direccion-1.mp4" autoplay loop muted playsinline width="500"></video>
+![alt text](direccion.gif)
+
+**Servomotor: MG90S**
+
+<table>
+  <tr>
+    <td align="center" width="300" >
+   <img src="other/recursos/Motor_dc.webp" width="300">
+    </td>
+    <td>
+      <h3>Especificaciones:</h3>
+      <ul>
+          <li><b>Voltaje:4,8 V – 6,0 V</li>
+          <li><b>Velocidad:0,08 – 0,10 s/60°</li>
+          <li><b>Stall torque:1,8 – 2,2 kgf/cm</li>
+          <li><b>Engranaje:Metal</li>
+          <li><b>Tipo:Análogo / Digital</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+**Motivo de la selección:**
+
+- Su pequeño tamaño y la interfaz PWM facilitan su control a través del ESP32-S2 Mini.
+
+- Tiene el par de bloqueo (stall torque) suficiente para dirigir las ruedas delanteras con precisión.
+
+- Ofrece un equilibrio entre velocidad y estabilidad durante los giros y los cambios de dirección.
+
+- Este servomotor se utiliza ampliamente en la robótica, por lo que existe mucha documentación y kits de montaje disponibles.
+
+Tomamos como referencia la base del diseño de hardware del "zcar" y la mejoramos adaptando su geometría de dirección Ackermann para lograr un comportamiento de giro más preciso. A diferencia de los sistemas más sencillos, la dirección Ackermann ofrece giros más suaves al orientar cada rueda delantera en ángulos óptimos diferenciados durante la curva, lo que reduce drásticamente el deslizamiento de los neumáticos y mejora la tracción.
+
+El principio de la geometría de Ackermann resuelve un problema físico simple: al girar, la rueda interior debe describir una curva más cerrada que la exterior. Si ambas ruedas giraran exactamente en el mismo ángulo, una de ellas terminaría arrastrándose y patinando sobre la pista.
+
+En nuestro diseño, el servomotor desplaza un pin central guiado por una ranura que empuja los brazos articulados de las ruedas. La clave geométrica está en la inclinación de los puntos de pivote respecto a la barra de empuje: al desplazar el servo a un lado, la rueda interna del giro recibe una mayor diferencia angular que la externa. Esto hace que la rueda del lado hacia donde se gira incline su ángulo de forma más pronunciada, garantizando un paso por curva fluido, suave y con máxima tracción en las ruedas delanteras.
 
 
+ *Imagen creada a partir de referencias de la web*
+ 
+<img src="other/recursos/ackerman.png" width="400">
+
+
+Si bien esta geometría de dirección es compleja de implementar, creemos que las ventajas que ofrece son importantes, especialmente en la navegación con obstáculos y el estacionamiento, donde el control preciso y un radio de giro mínimo son esenciales. Permite maniobras más suaves y una alineación precisa en espacios reducidos.
+
+Nuestra implementación se basó en la optimización y adaptación de la estructura previa del chasis Z-Car, rediseñando y mejorando su mecanismo de dirección y rodamiento para satisfacer las demandas físicas y mecánicas del robot. Los aspectos clave de este desarrollo fueron:
+
+- Modelado en Autodesk Fusion 360: Partimos del diseño base del Z-Car y utilizamos Fusion 360 para realizar las modificaciones geométricas necesarias en el sistema de dirección, adaptando componentes clave como las barras de varillaje y las dimensiones del muñón que sostiene las ruedas.
+
+- Prototipado rápido e iteración física: Basamos nuestras pruebas en la fabricación directa de componentes. Imprimíamos en 3D las piezas modificadas en formato STL y evaluamos su desempeño en el chasis real; si un elemento no funcionaba según lo previsto (como requerir un mayor largo en la barra de dirección), ajustábamos el modelo 3D y volvíamos a imprimir.
+
+- Adaptación de rines y ruedas (Dirección vs. Tracción): Para integrar de forma adecuada el eje metálico en el sistema de tracción trasera, adaptamos la geometría de los rines. Los rines delanteros (dirección) se diseñaron ligeramente más pequeños en diámetro interno, lo que hace que el perfil del neumático sea más grueso en esa zona; sin embargo, físicamente las ruedas delanteras y traseras mantienen exactamente el mismo tamaño externo para conservar el equilibrio y la altura del chasis.
+
+- Fabricación en PETG: Todas las piezas adaptadas e impresas fueron fabricadas utilizando filamento PETG, garantizando mayor resistencia mecánica, tenacidad ante impactos y durabilidad en las uniones y puntos de estrés térmico o mecánico.
+
+**Calibración e implementación**
+Para asegurarnos de que la dirección funcionara correctamente en ambas direcciones, llevamos a cabo un proceso de calibración práctico e iterativo:
+
+- Ajuste dimensional: Modificamos de forma iterativa el modelo digital (ajustando la barra de dirección y el muñón) y probamos el encaje físico de las piezas impresas.
+
+- Verificación mecánica: Tras cada impresión y montaje, evaluamos el comportamiento dinámico del servo y el varillaje, comprobando que las ruedas giraran de forma simétrica, sin fricción excesiva ni holguras en el muñón.
+
+- Consolidación del diseño: Una vez alcanzado el ángulo de giro óptimo y la tolerancia adecuada para el montaje del eje metálico y las ruedas, fijamos las dimensiones definitivas en el modelo CAD final.
+
+**Montaje:**
+Todo el mecanismo de dirección mejorado se ensambló de manera robusta utilizando un sistema de uniones roscadas (tornillería), sujetando firmemente el servo, los muñones y las barras de dirección a la estructura principal del chasis.
 
 ### 2.3 Diseño del chasis
 
@@ -169,7 +241,7 @@ Se instala mediante abrazaderas de motor impresas en 3D atornilladas al chasis. 
 <table>
   <tr>
     <td align="center" width="300" >
-   <img width="566" height="415" alt="bateria" src="https://github.com/user-attachments/assets/8a0b91f3-49cc-489a-985d-708b72915a56" />
+   <img src="other/recursos/bateria.jpg" width="300">
     </td>
     <td>
       <h3>Específicacones:</h3>
@@ -179,7 +251,7 @@ Se instala mediante abrazaderas de motor impresas en 3D atornilladas al chasis. 
           <li>Voltaje Máximo: 8.4 V (4.2 V por celda)</li>
           <li>Voltaje de Corte Seguro: 6.4 V - 6.6 V (3.2 V - 3.3 V por celda)</li>
           <li>Capacidad: 1000 mAh (1.0 Ah)</li>
-          <li> Tasa de Descarga: 75C constante</li>
+          <li>Tasa de Descarga: 75C constante</li>
           <li>Tiempo de carga: 1.25 Horas</li>
       </ul>
     </td>
@@ -206,7 +278,7 @@ Para evitar que el ruido inductivo de los motores interfiriera con los procesado
 ```
 
 - **Alimentación de la Raspberry Pi 3 B+**
-Utiliza un **conversor reductor (Step-Down) USB** conectado directo a la batería, garantizando el suministro estable y el amperaje continuo que requiere la Pi para procesar datos sin caídas de voltaje.
+Utiliza un **conversor regulador (Step-Down) doble USB** conectado directo a la batería, garantizando el suministro estable de 5V y el amperaje continuo que requiere la Pi para procesar datos sin caídas de voltaje.
 
 - **Incremento de Torque (Puente H en Paralelo)**
 Para maximizar la fuerza del motor de tracción de 6V, **conectamos en paralelo ambos canales del puente H TB6612FNG** (puenteando señales de control y salidas de potencia). Esto duplica la capacidad de corriente, evitando sobrecalentamientos ante altas exigencias mecánicas. La ESP32-S2 toma su alimentación lógica de esta etapa.
@@ -216,6 +288,66 @@ Alimentamos el servomotor de forma exclusiva con un regulador lineal **LM7805** 
 
 - **Monitoreo y Protección de la Batería**
 Implementamos un **divisor de tensión** conectado a un pin 14 de la ESP32-S2 para medir el voltaje de la batería de forma segura. Si el nivel de carga desciende de su límite crítico, el sistema activa un **LED de advertencia** para evitar la degradación de las celdas.
+
+**Conversor regulador (Step-Down) doble USB**
+
+<table>
+  <tr>
+    <td align="center" width="300" >
+   <img src="other/recursos/conversor.png" width="300">
+    </td>
+    <td>
+      <h3>Especificaciones:</h3>
+      <ul>
+          <li><b>Rango de voltaje de entrada:6 V – 32 V DC</li>
+          <li><b>Voltaje de salida:5 V por defecto (3 V – 12 V en carga rápida)</li>
+          <li><b>Potencia de salida máxima:24 W por puerto (ej. 5V/3.4A, 9V/2.5A, 12V/2A)</li>
+          <li><b>Eficiencia de conversión:90% – 97%</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+
+**Controlador del motor: TB6612FNG**
+
+<table>
+  <tr>
+    <td align="center" width="300" >
+   <img src="other/recursos/puente-h-tb6612fng.jpg" width="300">
+    </td>
+    <td>
+      <h3>Especificaciones:</h3>
+      <ul>
+          <li><b>Rango de voltaje de motores (VM): 4.5 V – 13.5 V</li>
+          <li><b>Voltaje de lógica (VCC): 2.7 V – 5.5 V</li>
+          <li><b>Corriente de salida continua: 1.2 A por canal (2.4 A en paralelo)</li>
+          <li><b>Corriente pico máxima: 3.2 A por canal</li>
+          <li><b>Resistencia típica R<sub>DS(on)</sub> (alta + baja):</b> 0.5 Ω</li>
+          <li><b>Frecuencia máxima de PWM: Hasta 100 kHz</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+**Regulador lineal: LM7805**
+
+<table>
+  <tr>
+    <td align="center" width="300" >
+   <img src="other/recursos/LM7805.webp" width="300">
+    </td>
+    <td>
+      <h3>Especificaciones:</h3>
+      <ul>
+          <li><b>Voltaje de salida:5 V DC (fijo)</li>
+          <li><b>Rango de voltaje de entrada:7 V – 25 V</li>
+          <li><b>Corriente de salida máxima:1.5 A</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
 
 ---
 
@@ -233,7 +365,7 @@ Lo hemos elegido para este proyecto debido a tres ventajas clave:
   
 -  **Alta velocidad**: es capaz de realizar mediciones de distancia por láser en un tiempo récord, lo que garantiza lecturas rápidas, precisas y en tiempo real.
 
-  <img width="300" alt="GY-53VL53L0XLaserToFFlightTimeRangeSensorfront_1" src="https://github.com/user-attachments/assets/66a3e217-320e-4afe-9cc8-b6d77926fc41" />
+  <img src="other/recursos/tof.png" width="300">
 
 
 |**Dimensiones**|**Valor**|
@@ -255,7 +387,7 @@ Ventajas clave del dispositivo:
   
 - **Alta velocidad**: cuenta con un procesador de movimiento digital (DMP) interno que ejecuta rápidamente algoritmos complejos, proporcionando datos estables en tiempo real sin sobrecargar el microcontrolador principal.
 
-<img width="300" alt="modulo-mpu6050-acelerometro-giroscopio-i2c" src="https://github.com/user-attachments/assets/da02f10c-e98b-41c9-a799-f0f82457208e" />
+<img src="other/recursos/mpu.png" width="300">
 
 
 |**Dimensiones**|**Valor**|
@@ -283,7 +415,7 @@ Ventajas clave del dispositivo modificado:
 <div align="left">
  <i>Antes</i>
  <br>
- <img width="300" alt="productos34_25510" src="https://github.com/user-attachments/assets/64d0bc72-e8c2-4080-8f3f-c7b37652012b" />
+<img src="other/recursos/camara.png" width="300">
 </div> 
 
 
@@ -297,7 +429,7 @@ Ventajas clave del dispositivo modificado:
 <div align="left">
  <i>Después</i>
  <br>
- <img width="300" alt="1783617511143" src="https://github.com/user-attachments/assets/4e1c87a2-014d-4601-af65-98bbfaef934c" />
+ <img src="other/recursos/camara 2.png" width="300">
 </div>
   
  
@@ -320,7 +452,7 @@ Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, **la Raspberry P
 
 <div align="left">
  <i>Raspberry Pi 3 B+</i>
- <img width="300" alt="raspberry-pi-3-b-plus" src="https://github.com/user-attachments/assets/fb22d270-ab59-46c8-af45-43ecbb1fe371" />
+ <img src="other/recursos/raspberry.png" width="300">
  <br>
 </div>
 
@@ -336,7 +468,7 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 
 <div align="left">
  <i>ESP32-S2 Mini</i>
- <img width="300" alt="1783780004798" src="https://github.com/user-attachments/assets/cfa1950d-ffea-486f-afad-d26f989b30ea" />
+ <img src="other/recursos/esp32 s2.png" width="300">
  <br>
 </div>
 
@@ -351,23 +483,23 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 ### 3.4 Diagramas eléctricos
 
 **Diagrama de Bloques del Sistema**
-<img width="759" height="497" alt="Screenshot 2026-08-13 171255" src="https://github.com/user-attachments/assets/0428b92b-efa9-4f69-9827-80dbb46955d8" />
+<img src="other/recursos/diagrama de bloques.png" width="300">
 
 ---
 
 **Diagrama sensores:**
-<img width="1360" height="930" alt="Screenshot 2026-08-13 185953" src="https://github.com/user-attachments/assets/8964bf4d-31b7-4cde-aa6c-380c50d4a4d6" />
+<img src="other/recursos/diagrama sensores.png" width="300">
 
 
 ---
 
 **Diagrama motores:**
-<img width="709" height="513" alt="Screenshot 2026-08-13 160948" src="https://github.com/user-attachments/assets/73f97e40-9a62-4a9d-83cd-e918896ecf00" />
+<img src="other/recursos/diagrama de motores.png" width="300">
 
 ---
 
 **Diagrama divisor de voltaje:**
-<img width="1344" height="793" alt="Screenshot 2026-08-20 203835" src="https://github.com/user-attachments/assets/99be02d9-5bb5-467b-a3d5-138c1b464f3a" />
+<img src="other/recursos/diagrama divisor de voltaje.png" width="300">
 ---
 
 Tuvimos que decidir cómo integrar todo el circuito. Si dejábamos los componentes separados y conectados solo con cables sueltos, el sistema ocupaba demasiado espacio y resultaba muy desordenado. Por ello, optamos por diseñar y ensamblar nuestra propia placa soldando todo sobre una perfboard. Esto nos permitió compactar considerablemente el circuito, mantener las conexiones ordenadas y fijas, y al mismo tiempo conservar la flexibilidad para corregir fallas o reemplazar componentes sin tener que rediseñar una PCB industrial.
@@ -375,6 +507,21 @@ Tuvimos que decidir cómo integrar todo el circuito. Si dejábamos los component
 ---
 
 ### 3.5 Consumo de energía
+
+| Componente              | Alimentación (V) | Corriente típica (A) | Corriente pico (A) | Potencia típica (W) |
+|-------------------------|------------------|----------------------|--------------------|---------------------|
+| Raspberry Pi 3 B+       | 5.0              | 0.50 – 1.00          | 2.50               | 2.50 – 5.00         |
+| Esp32 S2 Mini           | 3.3 / 5.0        | 0.07 – 0.10          | 0.31               | 0.23 – 0.50         |
+| Sensor VL53L0X          | 3.0 – 5.0        | 0.019                | 0.040              | 0.06                |
+| Conversor Step Down 5v  | 6.0 – 32.0       | 0.01 – 0.02          | 3.00 (por puerto)  | η ≈ 90% – 95%       |
+| MPU 6050                | 3.3 – 5.0        | 0.0038               | 0.005              | 0.012               |
+| Puente H tb6612fng      | 2.7 – 5.5 / 15.0 | 0.003                | (1.20 por canal)   | Variable            |
+| Servo MG90S             | 4.8 – 6.0        | 0.10 – 0.30          | 0.70 – 0.80        | 0.50 – 1.50         |
+| Micro motor dc 130      | 3.0 – 6.0        | 0.15 – 0.25          | 0.80 – 1.20        | 0.75 – 1.50         |
+| Regulador Lineal LM7805 | 7.0 – 25.0       | 0.005                | 1.50               | Variable            |
+| Cámara 1080p            | 5.0              | 0.10 – 0.25          | 0.30               | 0.50 – 1.25         |
+| Capacitor 47uF 105°C    | N/A              | N/A                  | N/A                | N/A                 |
+| Capacitor cerámico 10uf | N/A              | N/A                  | N/A                | N/A                 |
 
 <p align="right">
   <a href="#top">Back To Top</a>
@@ -444,6 +591,7 @@ Su principal ventaja es que cuenta con un soporte integrado para gestionar una a
 
 [Toca aquí para ver el código del primer desafío en MicroPython](src/python)
 
+
 ### 5.2 Estructura del código
 
 
@@ -472,22 +620,22 @@ Su principal ventaja es que cuenta con un soporte integrado para gestionar una a
 | Rodamientos 608                 |     2     |
 | Rodamientos 605                 |     2     |
 | Servo MG90S                     |     1     |
-| Motores DC 3V - 6V              |     1     |
+| Micro motor dc 130 3V - 6V      |     1     |
 | PerfBoard                       |     1     |
 | Resistencias 1KΩ                |     3     |
-| Resistencias 1KΩ                |     1     |
+| Resistencias 220KΩ              |     1     |
 | Led                             |     1     |
 | Regulador Lineal LM7805         |     1     |
 | Capacitor 40 105 c              |     1     |
 | Capacitor cerámico 10uf         |     1     |
 | Conector xt60                   |     1     |
 | Conector DC Plug                |     1     |
-| Tornillos y tuercas M3,M4       |   varios  |
+| Tornillos y tuercas: M3 y M4    |   varios  |
 | Borneras                        |     4     |
 | Terminales                      |     4     |
 | Espadines hembra/macho          |   varios  |
 | Eje 5mm                         |     1     |
-| Cámara 720p                     |     1     |
+| Cámara 1080p                    |     1     |
 | Filamento PETG                  |     1     |
 | Filamento TPU                   |     1     |
 

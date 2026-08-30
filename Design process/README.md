@@ -1,32 +1,35 @@
 
-## 1. ⭐️Design process
+## 1. ⭐️Proceso de diseño
 
-### 1.2 Chassis Optimization
+### 1.2 Optimización del chasis
 
-The first modification during the development of the "zcar" chassis involved redesigning the model in Fusion 360 to adapt the mounting points for components more readily available on the local market. To achieve this, the holes in the original .stl file were modified to replace M3 screws and nuts with M4-sized ones.
+La primera modificación durante el desarrollo del chasis del «zcar» consistió en rediseñar el modelo en Fusion 360 para adaptar los puntos de montaje a componentes más fáciles de conseguir en el mercado local. Para ello, se modificaron los orificios del archivo .stl original con el fin de sustituir los tornillos y tuercas M3 por otros de tamaño M4.
 
-However, initial printing tests revealed that increasing the hole diameter drastically reduced wall thickness in the steering and drive axle areas, thereby compromising structural strength against mechanical stress.
+Sin embargo, las pruebas iniciales de impresión revelaron que al aumentar el diámetro de los orificios se reducía drásticamente el grosor de las paredes en las zonas del eje de dirección y del eje motriz, lo que comprometía la resistencia estructural frente a las tensiones mecánicas.
 
-To resolve this issue without sacrificing the advantage of using locally available components, a hybrid design was adopted: M4 mounts were retained for the vehicle's main structure, while M3 components were kept exclusively for the steering and drive axle to preserve their geometric integrity. Additionally, the thickness of the drive axle was increased, and the rear axle support was reinforced.
+Para resolver este problema sin sacrificar la ventaja de utilizar componentes disponibles localmente, se adoptó un diseño híbrido: se mantuvieron los soportes M4 para la estructura principal del vehículo, mientras que los componentes M3 se reservaron exclusivamente para el eje de dirección y el eje motriz con el fin de preservar su integridad geométrica. Además, se aumentó el espesor del eje motriz y se reforzó el soporte del eje trasero.
 
-The part limiting the steering mechanism's travel was modified. This improvement proved crucial, as it allowed for an increase in the robot's maximum turning angle, significantly optimizing its performance and maneuverability on the track.
+Se modificó la pieza que limitaba el recorrido del mecanismo de dirección. Esta mejora resultó crucial, ya que permitió aumentar el ángulo de giro máximo del robot, optimizando significativamente su rendimiento y maniobrabilidad en la pista.
 
-A key change in this process was replacing the drive axle included in the original "zcar" .stl file with a metal one.
+Un cambio clave en este proceso fue la sustitución del eje motriz incluido en el archivo .stl original de «zcar» por uno metálico.
 
-<img width="1273" height="1278" alt="5048967179142892673" src="https://github.com/user-attachments/assets/d3d72d92-35cd-4e85-ae31-f3a42bcf580a" />
+
+<img width="400" alt="5048967179142892673" src="https://github.com/user-attachments/assets/d3d72d92-35cd-4e85-ae31-f3a42bcf580a" />
 
 ### 1.3 Desarrollo de la Placa de Control (Sensores y Actuadores)
 
-To integrate the sensors, the gyroscope, and the actuators (a servo motor and a DC motor), a custom circuit board was developed. The initial step involved implementing the circuit on a breadboard to validate the combined operation of all components.
+Para integrar los sensores, el giroscopio y los actuadores (un servomotor y un motor de corriente continua), se desarrolló una placa de circuito personalizada. El primer paso consistió en montar el circuito en una placa de pruebas para validar el funcionamiento conjunto de todos los componentes.
 
-Following a testing phase, it was discovered that the gyroscope would not function simultaneously with the sensors. Initially, the malfunction was attributed to the parallel connection of the power and communication lines (GND, VIN, SDA, and SCL)—while keeping the sensors' X-SHUT pins independently connected to the ESP32-S2 Mini's GPIO pins. However, the problem persisted even after testing the gyroscope individually with the microcontroller. Replacing the physical component and performing extensive code debugging failed to yield positive results.
+Tras una fase de pruebas, se descubrió que el giroscopio no funcionaba simultáneamente con los sensores. En un principio, el fallo se atribuyó a la conexión en paralelo de las líneas de alimentación y comunicación (GND, VIN, SDA y SCL), mientras que los pines X-SHUT de los sensores se mantenían conectados de forma independiente a los pines GPIO del ESP32-S2 Mini. Sin embargo, el problema persistió incluso tras probar el giroscopio por separado con el microcontrolador. Ni la sustitución del componente físico ni la realización de una exhaustiva depuración del código dieron resultados positivos.
 
-Faced with this limitation, the decision was made to connect the gyroscope directly to a Raspberry Pi 3 Model B+. Finally, the validated portion of the circuit was transferred and soldered onto a perfboard; given the successful performance achieved, this solution was adopted for the project's final development.
+Ante esta limitación, se tomó la decisión de conectar el giroscopio directamente a una Raspberry Pi 3 Modelo B+. Finalmente, la parte validada del circuito se transfirió y se soldó a una placa de pruebas; dado el buen funcionamiento obtenido, esta solución se adoptó para el desarrollo final del proyecto.
 
-Breadboard circuit
-<img width="1080" height="1254" alt="5048967179142892676" src="https://github.com/user-attachments/assets/0bb81f95-cd65-4173-8f5b-3d8904faf203" />
 
-Perfboard circuit
-<img width="2560" height="2560" alt="5048967179142892677" src="https://github.com/user-attachments/assets/9f4607ee-f12c-4abe-8d11-6de3b640387c" />
+Circuito en ProtoBoard
+
+<img width="400" alt="5048967179142892676" src="https://github.com/user-attachments/assets/0bb81f95-cd65-4173-8f5b-3d8904faf203" />
+
+Circuito en Perfboard
+<img width="400" alt="5048967179142892677" src="https://github.com/user-attachments/assets/9f4607ee-f12c-4abe-8d11-6de3b640387c" />
 
 
