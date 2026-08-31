@@ -43,6 +43,14 @@ class SteeringController:
         steering_deg = steering_rad * Config.RAD_TO_DEG
 
         # Clamp al límite mecánico del servo usando max() y min() (Equivalente al constrain)
+       # 1. Aplicamos el límite (clamp) al desvío relativo usando tus constantes de Config
         steering_deg = max(-Config.MAX_STEERING_ANGLE, min(Config.MAX_STEERING_ANGLE, steering_deg))
 
-        return steering_deg
+        # 2. Convertimos el desvío relativo en un ángulo absoluto sumando tu centro (60)
+        angulo_final_servo = Config.SERVO_CENTER_DEG + steering_deg
+
+        # 3. Nos aseguramos de no sobrepasar los límites físicos reales configurados para tu servo
+        # (Usa SERVO_MIN_DEG y SERVO_MAX_DEG de tu Config.py para proteger el mecanismo)
+        angulo_final_servo = max(Config.SERVO_RIGHT_MAX_DEG, min(Config.SERVO_LEFT_MAX_DEG, angulo_final_servo))
+
+        return angulo_final_servo

@@ -11,13 +11,13 @@ class PIDController:
         self.last_time = None  
 
     def compute(self, setpoint, measured_value):
-        current_time = time.monotonic()
+        current_time = time.ticks_ms()
 
         
         if self.last_time is None:
             dt = self.default_dt
         else:
-            dt = current_time - self.last_time
+            dt = time.ticks_diff(current_time, self.last_time)
 
         
         if dt <= 0.0:
@@ -35,6 +35,7 @@ class PIDController:
         
         self.prev_error = error
         self.last_time = current_time
+        
         
         return (self.kp * error) + (self.ki * self.integral) + (self.kd * derivative)
 

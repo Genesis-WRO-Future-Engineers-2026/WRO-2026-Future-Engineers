@@ -9,7 +9,7 @@ class SteeringPIDController(PIDController):
     KP_SERVO = 0.4
     KI_SERVO = 0.3
     KD_SERVO = 3
-    FACTOR_INFLUENCIA_LATERAL = 0.7 #Factor para la influencia de los sensores laterales en un rango de 0 a 1
+    FACTOR_INFLUENCIA_LATERAL = 1 #Factor para la influencia de los sensores laterales en un rango de 0 a 1
     
     def __init__(self):
         super().__init__(kp=SteeringPIDController.KP_SERVO, ki=SteeringPIDController.KI_SERVO, kd=SteeringPIDController.KD_SERVO)

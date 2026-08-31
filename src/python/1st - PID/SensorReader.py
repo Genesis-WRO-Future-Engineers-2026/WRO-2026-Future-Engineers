@@ -21,7 +21,7 @@ class SensorReader:
         self._i2c = None
         self.historial_sensores = [[] for _ in range(Config.NUM_SENSORS)]
         self.kalman = KalmanFilter1D()
-        self.VENTANA_FILTRO = 4 #Hacer variable de Config o variable de clase.
+        self.VENTANA_FILTRO = 3 #Hacer variable de Config o variable de clase.
 
     def begin(self):
         # Inicializa I2C a 400 kHz (Wire.setClock(400000))
@@ -72,32 +72,32 @@ class SensorReader:
         return True
 
     def read_all(self):
-    for i in range(Config.NUM_SENSORS):
-        try:
-            distance_raw = self._sensors[i].read()
+        for i in range(Config.NUM_SENSORS):
+            try:
+                distance_raw = self._sensors[i].read()
 
-            if distance_raw > 0:
-                # Aplicamos el offset configurado en Config.py
-                distance_mm = distance_raw - Config.SENSOR_OFFSETS[i]
-                
-                # Evitar valores negativos tras la calibración
-                if distance_mm < 0:
-                    distance_mm = 0
+                if distance_raw > 0:
+                    # Aplicamos el offset configurado en Config.py
+                    distance_mm = distance_raw - Config.SENSOR_OFFSETS[i]
+                    
+                    # Evitar valores negativos tras la calibración
+                    if distance_mm < 0:
+                        distance_mm = 0
 
-                # Filtro cap
-                if distance_mm > Config.RELIABLE_RANGE:
-                    distance_mm = Config.RELIABLE_RANGE
-                
-                self._sensor_data[i].distance = distance_mm
-                self._sensor_data[i].valid = (distance_mm >= Config.MIN_VALID_DISTANCE)
-            else:
+                    # Filtro cap
+                    if distance_mm > Config.RELIABLE_RANGE:
+                        distance_mm = Config.RELIABLE_RANGE
+                    
+                    self._sensor_data[i].distance = distance_mm
+                    self._sensor_data[i].valid = (distance_mm >= Config.MIN_VALID_DISTANCE)
+                else:
+                    self._sensor_data[i].distance = 0
+                    self._sensor_data[i].valid = False
+                    
+            except Exception:
                 self._sensor_data[i].distance = 0
                 self._sensor_data[i].valid = False
                 
-        except Exception:
-            self._sensor_data[i].distance = 0
-            self._sensor_data[i].valid = False
-            
     def get_all_data(self):
         # Equivalente al const SensorData* getAllData()
         return self._sensor_data

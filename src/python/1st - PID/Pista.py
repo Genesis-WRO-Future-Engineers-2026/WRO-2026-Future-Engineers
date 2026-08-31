@@ -1,4 +1,4 @@
-#Pista.py
+# Pista.py
 
 class Pista():
     
@@ -13,7 +13,7 @@ class Pista():
         self.__resuelto = False
         self.__sentido = Pista.SENTIDO_INDETERMINADO
         
-        
+    # --- GRUPO DE MÉTODOS 1 (Compatibilidad con código nuevo) ---
     def get_resuelto(self):
         return self.__resuelto
     
@@ -25,4 +25,12 @@ class Pista():
     
     def set_sentido(self, sentido):
         self.__sentido = sentido
+
+    # --- GRUPO DE MÉTODOS 2 (Compatibilidad con código viejo en caché) ---
+    def esta_resuelta(self):
+        """Redirige al nuevo sistema de resolución"""
+        return self.__resuelto
     
+    def resuelta(self):
+        """Marca la pista como resuelta para el código antiguo"""
+        self.__resuelto = True

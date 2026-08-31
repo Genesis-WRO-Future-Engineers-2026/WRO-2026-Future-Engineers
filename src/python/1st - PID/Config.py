@@ -16,7 +16,7 @@ MODE_DEBUG = 0       # debug only (no PWM, serial enabled)
 MODE_PRODUCTION = 1  # race run (PWM enabled, serial disabled)
 MODE_DEBUG_RUN = 2   # debug run (PWM enabled, serial enabled)
 
-RUN_MODE = MODE_PRODUCTION # <-- Selecciona el modo aquí
+RUN_MODE = MODE_DEBUG_RUN # <-- Selecciona el modo aquí
 
 # Feature toggles automáticos derivados de RUN_MODE
 ENABLE_SERIAL = (RUN_MODE == MODE_DEBUG or RUN_MODE == MODE_DEBUG_RUN)
@@ -37,7 +37,7 @@ FRONT_SENSOR_INDEX = 2                        # El sensor central (0.0°) está 
 # Thresholds de los sensores
 RELIABLE_RANGE = 400         # Max trusted distance (mm)
 MIN_VALID_DISTANCE = 40       # Min trusted distance (mm)
-CRITICAL_STOP_THRESHOLD = 150 # Front emergency-stop threshold (mm)
+CRITICAL_STOP_THRESHOLD = 250 # Front emergency-stop threshold (mm)
 AUTO_STOP_SECONDS = 20       # Tiempo de parada automática en segundos
 
 # ============================================================================
