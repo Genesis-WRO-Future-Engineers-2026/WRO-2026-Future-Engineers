@@ -16,7 +16,7 @@ MODE_DEBUG = 0       # debug only (no PWM, serial enabled)
 MODE_PRODUCTION = 1  # race run (PWM enabled, serial disabled)
 MODE_DEBUG_RUN = 2   # debug run (PWM enabled, serial enabled)
 
-RUN_MODE = MODE_DEBUG_RUN # <-- Selecciona el modo aquí
+RUN_MODE = MODE_PRODUCTION # <-- Selecciona el modo aquí
 
 # Feature toggles automáticos derivados de RUN_MODE
 ENABLE_SERIAL = (RUN_MODE == MODE_DEBUG or RUN_MODE == MODE_DEBUG_RUN)
@@ -31,13 +31,13 @@ SENSOR_ADDRESSES = [0x30, 0x32, 0x34, 0x36, 0x38] # Direcciones consecutivas rea
 
 # Distribución y orientación física real de tus 5 sensores (Izquierda a Derecha)
 SENSOR_ANGLES = [-90.0, -45.0, 0.0, 45.0, 90.0]
-SENSOR_OFFSETS = [197, 220, 350, 350, 178]
+SENSOR_OFFSETS = [197, 220, 0, 350, 178]
 FRONT_SENSOR_INDEX = 2                        # El sensor central (0.0°) está en el índice 2
 
 # Thresholds de los sensores
-RELIABLE_RANGE = 400         # Max trusted distance (mm)
+RELIABLE_RANGE = 1000         # Max trusted distance (mm)
 MIN_VALID_DISTANCE = 40       # Min trusted distance (mm)
-CRITICAL_STOP_THRESHOLD = 250 # Front emergency-stop threshold (mm)
+CRITICAL_STOP_THRESHOLD = 150 # Front emergency-stop threshold (mm)
 AUTO_STOP_SECONDS = 20       # Tiempo de parada automática en segundos
 
 # ============================================================================
@@ -45,9 +45,9 @@ AUTO_STOP_SECONDS = 20       # Tiempo de parada automática en segundos
 # ============================================================================
 # --- Servo de Dirección ---
 SERVO_PIN = 40
-SERVO_CENTER_DEG = 60         # Ángulo para ir totalmente recto
+SERVO_CENTER_DEG = 24         # Ángulo para ir totalmente recto
 SERVO_RIGHT_MAX_DEG = 0       # Ángulo máximo físico a la derecha
-SERVO_LEFT_MAX_DEG = 120      # Ángulo máximo físico a la izquierda
+SERVO_LEFT_MAX_DEG = 48      # Ángulo máximo físico a la izquierda
 MAX_STEERING_ANGLE = 20    # Límite de cálculo por software (Pure Pursuit)
 
 # --- Motor de Tracción (TB6612FNG) ---

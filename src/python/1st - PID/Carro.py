@@ -47,10 +47,15 @@ class Carro():
         
         
     def resolver_pista(self, pista):
+        print("Entrando a resolver_pista...")
+        
         while not pista.esta_resuelta():
+            print("Leyendo sensores...")
+            
             self.sensores.read_all()
             datos_sensores = self.sensores.get_filtered_data()
-            
+            print(f"Lecturas: {datos_sensores}")
+                
             self.recta_PID()
             
             dist_derecha = datos_sensores[4]

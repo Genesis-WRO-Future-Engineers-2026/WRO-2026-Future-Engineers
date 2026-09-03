@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-<img width="400" alt="2afa2ad2-66f1-48aa-bc96-628adb1001fa" src="https://github.com/user-attachments/assets/f253592e-f094-4885-bef9-549df2e346e6" />
+<img width="600" alt="2afa2ad2-66f1-48aa-bc96-628adb1001fa" src="https://github.com/user-attachments/assets/f253592e-f094-4885-bef9-549df2e346e6" />
     <br>
     <i>Foto del Equipo</i>
 </p>
@@ -57,7 +57,7 @@ Bienvenidos a nuestro repositorio. Somos un grupo estudiantil dedicado a la rob�
 - [5. ⚙Pensamiento sistémico y decisiones de ingeniería](#5-pensamiento-sistémico-y-decisiones-de-ingeniería)
   - [5.1 Lenguajes de programación](#51-lenguajes-de-programación)
   - [5.2 Estructura del código](#52-estructura-del-código)
-  - [5.3 Librerías](#53-librerías)
+  - [5.3 Instrucciones de compilación](#53-instrucciones-de-compilación)
 - [6. 📝Lista de componentes](#6-lista-de-componentes)
 - [7. 💎Archivos de modelos 3D](#7-archivos-de-modelos-3d)
   - [7.1 Archivos STL](#71-archivos-stl)
@@ -85,6 +85,8 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
 ---
 
 ### 1.2 Imagenes de Eva01
+
+---
 
 ### 1.3 Video demostrativo
 
@@ -150,7 +152,7 @@ Se instala mediante una abrazadera de motor impresa en 3D atornilladas al chasis
 [Abrazadera del motor](<models/Stls/Soporte motor.stl>)
 
 - Cables del motor conectados directamente al puente h TB6612FNG.
-- Ruedas conectadas a su tren de rodaje impreso en 3D con filamento TPU.
+- Ruedas conectadas a su tren de rodaje impreso en 3D con filamento PETG.
 
 ---
 
@@ -158,7 +160,7 @@ Se instala mediante una abrazadera de motor impresa en 3D atornilladas al chasis
 
 ![alt text](direccion.gif)
 
-**Servomotor: MG90S**
+#### Servomotor: MG90S
 
 <table>
   <tr>
@@ -178,7 +180,7 @@ Se instala mediante una abrazadera de motor impresa en 3D atornilladas al chasis
   </tr>
 </table>
 
-**Motivo de la selección:**
+#### Motivo de la selección:
 
 - Su pequeño tamaño y la interfaz PWM facilitan su control a través del ESP32-S2 Mini.
 
@@ -188,43 +190,72 @@ Se instala mediante una abrazadera de motor impresa en 3D atornilladas al chasis
 
 - Este servomotor se utiliza ampliamente en la robótica, por lo que existe mucha documentación y kits de montaje disponibles.
 
-Tomamos como referencia la base del diseño de hardware del "zcar" y la mejoramos adaptando su geometría de dirección Ackermann para lograr un comportamiento de giro más preciso. A diferencia de los sistemas más sencillos, la dirección Ackermann ofrece giros más suaves al orientar cada rueda delantera en ángulos óptimos diferenciados durante la curva, lo que reduce drásticamente el deslizamiento de los neumáticos y mejora la tracción.
+Tomando como base el diseño modificado del hardware "zcar", adaptamos su dirección Ackermann para optimizar el paso por curva. Este sistema evita que los neumáticos deslicen al hacer que la rueda interior de la curva gire con un ángulo más pronunciado que la exterior.
 
-El principio de la geometría de Ackermann resuelve un problema físico simple: al girar, la rueda interior debe describir una curva más cerrada que la exterior. Si ambas ruedas giraran exactamente en el mismo ángulo, una de ellas terminaría arrastrándose y patinando sobre la pista.
-
-En nuestro diseño, el servomotor desplaza un pin central guiado por una ranura que empuja los brazos articulados de las ruedas. La clave geométrica está en la inclinación de los puntos de pivote respecto a la barra de empuje: al desplazar el servo a un lado, la rueda interna del giro recibe una mayor diferencia angular que la externa. Esto hace que la rueda del lado hacia donde se gira incline su ángulo de forma más pronunciada, garantizando un paso por curva fluido, suave y con máxima tracción en las ruedas delanteras.
+El mecanismo funciona mediante un servomotor que desplaza un pin central a través de una ranura, empujando los brazos articulados de las ruedas. La clave radica en la inclinación del pin respecto a la barra de empuje: al mover el servo, se aplica una mayor diferencia angular a la rueda interna del giro. Así se logra un paso por curva fluido y preciso.
 
 
  *Imagen creada a partir de referencias de la web*
  
 <img src="other/recursos/ackerman.png" width="600">
 
+Describiremos a continuación el significado de cada término:
 
-Si bien esta geometría de dirección es compleja de implementar, creemos que las ventajas que ofrece son importantes, especialmente en la navegación con obstáculos y el estacionamiento, donde el control preciso y un radio de giro mínimo son esenciales. Permite maniobras más suaves y una alineación precisa en espacios reducidos.
+**ICR (Centro Instantáneo de Rotación):** Es el punto alrededor del cual el eje delantero está girando.
 
-Nuestra implementación se basó en la optimización y adaptación de la estructura previa del chasis Z-Car, rediseñando y mejorando su mecanismo de dirección y rodamiento para satisfacer las demandas físicas y mecánicas del robot. Los aspectos clave de este desarrollo fueron:
+**R :** Es la radio del giro del vehículo, medida desde el ICR hasta el centro del eje trasero.
 
-- Modelado en Autodesk Fusion 360: Partimos del diseño base del Z-Car y utilizamos Fusion 360 para realizar las modificaciones geométricas necesarias en el sistema de dirección, adaptando componentes clave como las barras de varillaje y las dimensiones del muñón que sostiene las ruedas.
+**L :** Es la distancia entre el eje delantero y el eje trasero de Eva01, o la distancia de nuestro eje transmisor.
 
-- Prototipado rápido e iteración física: Basamos nuestras pruebas en la fabricación directa de componentes. Imprimíamos en 3D las piezas modificadas en formato STL y evaluamos su desempeño en el chasis real; si un elemento no funcionaba según lo previsto (como requerir un mayor largo en la barra de dirección), ajustábamos el modelo 3D y volvíamos a imprimir.
+**B :** Es la distancia entre los muñones de dirección (La pieza en la que va la rueda y se conecta a la dirección).
 
-- Adaptación de rines y ruedas (Dirección vs. Tracción): Para integrar de forma adecuada el eje metálico en el sistema de tracción trasera, adaptamos la geometría de los rines. Los rines delanteros (dirección) se diseñaron ligeramente más pequeños en diámetro interno, lo que hace que el perfil del neumático sea más grueso en esa zona; sin embargo, físicamente las ruedas delanteras y traseras mantienen exactamente el mismo tamaño externo para conservar el equilibrio y la altura del chasis.
+**a(i) :** Es el ángulo de giro de nuestra rueda interior respecto a la curva.
 
-- Fabricación en PETG: Todas las piezas adaptadas e impresas fueron fabricadas utilizando filamento PETG, garantizando mayor resistencia mecánica, tenacidad ante impactos y durabilidad en las uniones y puntos de estrés térmico o mecánico.
+**a(o) :** Es el ángulo de nuestra rueda exterior respecto al giro.
 
-**Calibración e implementación**
+Rediseñamos y mejoramos el mecanismo de dirección para satisfacer las demandas físicas y mecánicas del robot. Los aspectos clave de este desarrollo fueron:
+
+- **Modelado en Autodesk Fusion 360:** Partimos del diseño base y utilizamos Fusion 360 para realizar las modificaciones geométricas necesarias en el sistema de dirección, adaptando componentes clave como la barra de la dirección y las dimensiones del muñón que sostiene las ruedas.
+
+- **Prototipado rápido e iteración física:** Basamos nuestras pruebas en la fabricación directa de componentes. Imprimíamos en 3D las piezas modificadas en formato STL y evaluamos su desempeño en el chasis real; si un elemento no funcionaba según lo previsto (como requerir un mayor largo en la barra de dirección), ajustábamos el modelo 3D y volvíamos a imprimir.
+
+- **Adaptación de rines y ruedas (Dirección vs. Tracción):** Para integrar de forma adecuada el eje metálico en el sistema de tracción trasera, adaptamos la geometría de los rines. Los rines delanteros (dirección) se diseñaron ligeramente más pequeños en diámetro interno, lo que hace que el perfil del neumático sea más grueso en esa zona; sin embargo, físicamente las ruedas delanteras y traseras mantienen exactamente el mismo tamaño externo para conservar el equilibrio y la altura del chasis.
+
+- **Fabricación en PETG:** Todas las piezas adaptadas e impresas fueron fabricadas utilizando filamento PETG (a excepción de los neumáticos impresas en TPU), garantizando mayor resistencia mecánica, tenacidad ante impactos y durabilidad en las uniones y puntos de estrés térmico o mecánico.
+
+#### Calibración e implementación
+
 Para asegurarnos de que la dirección funcionara correctamente en ambas direcciones, llevamos a cabo un proceso de calibración práctico e iterativo:
 
-- Ajuste dimensional: Modificamos de forma iterativa el modelo digital (ajustando la barra de dirección y el muñón) y probamos el encaje físico de las piezas impresas.
+- **Ajuste dimensional:** Modificamos de forma iterativa el modelo digital (ajustando la barra de dirección y el muñón) y probamos el encaje físico de las piezas impresas.
 
-- Verificación mecánica: Tras cada impresión y montaje, evaluamos el comportamiento dinámico del servo y el varillaje, comprobando que las ruedas giraran de forma simétrica, sin fricción excesiva ni holguras en el muñón.
+- **Verificación mecánica:** Tras cada impresión y montaje, evaluamos el comportamiento dinámico del servo y el varillaje, comprobando que las ruedas giraran de forma simétrica, sin fricción excesiva ni holguras en el muñón.
 
-- Consolidación del diseño: Una vez alcanzado el ángulo de giro óptimo y la tolerancia adecuada para el montaje del eje metálico y las ruedas, fijamos las dimensiones definitivas en el modelo CAD final.
+- **Consolidación del diseño:** Una vez alcanzado el ángulo de giro óptimo, fijamos las dimensiones definitivas en el modelo final.
 
-**Montaje:**
-Todo el mecanismo de dirección mejorado se ensambló de manera robusta utilizando un sistema de uniones roscadas (tornillería), sujetando firmemente el servo, los muñones y las barras de dirección a la estructura principal del chasis.
+#### Montaje:
+
+Todo el mecanismo de dirección mejorado se ensambló de manera robusta utilizando un sistema de uniones impresas con filamento con tornillos y tuercas M3, sujetando firmemente el servo, los muñones y las barras de dirección a la estructura principal del chasis.
 
 ### 2.3 Diseño del chasis
+
+<img src="other/recursos/chasis.png" width="600">
+
+|**Dimensiones**|**Valor**|
+|---------------|---------|
+| Largo         | 126 mm  |
+| Ancho         | 62 mm   |
+| Alto máx      | 25.3 mm |
+| Alto min      | 2.5 mm  |
+
+**Diseño y Estructura del Chasis**
+
+El chasis principal de nuestro vehículo toma como base un diseño de código abierto, el cual fue adaptado y optimizado mediante Autodesk Fusion 360 para ajustarse a nuestro sistema de tracción y geometría de dirección. Para garantizar la modularidad y facilitar el mantenimiento, la transmisión trasera y el mecanismo de dirección delantero con su servomotor se montan en placas desmontables impresas en 3D. Estas placas permitieron realizar ajustes finos durante la fase de pruebas hasta alcanzar una alineación precisa con el resto del tren motriz.
+
+La distribución interna coloca los componentes de mayor peso en los extremos (motor y servo), reservando la zona central para la electrónica. Allí, una placa de circuito a medida simplifica el cableado y optimiza el espacio. El diseño se complementa con piezas independientes imprimibles, como abrazaderas para el motor y soportes dedicados para los sensores, lo que facilita el reemplazo o ajuste individual de cada elemento.
+
+Todo el conjunto estructural fue impreso en filamento PETG, seleccionado por su mayor resistencia mecánica, durabilidad frente a impactos y tolerancia térmica en comparación con el PLA convencional.
+
 
 <p align="right">
   <a href="#top">Back To Top</a>
@@ -236,7 +267,7 @@ Todo el mecanismo de dirección mejorado se ensambló de manera robusta utilizan
 
 ### 3.1 Fuente de alimentación
 
-**Batería high performance**
+#### Batería high performance
 
 <table>
   <tr>
@@ -289,7 +320,7 @@ Alimentamos el servomotor de forma exclusiva con un regulador lineal **LM7805** 
 - **Monitoreo y Protección de la Batería**
 Implementamos un **divisor de tensión** conectado a un pin 14 de la ESP32-S2 para medir el voltaje de la batería de forma segura. Si el nivel de carga desciende de su límite crítico, el sistema activa un **LED de advertencia** para evitar la degradación de las celdas.
 
-**Conversor regulador (Step-Down) doble USB**
+#### Conversor regulador (Step-Down) doble USB
 
 <table>
   <tr>
@@ -309,7 +340,7 @@ Implementamos un **divisor de tensión** conectado a un pin 14 de la ESP32-S2 pa
 </table>
 
 
-**Controlador del motor: TB6612FNG**
+#### Controlador del motor: TB6612FNG
 
 <table>
   <tr>
@@ -330,7 +361,7 @@ Implementamos un **divisor de tensión** conectado a un pin 14 de la ESP32-S2 pa
   </tr>
 </table>
 
-**Regulador lineal: LM7805**
+#### Regulador lineal: LM7805
 
 <table>
   <tr>
@@ -374,6 +405,7 @@ Lo hemos elegido para este proyecto debido a tres ventajas clave:
 | Alto          | 1 mm    |
 | Ancho         | 10,7 mm |
 | Peso          | 0,8 g   |
+
   
 #### Sensor de unidad de medición inercial (IMU MPU-6050)
 
@@ -441,6 +473,8 @@ Ventajas clave del dispositivo modificado:
 
 ### 3.3 Unidades de procesamiento 
 
+#### Raspberry Pi 3 b+
+
 Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, **la Raspberry Pi 3 B+** es nuestro controlador principal. Decidimos utilizar la Raspberry Pi 3 B+ por varias razones, entre ellas:
 
 - **Compatibilidad**: hay muchos componentes (como las cámaras web USB estándar) que son fáciles de integrar con la Raspberry Pi 3 B+.
@@ -449,12 +483,8 @@ Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, **la Raspberry P
   
 - **Portabilidad**: La Raspberry Pi 3 B+ destaca entre los controladores; con un peso de tan solo 45 g, es ligera, lo que la convierte en una opción práctica y fiable para su integración en el Eva 01.
 
+<img src="other/recursos/raspberry.png" width="300">
 
-<div align="left">
- <i>Raspberry Pi 3 B+</i>
- <img src="other/recursos/raspberry.png" width="300">
- <br>
-</div>
 
 |**Dimensión**|**Valor**|
 |-------------|---------|
@@ -463,14 +493,12 @@ Equipada con un procesador ARM Cortex-A53 de 64 bits y 1,4 GHz, **la Raspberry P
 | Anchura     | 56 mm   |
 | Peso        | 45 g    |
 
+#### Esp32-S2 Wemos Mini
+
 Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos dimos cuenta de que necesitaba algo de ayuda para evitar que se sobrecargara de información; por ello, decidimos incorporar un **ESP32-S2 Mini** para controlar los sensores y sus actuadores con el fin de alcanzar el nivel de procesamiento necesario. Asimismo, aprovechamos la conectividad Wi-Fi integrada de este microcontrolador para transmitir y visualizar en tiempo real (únicamente  durante las prácticas) las lecturas de los sensores a través de una app realizada en Firebase.
 
-
-<div align="left">
- <i>ESP32-S2 Mini</i>
  <img src="other/recursos/esp32 s2.png" width="300">
- <br>
-</div>
+
 
 |**Dimensión**|**Valor**|
 |-------------|---------|
@@ -488,18 +516,18 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 ---
 
 **Diagrama sensores:**
-<img src="other/recursos/diagrama sensores.png" width="600">
+<img src="other/recursos/diagrama sensores.png" width="800">
 
 
 ---
 
 **Diagrama motores:**
-<img src="other/recursos/diagrama de motores.png" width="600">
+<img src="other/recursos/diagrama de motores.png" width="800">
 
 ---
 
 **Diagrama divisor de voltaje:**
-<img src="other/recursos/diagrama divisor de voltaje.png" width="600">
+<img src="other/recursos/diagrama divisor de voltaje.png" width="800">
 
 ---
 
@@ -508,7 +536,6 @@ Tuvimos que decidir cómo integrar todo el circuito. Si dejábamos los component
 ---
 
 ### 3.5 Consumo de energía
-### ⚡ Análisis de Consumo Eléctrico y Potencia
 
 | Componente                    | Alimentación (V)  | Corriente Típica         | Corriente Pico    | Potencia Típica (W) |
 |-------------------------------|-------------------|--------------------------|-------------------|---------------------|
@@ -558,6 +585,8 @@ El robot determina en qué dirección girar analizando las paredes detectadas a 
 
 ### 4.2 Reto de osbtáculos
 
+---
+
 ### 4.3 Estacionamiento en paralelo
 
 <p align="right">
@@ -596,8 +625,57 @@ Su principal ventaja es que cuenta con un soporte integrado para gestionar una a
 
 ### 5.2 Estructura del código
 
+---
 
-### 5.3 Librerías
+### 5.3 Instrucciones de compilación
+
+#### Configuración de Firmware y Gestión de Flash (ESP32-S2 Mini)
+
+**El problema del modo Bootloader (RST / B0) en Arduino IDE**
+
+Al cargar desde Arduino IDE, el cargador de código estándar interactúa directamente con la memoria flash, sobrescribiendo la configuración del controlador USB OTG nativo del microcontrolador. Esto provoca que la placa quede atada al USB Download Bootloader por hardware. 
+
+Como resultado, para poder subir cualquier cambio de código en Arduino IDE, es necesario realizar manualmente la secuencia de reinicio:
+1. Mantener presionado el botón **B0 (GPIO0)**.
+2. Presionar y soltar el botón **RST**.
+3. Soltar el botón **B0**.
+
+Este proceso repetitivo entorpece las pruebas rápidas en pista e incrementa el desgaste físico del hardware durante el desarrollo.
+
+**Transición a MicroPython + Thonny IDE**
+
+El cambio a MicroPython ejecutado sobre Thonny IDE nos permite aprovechar el canal USB CDC nativo de la ESP32-S2 Mini. Una vez que el firmware base de MicroPython está correctamente grabado en el chip, la placa gestiona la comunicación serial directamente con el entorno de desarrollo. Esto habilita la ejecución y transferencia de código automática sin necesidad de interactuar con los botones físicos.
+
+**Proceso de restauración y configuración en Thonny IDE**
+
+Para limpiar el estado guardado por Arduino IDE y dejar la ESP32-S2 lista para flasheo automático, se realiza el siguiente procedimiento dentro de Thonny:
+
+1. Activación manual del Bootloader (Última vez)
+Poner la tarjeta en modo de descarga manual manteniendo presionado **B0**, presionando/soltando **RST** y soltando **B0**.
+
+2. Apertura del asistente de flasheo
+En el menú superior de Thonny, acceder a `Herramientas` > `Opciones...` > pestaña `Intérprete`. Seleccionar el intérprete **MicroPython (ESP32)** y hacer clic en el enlace inferior **Instalar o actualizar MicroPython...**.
+
+<img src="other/recursos/interprete.png" width="800">
+
+
+3. Borrado de memoria y grabación de firmware
+
+**En la ventana emergente de instalación:**
+
+1. Target port: Seleccionar el puerto COM asignado a la placa.
+
+2. Erase all flash before installing: Marcar la casilla obligatoriamente. Esto elimina la configuración previa cargada por el entorno de Arduino.
+
+3. MicroPython family / variant: Seleccionar **ESP32-S2** / **Wemos S2 mini**.
+
+4. Hacer clic en **Instalar**.
+
+<img src="other/recursos/instalacion.png" width="800">
+
+**Reinicio final**
+Al completar la barra de progreso al 100%, cerrar las ventanas emergentes, presionar el botón **RST** una sola vez para arrancar el nuevo firmware e iniciar la comunicación por la consola de MicroPython.
+
 
 <p align="right">
   <a href="#top">Back To Top</a>
@@ -656,7 +734,7 @@ Su principal ventaja es que cuenta con un soporte integrado para gestionar una a
 
 ### 7.1 Archivos STL
 
-### 7.2 Aarchivos modificados
+### 7.2 Archivos modificados
 
 <p align="right">
   <a href="#top">Back To Top</a>
