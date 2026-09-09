@@ -84,6 +84,36 @@ class Actuator:
         # Para mantener tu rango original de 8 bits (0-255), escalamos multiplicando por 4.
         duty_10bit = min(1023, max(0, self._current_speed * 4))
         self._motor_pwm.duty(duty_10bit)
+        
+    def vel_proporcional(self, distancia_frontal):
+        #Definiendo la distancia de frenado
+        
+        rango_velocidad = Config.CRUISE_SPEED - Config.MIN_SPEED
+
+        # Convert the left range into a 0-1 range (float)
+        velocidad_normalizada = float(distancia_frontal - Config.CRITICAL_STOP_THRESHOLD) / float(Config.DISTANCIA_FRENADO)
+
+        # Convert the 0-1 range into a value in the right range
+        speed_pwm = max(0, min(Config.MIN_SPEED + (velocidad_normalizada * rango_velocidad), Config.CRUISE_SPEED))
+        
+        
+        self._current_speed = speed_pwm
+        
+        if not Config.ENABLE_PWM or self._motor_pwm is None:
+            return
+
+        if self._current_speed == 0:
+            self.stop()
+            return
+
+        # Marcha adelante según el puente H
+        self._motor_in1.value(1)
+        self._motor_in2.value(0)
+        
+        # MicroPython maneja duty de 10 bits por defecto (0-1023). 
+        # Para mantener tu rango original de 8 bits (0-255), escalamos multiplicando por 4.
+        duty_10bit = min(1023, max(0, int(self._current_speed * 4)))
+        self._motor_pwm.duty(duty_10bit)
 
     def stop(self):
         self._current_speed = 0

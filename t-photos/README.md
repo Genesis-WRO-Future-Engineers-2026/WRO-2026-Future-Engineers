@@ -2,9 +2,8 @@
 
 ### Johelis Margarita Acosta
 <p align="center">
-<img src="other/recursos/johe_foto.jpeg" width="400">
+<img src="other/recursos/johe_foto.png" width="400">
 </p>
-
 <b>Edad:</b> 18 
 
 <b>Institución educativa:</b> U.E.P.Arq. María Auxiliadora.

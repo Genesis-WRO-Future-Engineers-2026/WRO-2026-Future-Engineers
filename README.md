@@ -60,8 +60,8 @@ Bienvenidos a nuestro repositorio. Somos un grupo estudiantil dedicado a la rob�
   - [5.3 Instrucciones de compilación](#53-instrucciones-de-compilación)
 - [6. 📝Lista de componentes](#6-lista-de-componentes)
 - [7. 💎Archivos de modelos 3D](#7-archivos-de-modelos-3d)
-  - [7.1 Archivos STL](#71-archivos-stl)
-  - [7.2 Archivos modificados](#72-archivos-de-slicer)
+  - [7.1 Archivos STL originales](#71-archivos-stl-originales)
+  - [7.2 Archivos modificados Eva01](#72-archivos-modificados-eva01)
 - [8. 🛠️Instrucciones de montaje](#8-instrucciones-de-montaje)
 
 
@@ -239,7 +239,7 @@ Todo el mecanismo de dirección mejorado se ensambló de manera robusta utilizan
 
 ### 2.3 Diseño del chasis
 
-<img src="other/recursos/chasis.png" width="600">
+<img src="other/recursos/chasis.png" width="400">
 
 |**Dimensiones**|**Valor**|
 |---------------|---------|
@@ -248,7 +248,7 @@ Todo el mecanismo de dirección mejorado se ensambló de manera robusta utilizan
 | Alto máx      | 25.3 mm |
 | Alto min      | 2.5 mm  |
 
-**Diseño y Estructura del Chasis**
+#### Diseño y Estructura del Chasis
 
 El chasis principal de nuestro vehículo toma como base un diseño de código abierto, el cual fue adaptado y optimizado mediante Autodesk Fusion 360 para ajustarse a nuestro sistema de tracción y geometría de dirección. Para garantizar la modularidad y facilitar el mantenimiento, la transmisión trasera y el mecanismo de dirección delantero con su servomotor se montan en placas desmontables impresas en 3D. Estas placas permitieron realizar ajustes finos durante la fase de pruebas hasta alcanzar una alineación precisa con el resto del tren motriz.
 
@@ -396,6 +396,7 @@ Lo hemos elegido para este proyecto debido a tres ventajas clave:
   
 -  **Alta velocidad**: es capaz de realizar mediciones de distancia por láser en un tiempo récord, lo que garantiza lecturas rápidas, precisas y en tiempo real.
 
+
   <img src="other/recursos/tof.png" width="300">
 
 
@@ -406,12 +407,20 @@ Lo hemos elegido para este proyecto debido a tres ventajas clave:
 | Ancho         | 10,7 mm |
 | Peso          | 0,8 g   |
 
-  
+ **Observaciones**
+
+ Al trabajar con la tecnología Time-of-Flight (ToF) mediante un láser VCSEL infrarrojo invisible, el sensor emite un haz de luz y necesita que los fotones reboten en la superficie y regresen directamente al receptor SPAD integrado. Debido a esto, el dispositivo es sensible a las inclinaciones, por lo que requiere una alineación perpendicular (a 90°) frente a las paredes u obstáculos para garantizar lecturas precisas.
+
+Asimismo, es importante ubicarlo a una altura de 4 cm a 5 cm del suelo (en el Eva01 lo colocamos a 5 cm) para optimizar el rango de detección y evitar fluctuaciones no deseadas con el piso.
+
+El Eva01 utiliza 5 de estos sensores VL53L0X dispuestos a 45° entre sí. Al mantener esta separación angular y contar con un campo de visión (FoV) de 25°, los haces de luz no se solapan, lo que elimina el riesgo de interferencias cruzadas entre lecturas adyacentes.
+
+
 #### Sensor de unidad de medición inercial (IMU MPU-6050)
 
 El MPU-6050 es una unidad de medición inercial (IMU) muy utilizada que integra un giroscopio de 3 ejes y un acelerómetro de 3 ejes en un único chip. Utiliza esta combinación para medir con precisión la aceleración lineal y la velocidad angular, lo que permite determinar la orientación, la inclinación y el movimiento del prototipo en el espacio.
 
-Ventajas clave del dispositivo:
+Ventajas del dispositivo:
 
 - **Tamaño ultracompacto**: al integrar el acelerómetro y el giroscopio en una placa minúscula, maximiza la eficiencia del espacio dentro de nuestro circuito.
   
@@ -440,6 +449,7 @@ Ventajas clave del dispositivo modificado:
 - **Fácil integración y estabilidad**: A pesar de estar desmontado, conserva la conectividad USB nativa y la compatibilidad directa con algoritmos de visión por ordenador (como OpenCV), lo que simplifica la programación.
   
 - **Alta velocidad y resolución**: Mantiene la captura en 1080p FHD, procesando imágenes nítidas en tiempo real, un factor crítico para la toma de decisiones mientras el vehículo está en movimiento.
+
 
 #### Comparación de dimensiones (cámara web)
 
@@ -529,9 +539,9 @@ Aunque la Raspberry Pi 3 B+ es capaz de procesar imágenes en tiempo real, nos d
 **Diagrama divisor de voltaje:**
 <img src="other/recursos/diagrama divisor de voltaje.png" width="800">
 
----
 
-Tuvimos que decidir cómo integrar todo el circuito. Si dejábamos los componentes separados y conectados solo con cables sueltos, el sistema ocupaba demasiado espacio y resultaba muy desordenado. Por ello, optamos por diseñar y ensamblar nuestra propia placa soldando todo sobre una perfboard. Esto nos permitió compactar considerablemente el circuito, mantener las conexiones ordenadas y fijas, y al mismo tiempo conservar la flexibilidad para corregir fallas o reemplazar componentes sin tener que rediseñar una PCB industrial.
+
+Tuvimos que decidir cómo integrar todo el circuito. Si dejábamos los componentes separados y conectados solo con cables sueltos, el sistema ocupaba demasiado espacio y resultaba muy desordenado. Por ello, optamos por diseñar y ensamblar nuestra propia placa soldando todo sobre una perfboard. Esto nos permitió compactar considerablemente el circuito, mantener las conexiones ordenadas y fijas, y al mismo tiempo conservar la flexibilidad para corregir fallas o reemplazar componentes sin tener que rediseñar una PCB industrial. No obstante, nuestra visión a futuro es reemplazar esta perfboard por una PCB prefabricada que permita optimizar aún más el diseño y escalar la producción. [Toca aquí para ver el proceso](<Design process/perfboard process>)
 
 ---
 
@@ -549,7 +559,7 @@ Tuvimos que decidir cómo integrar todo el circuito. Si dejábamos los component
 | Driver Puente H TB6612FNG     | 2.7–5.5 V / 15.0 V| 3 mA                     | 1.20 A (por canal)| Variable            |
 | Conversor Buck Step-Down 5V   | 6.0 – 32.0 V      | 10 – 20 mA *(quiescente) | 3.00 A (máx.)     |η ≈ 90% – 95%        |
 | Regulador Lineal LM7805       | 7.0 – 25.0 V      | 5 mA *(quiescente)*      | 1.50 A            | Variable            |
-| Capacitores (47 µF / 10 µF)   | N/A *(filtrado)*  | Pasivo (0 A)             | Pasivo            | N/A                 |
+
 
 
 <p align="right">
@@ -582,6 +592,7 @@ El Desafío Abierto requiere que el robot complete tres vueltas alrededor de la 
 El robot determina en qué dirección girar analizando las paredes detectadas a su alrededor, el algoritmo funciona de la siguiente manera:
 
 
+---
 
 ### 4.2 Reto de osbtáculos
 
@@ -603,7 +614,7 @@ El robot determina en qué dirección girar analizando las paredes detectadas a 
 
 <img src="other/recursos/Arduino_IDE_logo.webp" width="300">
 
-Al principio utilizamos Arduino IDE para programar la ESP32-S2 Mini de Eva 01 durante el primer desafío. Sin embargo, no tomamos en cuenta que la comunicación serie y la integración con la Raspberry Pi 3 Model B+ resultaría compleja bajo este enfoque.
+Al principio utilizamos Arduino IDE para programar la ESP32-S2 Mini de Eva01 durante el primer desafío. Sin embargo, no tomamos en cuenta que la comunicación serie y la integración con la Raspberry Pi 3 Model B+ resultaría compleja bajo este enfoque.
 
 La Raspberry Pi 3 B+ ejecuta un sistema operativo completo (Raspberry Pi OS) y trabaja principalmente en Python, mientras que el código compilar con Arduino IDE está escrito en C/C++ (C++ simplificado). Esta disparidad exigía implementar protocolos de comunicación serie (UART o USB-CDC) con librerías adicionales como pyserial para parsear, estructurar y sincronizar constantemente las tramas de datos entre ambos entornos.
 
@@ -651,9 +662,11 @@ El cambio a MicroPython ejecutado sobre Thonny IDE nos permite aprovechar el can
 Para limpiar el estado guardado por Arduino IDE y dejar la ESP32-S2 lista para flasheo automático, se realiza el siguiente procedimiento dentro de Thonny:
 
 1. Activación manual del Bootloader (Última vez)
+
 Poner la tarjeta en modo de descarga manual manteniendo presionado **B0**, presionando/soltando **RST** y soltando **B0**.
 
 2. Apertura del asistente de flasheo
+
 En el menú superior de Thonny, acceder a `Herramientas` > `Opciones...` > pestaña `Intérprete`. Seleccionar el intérprete **MicroPython (ESP32)** y hacer clic en el enlace inferior **Instalar o actualizar MicroPython...**.
 
 <img src="other/recursos/interprete.png" width="800">
@@ -671,7 +684,7 @@ En el menú superior de Thonny, acceder a `Herramientas` > `Opciones...` > pesta
 
 4. Hacer clic en **Instalar**.
 
-<img src="other/recursos/instalacion.png" width="800">
+<img src="other/recursos/instalacion.png" width="600">
 
 **Reinicio final**
 Al completar la barra de progreso al 100%, cerrar las ventanas emergentes, presionar el botón **RST** una sola vez para arrancar el nuevo firmware e iniciar la comunicación por la consola de MicroPython.
@@ -732,9 +745,19 @@ Al completar la barra de progreso al 100%, cerrar las ventanas emergentes, presi
 
 ## 7. 💎Archivos de modelos 3D
 
-### 7.1 Archivos STL
+### 7.1 Archivos STL originales
 
-### 7.2 Archivos modificados
+*Estos archivos son extraídos directamente del repositorio proporcionado por "alexyo132" creador de zcar.*
+
+[Toca aquí](models/zcar)
+
+---
+
+### 7.2 Archivos modificados Eva01
+
+<img src="other/recursos/stlEva01.png" width="600">
+
+[Toca aquí](models/Eva01)
 
 <p align="right">
   <a href="#top">Back To Top</a>

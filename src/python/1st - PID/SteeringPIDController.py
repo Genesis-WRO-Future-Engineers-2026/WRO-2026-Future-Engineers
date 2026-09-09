@@ -6,9 +6,9 @@ import Config
 class SteeringPIDController(PIDController):
     
     mapeo_angular = 1
-    KP_SERVO = 0.4
-    KI_SERVO = 0.3
-    KD_SERVO = 3
+    KP_SERVO = 0.2
+    KI_SERVO = 0.1
+    KD_SERVO = 0.8
     FACTOR_INFLUENCIA_LATERAL = 1 #Factor para la influencia de los sensores laterales en un rango de 0 a 1
     
     def __init__(self):
@@ -16,6 +16,8 @@ class SteeringPIDController(PIDController):
     
     
     def compute(self, distancias):
-        diff_angular = ((SteeringPIDController.FACTOR_INFLUENCIA_LATERAL * distancias[0] + (1 - SteeringPIDController.FACTOR_INFLUENCIA_LATERAL) * distancias[1])
-                        - (SteeringPIDController.FACTOR_INFLUENCIA_LATERAL * distancias[3] + (1 - SteeringPIDController.FACTOR_INFLUENCIA_LATERAL) * distancias[4])) * self.mapeo_angular
-        return max(0, min(60 - super().compute( 0, diff_angular), 120))
+        distancia_izq = min(distancias[0], Config.MAX_DISTANCIA_MURO)
+        distancia_der = min( distancias[4], Config.MAX_DISTANCIA_MURO)
+        diff_angular = ((SteeringPIDController.FACTOR_INFLUENCIA_LATERAL * distancia_izq + (1 - SteeringPIDController.FACTOR_INFLUENCIA_LATERAL) * distancias[1])
+                        - (SteeringPIDController.FACTOR_INFLUENCIA_LATERAL * distancia_der + (1 - SteeringPIDController.FACTOR_INFLUENCIA_LATERAL) * distancias[3])) * self.mapeo_angular
+        return max(Config.SERVO_RIGHT_MAX_DEG, min(Config.SERVO_CENTER_DEG - super().compute( 0, diff_angular), Config.SERVO_LEFT_MAX_DEG))

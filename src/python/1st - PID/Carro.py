@@ -35,51 +35,52 @@ class Carro():
     def set_y_coordinate(self, y):
         self.__y_coordinate = y
         
-    def recta_PID(self):
-        
-        self.sensores.read_all()
-        distancias = [self.sensores.get_all_data()[sensor].distance for sensor in range(Config.NUM_SENSORS)]
+    def recta_PID(self, distancias):
         angulo_objetivo = self.controlador_volante.compute(distancias)
         self.actuadores.set_angle_dg(angulo_objetivo)
-        if(Config.ENABLE_SERIAL):
-            self.logger.send_data(emergency=False, pwm=200,sensors=distancias, steering=0, x=0, y=0, sentido=0)
+        self.actuadores.vel_proporcional(distancias[Config.FRONT_SENSOR_INDEX])
+     
+    def cruce(self, pista):
+        angulo_cruce = pista.get_sentido() * Config.SERVO_LEFT_MAX_DEG
         
+        self.actuadores.set_angle_dg(angulo_cruce)
+        
+        tiempo_inicio = time.ticks_ms()
+        duracion = 1500
+        
+        while time.ticks_diff(time.ticks_ms(), tiempo_inicio) < duracion:
+            self.actuadores.set_speed(Config.CRUISE_SPEED)
+        
+        self.actuadores.stop()
         
         
     def resolver_pista(self, pista):
-        print("Entrando a resolver_pista...")
+        tiempo_inicio = time.ticks_ms()
+        duracion = Config.DURACION_INICIO
         
         while not pista.esta_resuelta():
-            print("Leyendo sensores...")
-            
             self.sensores.read_all()
             datos_sensores = self.sensores.get_filtered_data()
-            print(f"Lecturas: {datos_sensores}")
-                
-            self.recta_PID()
+             
+            
             
             dist_derecha = datos_sensores[4]
             dist_izquierda = datos_sensores[0]
         
-            dist_frontal = datos_sensores[Config.FRONT_SENSOR_INDEX] 
+            dist_frontal = datos_sensores[Config.FRONT_SENSOR_INDEX]
             
-            parada = dist_frontal < Config.CRITICAL_STOP_THRESHOLD        
+            parada = dist_frontal <= Config.CRITICAL_STOP_THRESHOLD
+            
+            self.recta_PID(datos_sensores)       
         
-            
-            if parada:
+            if parada and time.ticks_diff(time.ticks_ms(), tiempo_inicio) > duracion:
 
                 self.actuadores.stop()
                 pista.set_sentido(pista.SENTIDO_HORARIO if dist_derecha > dist_izquierda else pista.SENTIDO_ANTIHORARIO)
                 pista.resuelta()
                 self.set_y_coordinate(dist_izquierda)
-
-            else:
-
-                self.actuadores.set_speed(Config.CRUISE_SPEED)
       
-            self.set_x_coordinate(dist_frontal)
-        
-        
+            self.set_x_coordinate(dist_frontal)        
             
             # ============================================================================
             # MODO 2: TELEMETRÍA EN LA NUBE (Envío a Firebase)
@@ -89,4 +90,4 @@ class Carro():
                 self.logger.send_data(emergency=parada, pwm=Config.CRUISE_SPEED,sensors=[datos_sensores[sensor] for sensor in range(Config.NUM_SENSORS)], steering=0, x=self.get_x_coordinate(), y=self.get_y_coordinate(), sentido=pista.get_sentido())
             
             # Pequeña pausa de estabilidad (50ms)
-            time.sleep_ms(50)
+            time.sleep_ms(5)
