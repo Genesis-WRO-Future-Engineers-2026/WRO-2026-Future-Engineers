@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-<img width="600" alt="2afa2ad2-66f1-48aa-bc96-628adb1001fa" src="https://github.com/user-attachments/assets/f253592e-f094-4885-bef9-549df2e346e6" />
+<img src="other/recursos/fototeam.png" width="400">
     <br>
     <i>Foto del Equipo</i>
 </p>
