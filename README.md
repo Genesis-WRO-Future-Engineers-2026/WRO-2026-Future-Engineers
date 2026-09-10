@@ -682,7 +682,7 @@ Su principal ventaja es que cuenta con un soporte integrado para gestionar una a
 ---
 
 ### 5.2 Estructura del código
-
+```text
 ├── main.py                     # Punto de entrada principal
 ├── Config.py                   # Ajustes globales y parámetros de hardware
 │
@@ -702,6 +702,7 @@ Su principal ventaja es que cuenta con un soporte integrado para gestionar una a
 │
 └── 📊 CAPA DE TELEMETRÍA Y LOGS (únicamente para pruebas)
     └── Logger.py               # Conexión Wi-Fi y envío de telemetría a Firebase
+```
 
 ---
 
