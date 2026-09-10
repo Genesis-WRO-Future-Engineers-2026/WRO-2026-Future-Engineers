@@ -2,7 +2,7 @@
 
 ### Johelis Margarita Acosta
 <p align="center">
-<img src="other/recursos/johe_foto.png" width="400">
+<img src="../other/recursos/johe_foto.png" width="400">
 </p>
 <b>Edad:</b> 18 
 
@@ -14,7 +14,7 @@
 
 ### Miguel Alexander Mejías
 <p align="center">
-<img src="other/recursos/miguel_foto.jpeg" width="400">
+<img src="../other/recursos/miguel_foto.jpeg" width="400">
 </p>
 
 <b>Edad:</b> 17
@@ -29,7 +29,7 @@ SAERY
 
 ### Guillermo Jesús Fernández
 <p align="center">
-<img src="other/recursos/guillermo_foto.jpeg" width="400">
+<img src="../other/recursos/guillermo_foto.jpeg" width="400">
 </p>
 <b>edad:</b> 19
 

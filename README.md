@@ -86,6 +86,37 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
 
 ### 1.2 Imagenes de Eva01
 
+<table>
+  <tr>
+    <td align="center">
+      <b>Vista frontal</b><br>
+      <img src="other/recursos/frontal.jpg" width="300">
+    </td>
+    <td align="center">
+      <b>Vista trasera</b><br>
+      <img src="other/recursos/trasera.jpg" width="300">
+    </td>
+    <td align="center">
+      <b>Vista lateral izquierda</b><br>
+      <img src="other/recursos/izquierda.jpg" width="300">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <b>Vista lateral derecha</b><br>
+      <img src="other/recursos/derecha.jpg" width="300">
+    </td>
+  <td align="center">
+  <b>Vista desde arriba</b><br>
+  <img src="other/recursos/arriba.jpg" width="300">
+</td>
+    <td align="center">
+      <b>Vista desde abajo</b><br>
+      <img src="other/recursos/bajo.jpg" width="300">
+    </td>
+  </tr>
+</table>
+
 ---
 
 ### 1.3 Video demostrativo
@@ -591,8 +622,23 @@ El Desafío Abierto requiere que el robot complete tres vueltas alrededor de la 
 
 El robot determina en qué dirección girar analizando las paredes detectadas a su alrededor, el algoritmo funciona de la siguiente manera:
 
+Al arrancar, el robot inicia una fase breve de avance recto y alineación para estabilizar su trayectoria dentro del carril. Mientras avanza, lee continuamente sus sensores de distancia en abanico y aplica un filtro a los datos para eliminar cualquier lectura errónea o ruido mecánico.
 
----
+Con estas lecturas filtradas, el robot calcula en tiempo real la diferencia de espacio que tiene entre la pared izquierda y la pared derecha. Si se desplaza más hacia un lado, ajusta de inmediato la inclinación de sus ruedas delanteras para mantenerse siempre navegando por el centro exacto del carril. Al mismo tiempo, monitorea la distancia con la pared que tiene enfrente; a medida que la pared frontal se acerca, el robot reduce progresivamente su velocidad para aproximarse a la curva de forma controlada y sin riesgo de colisión.
+
+Durante los primeros segundos de recorrido, el robot busca identificar la primera esquina. Tan pronto como el sensor central detecta que la pared de enfrente está lo suficientemente cerca, el robot frena temporalmente y evalúa su entorno para tomar una decisión:
+
+1. Compara el espacio disponible a su derecha contra el espacio disponible a su izquierda.
+
+2. Si la distancia medida hacia el lado derecho es mayor que hacia la izquierda, el robot deduce que el camino libre continúa hacia la derecha, por lo que determina que el circuito debe recorrerse en **sentido horario**.
+
+3. De lo contrario, si encuentra más espacio libre a la izquierda, establece que el circuito se recorrerá en **sentido antihorario**.
+
+Una vez memorizado el sentido de la pista, el robot ejecuta la maniobra de giro girando sus ruedas por completo hacia la dirección seleccionada y avanzando a una velocidad constante durante el tiempo necesario para superar el vértice de la esquina. 
+
+Al terminar de dar la curva, el robot regresa automáticamente a su modo de centrado continuo, ajustando su dirección y velocidad en las rectas hasta encontrarse con las siguientes esquinas y completar con éxito las tres vueltas requeridas.
+
+[Toca aquí para ver los diagramas de flujo](<Design process/Code process>)
 
 ### 4.2 Reto de osbtáculos
 
@@ -633,8 +679,29 @@ Su principal ventaja es que cuenta con un soporte integrado para gestionar una a
 
 [Toca aquí para ver el código del primer desafío en MicroPython](src/python)
 
+---
 
 ### 5.2 Estructura del código
+
+├── main.py                     # Punto de entrada principal
+├── Config.py                   # Ajustes globales y parámetros de hardware
+│
+├── 🚗 CAPA DE CONTROL DEL VEHÍCULO
+│   └── Carro.py                # Clase principal que coordina actuadores, sensores y navegación
+│
+├── ⚙️ CAPA DE HARDWARE Y ACTUADORES
+│   ├── Actuator.py             # Control de Servo (dirección) y Puente H TB6612FNG (tracción)
+│   ├── SensorReader.py         # Gestión e inicialización de la red de 5 sensores VL53L0X
+│   └── vl53l0x.py              # Driver I2C para el sensor de distancia VL53L0X
+│
+├── 🧠 CAPA DE ALGORITMOS Y NAVEGACIÓN
+│   ├── PIDController.py        # Implementación genérica de un controlador PID
+│   ├── SteeringPIDController.py# PID enfocado en el cálculo del ángulo de dirección
+|   ├── Kalman.py               # Filtro de Kalman para fusión sensorial y reducir el ruido
+│   └── Pista.py                # Lógica del entorno (sentido de giro y estado de la pista)
+│
+└── 📊 CAPA DE TELEMETRÍA Y LOGS (únicamente para pruebas)
+    └── Logger.py               # Conexión Wi-Fi y envío de telemetría a Firebase
 
 ---
 
@@ -746,6 +813,8 @@ Al completar la barra de progreso al 100%, cerrar las ventanas emergentes, presi
 ## 7. 💎Archivos de modelos 3D
 
 ### 7.1 Archivos STL originales
+
+<img src="other/recursos/zcar.png" width="600">
 
 *Estos archivos son extraídos directamente del repositorio proporcionado por "alexyo132" creador de zcar.*
 
