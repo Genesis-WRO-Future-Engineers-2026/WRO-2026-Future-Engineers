@@ -121,7 +121,7 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
 
 ### 1.3 Video demostrativo
 
-[![Ver funcionamiento del carrito](https://youtube.com)](https://youtu.be/Bd5FpVkRgWs)
+[![Parte 1: Vídeo del reto sin obstáculos](https://youtube.com)](https://youtu.be/Bd5FpVkRgWs)
 
 [Parte 2: Vídeo del reto de obstáculos]()
 
