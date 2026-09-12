@@ -45,20 +45,26 @@ FRONT_SENSOR_INDEX = 2                        # El sensor central (0.0°) está 
 RELIABLE_RANGE = 1500         # Max trusted distance (mm)
 MIN_VALID_DISTANCE = 40       # Min trusted distance (mm)
 STOP_DISTANCE_MM = 900 # Front emergency-stop threshold (mm)
-STOP_CONFIRM_COUNT = 4
-DISTANCIA_FRENADO = 600
+STOP_CONFIRM_COUNT = 4  #Se usa?
 STARTUP_INHIBIT_MS = 700   # Tiempo de inicio
 MAX_DISTANCIA_MURO = 500
-DURACION_INICIO = 1500
 
-MIN_VALID_DISTANCE_MM = 40
+MIN_VALID_DISTANCE_MM = 10
 MAX_VALID_DISTANCE_MM = 1800
 MAX_WALL_DISTANCE_MM = 1200
 
+# ---------------- I2C / ToF ----------------
+I2C_ID = 0
+I2C_SDA_PIN = 8
+I2C_SCL_PIN = 9
+I2C_FREQ = 100000
+SENSOR_RESET_MS = 200
+SENSOR_BOOT_MS = 400
+SENSOR_RETRY_COUNT = 1
 
 # ---------------- Filtrado ----------------
 FILTER_ALPHA = 0.45       # EMA: 0..1; mayor = mas rapido, menor = mas suave
-STALE_TIMEOUT_MS = 150
+STALE_TIMEOUT_MS = 250
 
 
 # ============================================================================
@@ -69,7 +75,7 @@ SERVO_PIN = 40
 SERVO_CENTER_DEG = 75         # Ángulo para ir totalmente recto
 SERVO_RIGHT_MAX_DEG = 0       # Ángulo máximo físico a la derecha
 SERVO_LEFT_MAX_DEG = 150      # Ángulo máximo físico a la izquierda
-STRAIGHT_STEERING_LIMIT_DEG = 20
+STRAIGHT_STEERING_LIMIT_DEG = 60
 TURN_STEERING_DEG = 75
 
 # --- Motor de Tracción (TB6612FNG) ---
@@ -78,7 +84,7 @@ MOTOR_IN2_PIN = 21
 MOTOR_PWMA_PIN = 17
 
 PWM_FREQ = 20000              # 20kHz inaudible para el motor
-CRUISE_SPEED = 160            # Velocidad base de crucero (0-255)
+CRUISE_SPEED = 120            # Velocidad base de crucero (0-255)
 MIN_SPEED = 70
 
 # ============================================================================
@@ -91,9 +97,9 @@ SIN_45_DEG = 0.7071067811     # Factor trigonométrico fijo para áreas
 # ---------------- Control PID ----------------
 # El error es adimensional y normalmente esta entre -1 y +1.
 # La salida esta en grados de servo respecto al centro.
-KP_STEERING = 28.0
+KP_STEERING = 170.0
 KI_STEERING = 0.0
-KD_STEERING = 1.2
+KD_STEERING = 20
 PID_OUTPUT_LIMIT_DEG = STRAIGHT_STEERING_LIMIT_DEG
 PID_INTEGRAL_LIMIT = 0.35
 PID_DERIVATIVE_ALPHA = 0.25
@@ -101,11 +107,35 @@ PID_DERIVATIVE_ALPHA = 0.25
 # Pesos del error matematico:
 # e_y = (d_left - d_right)/(d_left + d_right)
 # e_theta = (d_left_diag - d_right_diag)/(d_left_diag + d_right_diag)
-LATERAL_WEIGHT = 1.0
-ANGLE_WEIGHT = 0.80
-
+LATERAL_WEIGHT = 1.5
+ANGLE_WEIGHT = 0.30
 # Las diagonales pierden influencia al acercarse a una esquina.
-DIAGONAL_GATE_DISTANCE_MM = 1100
+DIAGONAL_GATE_DISTANCE_MM = 1300
+
+# ============================================================
+# DETECCIÓN DE ESQUINAS
+# ============================================================
+
+# Distancia máxima del sensor frontal para considerar
+# que estamos llegando a una esquina.
+CORNER_FRONT_DISTANCE_MM = 1500
+
+# Diferencia máxima permitida entre el frontal y cada
+# diagonal cuando buscamos una esquina.
+#
+# diagonal >= frontal - holgura
+#
+CORNER_DIAGONAL_HOLGURA_MM = 600
+
+# Diferencia relativa mínima entre las diagonales.
+#
+# e = (LD - RD) / (LD + RD)
+#
+CORNER_ANGLE_ERROR = 0.2
+
+# Número de lecturas consecutivas necesarias para
+# confirmar la esquina.
+CORNER_CONFIRM_CYCLES = 3
 
 
 # --- Trayectoria Predefinida en Boxes (Waypoints en mm) ---

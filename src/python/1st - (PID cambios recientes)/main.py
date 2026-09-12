@@ -14,7 +14,6 @@ pista = Pista()
 carro.resolver_pista(pista)
 # carro.cruce(pista)
 # carro.actuadores.set_angle_dg(145)
- 
 # while True:
 #    sensor_frame = carro.sensores.read_all()
 #    distances = sensor_frame.distances
