@@ -28,7 +28,7 @@ class CornerDetector:
             and valid[Config.LEFT_DIAG]
             and valid[Config.RIGHT_DIAG]
         ):
-            print("Not valid")
+#             print("Not valid")
             self.confirm_count += 0
             return False
 
@@ -36,9 +36,9 @@ class CornerDetector:
         left_diag = distances[Config.LEFT_DIAG]
         right_diag = distances[Config.RIGHT_DIAG]
         
-        print("front :", front)
-        print("left_diag :", left_diag)
-        print("right_diag :", right_diag)
+#         print("front :", front)
+#         print("left_diag :", left_diag)
+#         print("right_diag :", right_diag)
 
 
         # --------------------------------------------
@@ -53,18 +53,18 @@ class CornerDetector:
         # Diagonales razonables respecto al frontal
         # --------------------------------------------
 
-        minimum_diagonal = max(
-            Config.MIN_VALID_DISTANCE_MM,
-            front - Config.CORNER_DIAGONAL_HOLGURA_MM
-        )
-
-        if left_diag < minimum_diagonal:
-            self.confirm_count += 0
-            return False
-
-        if right_diag < minimum_diagonal:
-            self.confirm_count += 0
-            return False
+#         minimum_diagonal = max(
+#             Config.MIN_VALID_DISTANCE_MM,
+#             front - Config.CORNER_DIAGONAL_HOLGURA_MM
+#         )
+# 
+#         if left_diag < minimum_diagonal:
+#             self.confirm_count += 0
+#             return False
+# 
+#         if right_diag < minimum_diagonal:
+#             self.confirm_count += 0
+#             return False
 
         # --------------------------------------------
         # Diferencia entre diagonales
@@ -83,14 +83,14 @@ class CornerDetector:
         # --------------------------------------------
         # Dirección conocida por Pista
         # --------------------------------------------
-        
-        print(
-            "Front: ", front,
-            "LD: ", left_diag,
-            "RD: ", right_diag,
-            "minD: ", minimum_diagonal,
-            "e angular: ", e_theta
-            )
+#         
+#         print(
+#             "Front: ", front,
+#             "LD: ", left_diag,
+#             "RD: ", right_diag,
+#             "minD: ", minimum_diagonal,
+#             "e angular: ", e_theta
+#             )
 
         sentido = self.pista.get_sentido()
 

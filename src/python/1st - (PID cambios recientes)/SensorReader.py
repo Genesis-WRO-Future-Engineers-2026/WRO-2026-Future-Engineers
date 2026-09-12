@@ -56,7 +56,7 @@ class SensorReader:
             [] for _ in range(Config.NUM_SENSORS)
         ]
 
-        self.VENTANA_FILTRO = 3
+        self.VENTANA_FILTRO = 5
 
         # Indica si el hardware del sensor fue inicializado correctamente.
         self.available = [False] * Config.NUM_SENSORS
@@ -310,7 +310,7 @@ class SensorReader:
             if value is None:
                 return None
 
-            value = int(value)
+            value = int(value) + Config.SENSOR_OFFSETS[i]
 
             # -----------------------------------------------------
             # Validación física.
@@ -322,7 +322,7 @@ class SensorReader:
             if value > Config.MAX_VALID_DISTANCE_MM:
                 return Config.MAX_VALID_DISTANCE_MM
 
-            return value
+            return value 
 
         except Exception:
 

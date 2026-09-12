@@ -127,7 +127,7 @@ class SteeringController:
             gate = Config.clamp(
                 (
                     front_distance
-                    - Config.STOP_DISTANCE_MM
+                    - Config.CORNER_FRONT_DISTANCE_MM
                 )
                 / Config.DIAGONAL_GATE_DISTANCE_MM,
                 0.0,

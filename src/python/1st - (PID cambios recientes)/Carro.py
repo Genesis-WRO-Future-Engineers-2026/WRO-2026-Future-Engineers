@@ -50,7 +50,6 @@ class Carro():
     def recta_PID(self, sensor_frame):
         angulo_objetivo = self.controlador_volante.compute_steering(sensor_frame.distances, sensor_frame.valid)
         self.actuadores.set_angle_dg(angulo_objetivo)
-        self.actuadores.set_speed(Config.CRUISE_SPEED)
      
     def cruce(self, pista):
         angulo_cruce = pista.get_sentido() * Config.SERVO_LEFT_MAX_DEG
@@ -67,22 +66,22 @@ class Carro():
         
         
     def resolver_pista(self, pista):
-        
+        self.actuadores.set_speed(Config.CRUISE_SPEED)
         while not pista.esta_resuelta():
             sensor_frame = self.sensores.read_all()
             distancias = sensor_frame.distances
-            dist_derecha = distancias[4]
-            dist_izquierda = distancias[0]
-            dist_frontal = distancias[Config.FRONT_SENSOR_INDEX]
+            
+            self.recta_PID(sensor_frame)
             
             # No detectar pared durante el arranque para evitar falsos positivos.
             startup_done = time.ticks_diff(time.ticks_ms(), self.start_ms) >= Config.STARTUP_INHIBIT_MS
             if startup_done:
-                front_candidate = self._front_stop_candidate(sensor_frame)
-    
-                self.stop_count = self.stop_count + 1 if front_candidate else 0
-        
-                if self.stop_count >= Config.STOP_CONFIRM_COUNT:
+                corner = self.controlador_volante.detect_corner(
+                    sensor_frame.distances,
+                    sensor_frame.valid
+                )
+
+                if corner:
                     self.actuadores.stop()
                     self.state = self.CONFIRM_STOP
 
@@ -93,7 +92,6 @@ class Carro():
             # ============================================================================
             # MODO 2: TELEMETRÍA EN LA NUBE (Envío a Firebase)
             # ============================================================================
-            self.recta_PID(sensor_frame)
             if(Config.ENABLE_SERIAL):
             
                 self.logger.send_data(emergency=parada, pwm=Config.CRUISE_SPEED,sensors=[distancias[sensor] for sensor in range(Config.NUM_SENSORS)], steering=0, sentido=pista.get_sentido())
