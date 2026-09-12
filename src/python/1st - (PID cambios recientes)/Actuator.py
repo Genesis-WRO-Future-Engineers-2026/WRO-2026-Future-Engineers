@@ -135,4 +135,16 @@ class Actuator:
             # 3. Convertir grados a microsegundos (0-180deg -> 1000-2000us) y pasarlo a ns
             pulse_us = _map_value(angle, 0, 180, 1000, 2000)
             self._servo.duty_ns(int(pulse_us * 1000))
+    
+    def backward(self, speed_pwm):
+        self._current_speed = speed_pwm
         
+        if self._current_speed == 0:
+            self.stop()
+            return
+        
+        self._motor_in1.value(0)
+        self._motor_in2.value(1)
+        
+        duty_10bit = min(1023, max(0, self._current_speed * 4))
+        self._motor_pwm.duty(duty_10bit)

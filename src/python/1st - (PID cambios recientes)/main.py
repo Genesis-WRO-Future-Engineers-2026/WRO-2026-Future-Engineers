@@ -3,43 +3,46 @@ from Carro import Carro
 import time
 from Pista import Pista
 
-def _fmt(value):
-    return "{:7.1f}".format(value)
+def main():
+    print("=== INICIANDO CARRO - WRO FUTUROS INGENIEROS ===")
+    
+    carro = Carro()
+    carro.begin()
+    
+    pista = Pista()
+    pista.set_sentido(Pista.SENTIDO_HORARIO)
+    pista.resuelta()
 
-carro = Carro()
-carro.begin()
-pista = Pista()
+    print("Entrando al bucle principal de carrera...")
 
-# ============================================================================
-# BUCLE DE CONTROL PRINCIPAL
-# ============================================================================
-#  
-# carro.resolver_pista(pista)
-# carro.cruce(pista)
-# carro.actuadores.set_angle_dg(90)
+    try:
+        while True:
+            # 1. Leer sensores
+            sensor_frame = carro.sensores.read_all()
 
-# ============================================================================
-# PRUEBA SENSORES
-# ============================================================================
-while True:
-   sensor_frame = carro.sensores.read_all()
-# #    carro.recta_PID(sensor_frame)
-   distances = sensor_frame.distances
-   print(
-             "L {} | LD {} | F {} | RD {} | R {}".format(
-                    distances[0],
-                    distances[1], 
-                    distances[2], 
-                    distances[3], 
-                    distances[4], 
+            # 2. Verificar emergencia diagonal con umbrales independientes
+            emergencia_activa = carro.emergencia_diagonales(sensor_frame)
+
+            # Si el carro hizo el rescate, saltamos el resto del ciclo
+            if emergencia_activa:
+                continue
+
+            # 3. Lógica normal de dirección (PID)
+            angulo_steering = carro.controlador_volante.compute_steering(
+                sensor_frame.distances, 
+                sensor_frame.valid
             )
-        )
+            
+            carro.actuadores.set_angle_dg(angulo_steering)
 
-# ============================================================================
-# PRUEBA ANGULO DE SERVO
-# ============================================================================
+            if Config.ENABLE_PWM:
+                carro.actuadores.set_speed(Config.CRUISE_SPEED)
 
-#    valid = sensor_frame.valid
-#    front = distances[Config.FRONT]
-#    print(carro.controlador_volante.compute_error(distances, valid))
+            time.sleep_ms(5)
 
+    except KeyboardInterrupt:
+        print("\nPrueba detenida manualmente. Apagando motores...")
+        carro.actuadores.stop()
+
+if __name__ == "__main__":
+    main()

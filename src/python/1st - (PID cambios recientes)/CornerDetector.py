@@ -9,7 +9,7 @@ class CornerDetector:
         self.corner_confirmed = False
 
     def reset(self):
-        self.confirm_count += 0
+        self.confirm_count = 0
         self.corner_confirmed = False
 
     def update(self, distances, valid):

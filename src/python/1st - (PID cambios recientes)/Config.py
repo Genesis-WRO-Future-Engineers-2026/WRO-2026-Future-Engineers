@@ -38,7 +38,7 @@ RIGHT = 4
 
 # Distribución y orientación física real de tus 5 sensores (Izquierda a Derecha)
 SENSOR_ANGLES = [-90.0, -45.0, 0.0, 45.0, 90.0]
-SENSOR_OFFSETS = [10, 30, -10, -25, 20]
+SENSOR_OFFSETS = [0, 0, 0, 0, 0]
 FRONT_SENSOR_INDEX = 2                        # El sensor central (0.0°) está en el índice 2
 
 # Thresholds de los sensores
@@ -46,8 +46,9 @@ FRONT_SENSOR_INDEX = 2                        # El sensor central (0.0°) está 
 # MIN_VALID_DISTANCE = 40       # Min trusted distance (mm)
 # STOP_DISTANCE_MM = 900 # Front emergency-stop threshold (mm)
 # STOP_CONFIRM_COUNT = 4  #Se usa?
-STARTUP_INHIBIT_MS = 700   # Tiempo de inicio
+STARTUP_INHIBIT_MS = 1000   # Tiempo de inicio
 MAX_DISTANCIA_MURO = 500
+TIEMPO_RECUPERACION_CRUCE = 700
 
 MIN_VALID_DISTANCE_MM = 10
 MAX_VALID_DISTANCE_MM = 1800
@@ -63,7 +64,7 @@ SENSOR_BOOT_MS = 400
 SENSOR_RETRY_COUNT = 1
 
 # ---------------- Filtrado ----------------
-FILTER_ALPHA = 0.45       # EMA: 0..1; mayor = mas rapido, menor = mas suave
+FILTER_ALPHA = 0.7      # EMA: 0..1; mayor = mas rapido, menor = mas suave
 STALE_TIMEOUT_MS = 250
 
 
@@ -74,7 +75,7 @@ STALE_TIMEOUT_MS = 250
 SERVO_PIN = 40
 SERVO_CENTER_DEG = 90         # Ángulo para ir totalmente recto
 SERVO_RIGHT_MAX_DEG = 0       # Ángulo máximo físico a la derecha
-SERVO_LEFT_MAX_DEG = 180      # Ángulo máximo físico a la izquierda
+SERVO_LEFT_MAX_DEG = 200   # Ángulo máximo físico a la izquierda
 STRAIGHT_STEERING_LIMIT_DEG = 20
 TURN_STEERING_DEG = 75
 
@@ -84,8 +85,8 @@ MOTOR_IN2_PIN = 21
 MOTOR_PWMA_PIN = 17
 
 PWM_FREQ = 20000              # 20kHz inaudible para el motor
-CRUISE_SPEED = 90            # Velocidad base de crucero (0-255)
-MIN_SPEED = 70
+CRUISE_SPEED = 170         # Velocidad base de crucero (0-255)
+MIN_SPEED = 110
 
 # ============================================================================
 # CONSTANTES MATEMÁTICAS
@@ -108,17 +109,23 @@ PID_DERIVATIVE_ALPHA = 0.25
 # e_y = (d_left - d_right)/(d_left + d_right)
 # e_theta = (d_left_diag - d_right_diag)/(d_left_diag + d_right_diag)
 LATERAL_WEIGHT = 1.5
-ANGLE_WEIGHT = 0.0
+ANGLE_WEIGHT = 0
 # Las diagonales pierden influencia al acercarse a una esquina.
-DIAGONAL_GATE_DISTANCE_MM = 1200
+DIAGONAL_GATE_DISTANCE_MM = 900
 
 # ============================================================
 # DETECCIÓN DE ESQUINAS
 # ============================================================
 
-# Distancia máxima del sensor frontal para considerar
-# que estamos llegando a una esquina.
-CORNER_FRONT_DISTANCE_MM = 1600
+# ============================================================
+# EMPUJONCITO
+# ============================================================
+CORNER_FRONT_DISTANCE_MM = 400
+DISTANCIA_MINIMA_CRUCE_MM = 380
+FACTOR_EMPUJONCITO_MS = 1
+DURACION_CRUCE = 600
+DISTANCIA_REDUCCION_VELOCIDAD = 300
+
 
 # Diferencia máxima permitida entre el frontal y cada
 # diagonal cuando buscamos una esquina.
@@ -135,7 +142,7 @@ CORNER_ANGLE_ERROR = 0
 
 # Número de lecturas consecutivas necesarias para
 # confirmar la esquina.
-CORNER_CONFIRM_CYCLES = 4
+CORNER_CONFIRM_CYCLES = 2
 
 
 # --- Trayectoria Predefinida en Boxes (Waypoints en mm) ---

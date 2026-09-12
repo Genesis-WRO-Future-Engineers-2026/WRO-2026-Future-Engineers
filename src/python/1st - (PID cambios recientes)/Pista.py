@@ -6,7 +6,8 @@ class Pista:
 
     ANCHO = 3000
     LARGO = 3000
-
+    
+    ESQUINAS_TOTAL = 12
     # Instancia única
     __instance = None
 
@@ -26,6 +27,8 @@ class Pista:
         self.__sentido = Pista.SENTIDO_INDETERMINADO
 
         self._inicializada = True
+        
+        self.conteo_esquinas = 0
 
     # =========================================================
     # GRUPO DE MÉTODOS 1
@@ -43,7 +46,12 @@ class Pista:
 
     def set_sentido(self, sentido):
         self.__sentido = sentido
-
+        
+    def get_esquinas_recorridas(self):
+        return self.conteo_esquinas
+    
+    def marcar_esquina(self):
+        self.conteo_esquinas = self.conteo_esquinas + 1
     # =========================================================
     # GRUPO DE MÉTODOS 2
     # Compatibilidad con código viejo
