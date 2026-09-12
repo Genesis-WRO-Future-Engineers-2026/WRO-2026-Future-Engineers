@@ -122,6 +122,7 @@ Todo este proceso de desarrollo ha estado respaldado por una documentación deta
 ### 1.3 Video demostrativo
 
 [Parte 1: Vídeo del reto abierto]()
+<a href="https://youtu.be/Bd5FpVkRgWs">Video en Youtube</a>
 
 [Parte 2: Vídeo del reto de obstáculos]()
 
